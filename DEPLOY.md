@@ -43,24 +43,38 @@ En hPanel:
 > El tema de WordPress da igual: el cliente nunca lo ve. El frontend es el HTML
 > de este repo.
 
-## Paso 2 — Migrar los productos desde LocalWP
+### Ajustes de WordPress en Hostinger
 
-No hace falta mover los 385 MB del sitio local: los plugins se reinstalan y el
-tema no se usa. Los datos reales son los productos y las imagenes.
+- `Ajustes → Enlaces permanentes` → **Nombre de la entrada**. Con "Simple" la
+  ruta `/wp-json/` no funciona y la API devuelve 404.
+- Si esta activo **LiteSpeed Cache**, dejá sin tildar "Cachear REST API"
+  (el Worker ya cachea 5 minutos).
+- Probá que la API responde abriendo `https://tienda.tudominio.com/wp-json/`
+  (tiene que mostrar JSON). Mientras no haya dominio sirve el dominio temporal
+  de Hostinger (`*.hostingersite.com`), siempre con **https**.
 
-**En LocalWP** (arranca el sitio `lupaecoart`):
+## Paso 2 — Configurar la tienda
 
-1. `WooCommerce → Productos → Exportar` → *Generar CSV* (exporta todas las columnas).
-2. `wp-content/uploads/` → comprimi la carpeta (son ~1.9 MB).
+1. `WooCommerce → Ajustes → General`: moneda **UYU**, país Uruguay.
+2. `Productos → Categorías`: crear estas categorías con el **slug exacto**
+   (el frontend filtra por slug):
 
-**En Hostinger:**
+   | Nombre | Slug |
+   |---|---|
+   | Cuadros | `cuadros` |
+   | Cerámica | `ceramica` |
+   | Macramé | `macrame` |
+   | Velas & Aromas | `velas` |
+   | Decoración | `decoracion` |
 
-3. Subi el contenido de `uploads/` por el Administrador de archivos a
-   `public_html/tienda/wp-content/uploads/` respetando la estructura `2025/08/…`.
-4. `WooCommerce → Productos → Importar` → subi el CSV.
-5. Instala y configura **WooCommerce PayPal Payments** con las credenciales de
-   tu cuenta PayPal Business.
-6. Revisa `WooCommerce → Ajustes → General`: moneda **UYU**, pais Uruguay.
+3. `Productos → Atributos`: crear el atributo **Medida** (lo usan los productos
+   que se venden en varios tamaños).
+4. `Usuarios → Añadir nuevo`: crear el usuario del cliente con rol
+   **Gestor de tienda** (carga productos y stock sin acceso a plugins).
+5. Cargar 2 o 3 productos de prueba con foto, precio y categoría. Marcar alguno
+   con ⭐ **Destacado** para que aparezca en el inicio.
+6. Pagos: instalar **Mercado Pago** o **WooCommerce PayPal Payments** cuando el
+   checkout se conecte (ver *Pendiente de desarrollo*).
 
 ## Paso 3 — Crear la API key de lectura
 
@@ -152,16 +166,18 @@ No hace falta darle a nadie credenciales FTP.
 
 ## Checklist
 
-- [ ] WordPress instalado en `tienda.tudominio.com` con SSL
+- [ ] WordPress instalado en Hostinger con SSL
+- [ ] Enlaces permanentes en "Nombre de la entrada" y `/wp-json/` responde JSON
 - [ ] WooCommerce instalado y moneda en UYU
-- [ ] Productos importados por CSV + imagenes subidas
-- [ ] PayPal configurado
+- [ ] Categorías creadas con los slugs `cuadros`, `ceramica`, `macrame`, `velas`, `decoracion`
+- [ ] Atributo **Medida** creado
+- [ ] Usuario del cliente con rol **Gestor de tienda**
+- [ ] Productos de prueba cargados (alguno destacado)
 - [ ] API key de **lectura** creada
 - [ ] Worker deployado con los 4 secrets
 - [ ] `curl` al Worker devuelve JSON de productos
-- [ ] `PROXY_URL` actualizado en `js/config.js` y pusheado
+- [ ] `PROXY_URL` actualizado en `js/config.js` y pusheado (apaga el modo boceto)
 - [ ] `ALLOWED_ORIGINS` incluye el dominio real del frontend
-- [ ] Keys viejas de LocalWP **revocadas** en WooCommerce
 
 ## Pendiente de desarrollo
 
