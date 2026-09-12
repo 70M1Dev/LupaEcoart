@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lupa Ecoart - Producto</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
+                    },
+                    colors: {
+                        primary: {
+                            50: '#F7F2FB', 100: '#EDE3F5', 200: '#D9C6EB',
+                            300: '#B996D6', 400: '#8F5DB9', 500: '#6B3896',
+                            600: '#522077', 700: '#3D1260', 800: '#2C0847',
+                            900: '#1B042D'
+                        },
+                        accent: '#5A0B4D',
+                        iris: '#1F1450'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-black font-sans antialiased">
+
+    <!-- ================= NAVBAR DESKTOP ================= -->
+    <nav id="navbar-scroll"
+         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-800/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+            <div class="relative">
+                <input type="text"
+                       id="search-input"
+                       placeholder="Buscar obras y objetos..."
+                       class="w-full pl-10 pr-4 py-2 bg-primary-700 text-white placeholder-primary-200 border border-primary-600 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-primary-200"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between px-6 py-3 relative">
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="index.html" class="hidden xl:flex items-center gap-2 mr-4 text-white">
+                    <img src="assets/logo.svg" alt="" class="h-8 w-8">
+                    <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
+                </a>
+                <a href="index.html" class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                    Inicio
+                </a>
+                <a href="productos.html" class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                    Catálogo
+                </a>
+            </div>
+            <div class="w-10 flex-shrink-0"></div>
+            <a href="carrito.html" class="relative p-2 hover:bg-primary-700 rounded-full transition flex-shrink-0 block" aria-label="Carrito">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+                </svg>
+                <span id="cart-count-nav" class="absolute -top-0.5 -right-0.5 bg-white text-primary-800 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ================= BOTÓN HAMBURGUESA MOBILE ================= -->
+    <button id="menu-toggle"
+            class="md:hidden fixed top-4 right-4 bg-primary-800/90 backdrop-blur-sm text-white p-2 rounded-full transition z-50" aria-label="Menú">
+        <svg id="icon-hamburger" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+
+    <!-- ================= BREADCRUMB ================= -->
+    <div class="container mx-auto px-4 pt-20 md:pt-24 pb-6">
+        <nav class="text-sm text-neutral-500 flex items-center gap-2 flex-wrap">
+            <a href="index.html" class="hover:text-primary-800">Inicio</a>
+            <span>›</span>
+            <a href="productos.html" class="hover:text-primary-800">Catálogo</a>
+            <span>›</span>
+            <span class="text-primary-800 font-medium" id="breadcrumb-category">…</span>
+        </nav>
+    </div>
+
+    <!-- ================= PRODUCTO ================= -->
+    <div class="container mx-auto px-4 pb-16">
+        <div id="product-detail" class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14">
+
+            <!-- ================= GALERÍA ================= -->
+            <div class="md:sticky md:top-24 md:self-start">
+
+                <!-- Imagen principal -->
+                <div class="relative bg-primary-50 rounded-3xl overflow-hidden mb-4 group">
+                    <div id="gallery-main" class="overflow-hidden">
+                        <div id="gallery-track" class="flex transition-transform duration-500 ease-out">
+                            <!-- Las imágenes se cargan con JS -->
+                        </div>
+                    </div>
+
+                    <!-- Flechas navegación desktop -->
+                    <button id="prev-btn"
+                            class="hidden md:flex absolute top-1/2 left-3 -translate-y-1/2 bg-white/90 hover:bg-white text-primary-800 w-10 h-10 rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition" aria-label="Anterior">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <button id="next-btn"
+                            class="hidden md:flex absolute top-1/2 right-3 -translate-y-1/2 bg-white/90 hover:bg-white text-primary-800 w-10 h-10 rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition" aria-label="Siguiente">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+
+                    <!-- Indicadores (puntitos) -->
+                    <div id="gallery-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                        <!-- Se generan con JS -->
+                    </div>
+
+                    <!-- Badge -->
+                    <span id="product-badge" class="absolute top-4 left-4 bg-accent text-white text-xs font-semibold px-3 py-1 rounded-full hidden">
+                        -20%
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- ================= INFO DEL PRODUCTO ================= -->
+            <div>
+
+                <!-- Categoría -->
+                <p class="text-xs text-primary-500 uppercase tracking-widest font-medium mb-2" id="product-category">
+                    …
+                </p>
+
+                <!-- Título -->
+                <h1 class="text-3xl md:text-4xl font-semibold leading-tight mb-3 text-black" id="product-name">
+                    Cargando...
+                </h1>
+
+                <!-- Rating -->
+                <div class="flex items-center gap-2 mb-5">
+                    <div class="flex text-primary-500">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span class="text-primary-100">★</span>
+                    </div>
+                    <span class="text-sm text-neutral-500">(4.0) · 23 reseñas</span>
+                </div>
+
+                <!-- Precio -->
+                <div class="flex items-baseline gap-3 mb-2">
+                    <span class="text-4xl font-bold text-black" id="product-price">$0</span>
+                    <span class="text-xl text-neutral-400 line-through hidden" id="product-original-price">$0</span>
+                    <span class="bg-accent text-white text-xs font-semibold px-2.5 py-1 rounded-full hidden" id="product-discount">-20%</span>
+                </div>
+
+                <!-- Cuotas -->
+                <p class="text-sm text-neutral-600 mb-6">
+                    O en <span class="font-semibold text-black">3 cuotas sin interés de <span id="product-installment">$ 0</span></span>
+                </p>
+
+                <!-- Descripción -->
+                <div class="mb-6 pb-6 border-b border-primary-100">
+                    <div class="text-neutral-700 leading-relaxed" id="product-description">
+                        Cargando descripción...
+                    </div>
+                </div>
+
+                <!-- Medidas -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold text-sm uppercase tracking-wider">Medida</h3>
+                        <button class="text-sm text-primary-600 hover:text-primary-800 underline">
+                            Guía de medidas
+                        </button>
+                    </div>
+                    <div id="size-selector" class="grid grid-cols-4 gap-2">
+                        <!-- Se generan con JS -->
+                    </div>
+                    <p id="size-error" class="text-red-600 text-sm mt-2 hidden">
+                        Por favor seleccioná una medida
+                    </p>
+                </div>
+
+                <!-- Terminación (opcional) -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-sm uppercase tracking-wider mb-3">Terminación</h3>
+                    <div class="flex gap-3">
+                        <button class="w-10 h-10 rounded-full bg-[#C8A27A] border-2 border-primary-100 hover:border-primary-800 transition" title="Natural"></button>
+                        <button class="w-10 h-10 rounded-full bg-white border-2 border-primary-100 hover:border-primary-800 transition" title="Blanco"></button>
+                        <button class="w-10 h-10 rounded-full bg-primary-800 border-2 border-primary-100 hover:border-primary-400 transition" title="Violeta"></button>
+                    </div>
+                </div>
+
+                <!-- Cantidad -->
+                <div class="mb-8">
+                    <h3 class="font-semibold text-sm uppercase tracking-wider mb-3">Cantidad</h3>
+                    <div class="flex items-center gap-3">
+                        <button id="qty-minus" class="w-10 h-10 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition">−</button>
+                        <input type="number" id="quantity" value="1" min="1" max="10"
+                               class="w-16 h-10 text-center border border-primary-100 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-primary-400">
+                        <button id="qty-plus" class="w-10 h-10 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition">+</button>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                    <button id="add-to-cart-btn"
+                            class="flex-1 border-2 border-primary-800 text-primary-800 hover:bg-primary-50 font-semibold py-4 rounded-full transition flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+                        </svg>
+                        Añadir al carrito
+                    </button>
+                    <button id="buy-now-btn"
+                            class="flex-1 bg-primary-800 hover:bg-primary-600 text-white font-semibold py-4 rounded-full transition">
+                        Comprar ahora
+                    </button>
+                </div>
+
+                <!-- Envío -->
+                <div class="bg-white rounded-2xl p-4 mb-4 border border-primary-100">
+                    <div class="flex items-start gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                        </svg>
+                        <div>
+                            <p class="font-semibold text-sm">Envío gratis desde $ 3.000</p>
+                            <p class="text-sm text-neutral-600">Llega en 3-5 días hábiles, embalado con materiales reciclados</p>
+                            <button class="text-sm text-primary-700 underline mt-1">Calcular envío</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Beneficios -->
+                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div class="bg-primary-50 rounded-2xl p-3">
+                        <svg class="w-6 h-6 mx-auto mb-1 text-primary-800" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                        <p class="font-medium">Pago seguro</p>
+                    </div>
+                    <div class="bg-primary-50 rounded-2xl p-3">
+                        <svg class="w-6 h-6 mx-auto mb-1 text-primary-800" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+                        <p class="font-medium">Pieza única</p>
+                    </div>
+                    <div class="bg-primary-50 rounded-2xl p-3">
+                        <svg class="w-6 h-6 mx-auto mb-1 text-primary-800" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                        <p class="font-medium">Material recuperado</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= PRODUCTOS RELACIONADOS ================= -->
+        <section class="mt-20">
+            <h2 class="text-2xl font-semibold mb-6 text-black">También te puede interesar</h2>
+            <div id="related-products" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Se cargan con JS -->
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ================= DRAWER MOBILE ================= -->
+    <div id="drawer-overlay" class="fixed inset-0 bg-primary-900/60 z-40 hidden opacity-0 transition-opacity"></div>
+    <div id="drawer" class="fixed top-0 right-0 h-full w-72 bg-primary-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden overflow-y-auto">
+        <div class="bg-primary-900 text-white p-6 sticky top-0 z-10">
+            <h2 class="text-xl font-light">Lupa <span class="font-semibold">Ecoart</span></h2>
+        </div>
+        <div class="p-4">
+            <a href="index.html" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">
+                <span class="font-medium">Inicio</span>
+            </a>
+            <a href="productos.html" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">
+                <span class="font-medium">Catálogo</span>
+            </a>
+            <a href="carrito.html" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">
+                <span class="font-medium">Carrito</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ================= SCRIPTS ================= -->
+    <script src="js/config.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/producto.js"></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lupa Ecoart - Carrito</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
+                    },
+                    colors: {
+                        primary: {
+                            50: '#F7F2FB', 100: '#EDE3F5', 200: '#D9C6EB',
+                            300: '#B996D6', 400: '#8F5DB9', 500: '#6B3896',
+                            600: '#522077', 700: '#3D1260', 800: '#2C0847',
+                            900: '#1B042D'
+                        },
+                        accent: '#5A0B4D',
+                        iris: '#1F1450'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-black font-sans antialiased">
+
+    <!-- ================= NAVBAR DESKTOP ================= -->
+    <nav id="navbar-scroll"
+         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-800/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+            <div class="relative">
+                <input type="text"
+                       id="search-input"
+                       placeholder="Buscar obras y objetos..."
+                       class="w-full pl-10 pr-4 py-2 bg-primary-700 text-white placeholder-primary-200 border border-primary-600 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-primary-200"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between px-6 py-3 relative">
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="index.html" class="hidden xl:flex items-center gap-2 mr-4 text-white">
+                    <img src="assets/logo.svg" alt="" class="h-8 w-8">
+                    <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
+                </a>
+                <a href="index.html" class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                    Inicio
+                </a>
+                <a href="productos.html" class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                    Catálogo
+                </a>
+            </div>
+            <div class="w-10 flex-shrink-0"></div>
+            <a href="carrito.html" class="relative p-2 bg-primary-600 text-white rounded-full transition flex-shrink-0" aria-label="Carrito">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+                </svg>
+                <span id="cart-count-nav" class="absolute -top-0.5 -right-0.5 bg-white text-primary-800 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Botón hamburguesa mobile -->
+    <button id="menu-toggle" class="md:hidden fixed top-4 right-4 bg-primary-800/90 backdrop-blur-sm text-white p-2 rounded-full transition z-50" aria-label="Menú">
+        <svg id="icon-hamburger" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+
+    <!-- ================= HEADER ================= -->
+    <section class="bg-primary-800 text-white pt-20 md:pt-28 pb-10 relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-accent/50 blur-3xl"></div>
+        <div class="container mx-auto px-4 relative">
+            <h1 class="text-3xl md:text-5xl font-light">Tu <span class="font-semibold">carrito</span></h1>
+            <p class="text-primary-200 mt-2" id="cart-subtitle">0 productos en tu carrito</p>
+        </div>
+    </section>
+
+    <!-- ================= CONTENIDO ================= -->
+    <div class="container mx-auto px-4 py-10">
+
+        <!-- Carrito vacío -->
+        <div id="empty-cart" class="hidden text-center py-16">
+            <div class="w-20 h-20 mx-auto mb-5 rounded-full bg-primary-50 text-primary-800 flex items-center justify-center">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/></svg>
+            </div>
+            <h2 class="text-2xl font-semibold mb-2 text-black">Tu carrito está vacío</h2>
+            <p class="text-neutral-600 mb-6">Descubrí piezas únicas hechas a mano</p>
+            <a href="productos.html" class="inline-block bg-primary-800 text-white font-semibold px-8 py-3 rounded-full hover:bg-primary-600 transition">
+                Ver colección
+            </a>
+        </div>
+
+        <!-- Carrito con productos -->
+        <div id="cart-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Lista de productos -->
+            <div class="lg:col-span-2">
+                <div id="cart-items"></div>
+
+                <!-- Cupón -->
+                <div class="bg-primary-50 rounded-2xl p-5 mt-6">
+                    <h3 class="font-semibold mb-3 text-black">¿Tenés un cupón de descuento?</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="coupon-input" placeholder="Ingresá tu código"
+                               class="flex-1 min-w-0 px-4 py-2 bg-white border border-primary-100 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-400">
+                        <button id="apply-coupon" class="bg-primary-800 hover:bg-primary-600 text-white px-6 py-2 rounded-full font-semibold transition">
+                            Aplicar
+                        </button>
+                    </div>
+                    <p id="coupon-message" class="text-sm mt-2 hidden"></p>
+                </div>
+
+                <!-- Seguir comprando -->
+                <a href="productos.html" class="inline-flex items-center gap-2 text-primary-700 hover:text-primary-900 font-medium mt-6">
+                    ← Seguir comprando
+                </a>
+            </div>
+
+            <!-- Resumen -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white rounded-2xl border border-primary-100 shadow-sm p-6 sticky top-24">
+                    <h2 class="text-xl font-semibold mb-6 pb-4 border-b border-primary-100 text-black">Resumen del pedido</h2>
+
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-neutral-600">Subtotal</span>
+                            <span class="font-semibold" id="subtotal">$0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-neutral-600">Envío</span>
+                            <span class="font-semibold text-primary-600" id="shipping">Gratis</span>
+                        </div>
+                        <div id="discount-row" class="flex justify-between hidden">
+                            <span class="text-neutral-600">Descuento</span>
+                            <span class="font-semibold text-primary-600" id="discount">-$0</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t border-primary-100 mb-6">
+                        <span class="text-lg font-semibold">Total</span>
+                        <span class="text-2xl font-bold text-black" id="total">$0</span>
+                    </div>
+
+                    <button id="checkout-btn" class="w-full bg-primary-800 hover:bg-primary-600 text-white font-semibold py-4 rounded-full transition mb-4">
+                        Proceder al pago
+                    </button>
+
+                    <div class="text-center text-xs text-neutral-500 space-y-1">
+                        <p>Pago 100% seguro</p>
+                        <p>Envío gratis en compras desde $ 3.000</p>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+
+    <!-- ================= DRAWER MOBILE ================= -->
+    <div id="drawer-overlay" class="fixed inset-0 bg-primary-900/60 z-40 hidden opacity-0 transition-opacity"></div>
+    <div id="drawer" class="fixed top-0 right-0 h-full w-72 bg-primary-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden overflow-y-auto">
+        <div class="bg-primary-900 text-white p-6 sticky top-0 z-10">
+            <h2 class="text-xl font-light">Lupa <span class="font-semibold">Ecoart</span></h2>
+        </div>
+        <div class="p-4">
+            <a href="index.html" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">
+                <span class="font-medium">Inicio</span>
+            </a>
+            <a href="productos.html" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">
+                <span class="font-medium">Catálogo</span>
+            </a>
+            <a href="carrito.html" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">
+                <span class="font-medium">Carrito</span>
+            </a>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/carrito.js"></script>
+</body>
+</html>

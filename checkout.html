@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lupa Ecoart - Checkout</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
+                    },
+                    colors: {
+                        primary: {
+                            50: '#F7F2FB', 100: '#EDE3F5', 200: '#D9C6EB',
+                            300: '#B996D6', 400: '#8F5DB9', 500: '#6B3896',
+                            600: '#522077', 700: '#3D1260', 800: '#2C0847',
+                            900: '#1B042D'
+                        },
+                        accent: '#5A0B4D',
+                        iris: '#1F1450'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .field { width: 100%; padding: .75rem 1rem; border: 1px solid #EDE3F5; border-radius: .75rem; background: #fff; }
+        .field:focus { outline: none; box-shadow: 0 0 0 2px #8F5DB9; }
+    </style>
+</head>
+<body class="bg-white text-black font-sans antialiased">
+
+    <!-- ================= NAVBAR SIMPLE ================= -->
+    <nav class="fixed top-0 left-0 right-0 bg-primary-800 shadow-lg z-50">
+        <div class="flex items-center justify-between px-6 py-3">
+            <a href="index.html" class="flex items-center gap-2 text-white">
+                <img src="assets/logo.svg" alt="" class="h-7 w-7">
+                <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
+            </a>
+            <a href="carrito.html" class="text-white text-sm hover:underline">← Volver al carrito</a>
+        </div>
+    </nav>
+
+    <!-- ================= PASOS ================= -->
+    <section class="bg-primary-800 text-white pt-20 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-center gap-2 md:gap-4 text-sm md:text-base">
+                <div class="flex items-center gap-2 opacity-60">
+                    <span class="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold">1</span>
+                    <span class="hidden md:inline">Carrito</span>
+                </div>
+                <span class="opacity-50">›</span>
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-white text-primary-800 flex items-center justify-center font-bold">2</span>
+                    <span class="font-semibold">Checkout</span>
+                </div>
+                <span class="opacity-50">›</span>
+                <div class="flex items-center gap-2 opacity-60">
+                    <span class="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold">3</span>
+                    <span class="hidden md:inline">Confirmación</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= CHECKOUT ================= -->
+    <div class="container mx-auto px-4 py-10">
+        <h1 class="text-3xl font-semibold mb-8 text-black">Finalizar compra</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Formularios -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Contacto -->
+                <div class="bg-white rounded-2xl border border-primary-100 p-6">
+                    <h2 class="text-xl font-semibold mb-4">Información de contacto</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Email *</label>
+                            <input type="email" id="email" required placeholder="tu@email.com" class="field">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Teléfono *</label>
+                            <input type="tel" id="phone" required placeholder="+598 99 123 456" class="field">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Envío -->
+                <div class="bg-white rounded-2xl border border-primary-100 p-6">
+                    <h2 class="text-xl font-semibold mb-4">Dirección de envío</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Nombre *</label>
+                            <input type="text" id="first-name" required class="field">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Apellido *</label>
+                            <input type="text" id="last-name" required class="field">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-2">Cédula / RUT *</label>
+                            <input type="text" id="dni" required placeholder="Sin puntos ni guiones" class="field">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-2">Calle y número *</label>
+                            <input type="text" id="address" required placeholder="Av. 18 de Julio 1234" class="field">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Apto / Casa</label>
+                            <input type="text" id="apartment" class="field">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Código postal *</label>
+                            <input type="text" id="zipcode" required class="field">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Departamento *</label>
+                            <select id="state" required class="field">
+                                <option value="">Seleccioná...</option>
+                                <option>Artigas</option>
+                                <option>Canelones</option>
+                                <option>Cerro Largo</option>
+                                <option>Colonia</option>
+                                <option>Durazno</option>
+                                <option>Flores</option>
+                                <option>Florida</option>
+                                <option>Lavalleja</option>
+                                <option>Maldonado</option>
+                                <option>Montevideo</option>
+                                <option>Paysandú</option>
+                                <option>Río Negro</option>
+                                <option>Rivera</option>
+                                <option>Rocha</option>
+                                <option>Salto</option>
+                                <option>San José</option>
+                                <option>Soriano</option>
+                                <option>Tacuarembó</option>
+                                <option>Treinta y Tres</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Ciudad *</label>
+                            <input type="text" id="city" required class="field">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-2">Notas para el envío (opcional)</label>
+                            <textarea id="notes" rows="2" placeholder="Ej: Tocar timbre 2B" class="field"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pago -->
+                <div class="bg-white rounded-2xl border border-primary-100 p-6">
+                    <h2 class="text-xl font-semibold mb-4">Método de pago</h2>
+
+                    <div class="space-y-3">
+                        <label class="flex items-start gap-3 p-4 border-2 border-primary-100 rounded-2xl cursor-pointer hover:border-primary-800 transition payment-option">
+                            <input type="radio" name="payment" value="mercadopago" checked class="mt-1 accent-primary-800">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold">Mercado Pago</span>
+                                    <span class="bg-primary-800 text-white text-xs px-2 py-0.5 rounded-full">Recomendado</span>
+                                </div>
+                                <p class="text-sm text-neutral-600 mt-1">Tarjeta de crédito, débito o dinero en cuenta</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-4 border-2 border-primary-100 rounded-2xl cursor-pointer hover:border-primary-800 transition payment-option">
+                            <input type="radio" name="payment" value="transfer" class="mt-1 accent-primary-800">
+                            <div class="flex-1">
+                                <span class="font-semibold">Transferencia bancaria</span>
+                                <p class="text-sm text-neutral-600 mt-1">10% de descuento adicional</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-4 border-2 border-primary-100 rounded-2xl cursor-pointer hover:border-primary-800 transition payment-option">
+                            <input type="radio" name="payment" value="cash" class="mt-1 accent-primary-800">
+                            <div class="flex-1">
+                                <span class="font-semibold">Efectivo (Abitab / Redpagos)</span>
+                                <p class="text-sm text-neutral-600 mt-1">Generás un cupón y pagás en cualquier local</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white rounded-2xl border border-primary-100 shadow-sm p-6 sticky top-24">
+                    <h2 class="text-xl font-semibold mb-6 pb-4 border-b border-primary-100">Tu pedido</h2>
+
+                    <!-- Productos -->
+                    <div id="checkout-items" class="space-y-4 mb-6 max-h-64 overflow-y-auto">
+                        <!-- Se carga con JS -->
+                    </div>
+
+                    <!-- Totales -->
+                    <div class="space-y-3 mb-6 pt-4 border-t border-primary-100">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-neutral-600">Subtotal</span>
+                            <span class="font-semibold" id="checkout-subtotal">$0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-neutral-600">Envío</span>
+                            <span class="font-semibold" id="checkout-shipping">Gratis</span>
+                        </div>
+                        <div id="checkout-discount-row" class="flex justify-between text-sm hidden">
+                            <span class="text-neutral-600">Descuento</span>
+                            <span class="font-semibold text-primary-600" id="checkout-discount">-$0</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t border-primary-100 mb-6">
+                        <span class="text-lg font-semibold">Total</span>
+                        <span class="text-2xl font-bold text-black" id="checkout-total">$0</span>
+                    </div>
+
+                    <button id="place-order-btn"
+                            class="w-full bg-primary-800 hover:bg-primary-600 text-white font-semibold py-4 rounded-full transition mb-6">
+                        Confirmar y pagar
+                    </button>
+
+                    <div class="text-center text-xs text-neutral-500 space-y-1">
+                        <p>Pago 100% seguro</p>
+                        <p>Envío gratis en compras desde $ 3.000</p>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+
+    <!-- ================= SCRIPTS ================= -->
+    <script src="js/config.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/checkout.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+# ==========================================
+# Cloudflare Worker — Proxy de la WooCommerce API
+# ==========================================
+name = "lupaecoart-wc-proxy"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# Publica el Worker en https://lupaecoart-wc-proxy.<subdominio>.workers.dev
+# Alcanza para arrancar sin dominio propio.
+workers_dev = true
+
+# Cuando el dominio este en Cloudflare, descomenta esto para servir el proxy
+# en api.lupaecoart.com y despues actualiza PROXY_URL en js/config.js.
+# [[routes]]
+# pattern = "api.lupaecoart.com"
+# custom_domain = true
+
+# ==========================================
+# SECRETS — NO van en este archivo
+# ==========================================
+# Se cargan encriptados en Cloudflare con:
+#
+#   wrangler secret put WC_BASE_URL        # https://tienda.lupaecoart.com  (sin barra final)
+#   wrangler secret put WC_CONSUMER_KEY    # ck_...
+#   wrangler secret put WC_CONSUMER_SECRET # cs_...
+#   wrangler secret put ALLOWED_ORIGINS    # https://70m1dev.github.io,https://lupaecoart.com
+#
+# ALLOWED_ORIGINS es la lista de dominios del frontend separados por coma.
+# Si queda vacia, el Worker responde a cualquier origen (util solo para probar).

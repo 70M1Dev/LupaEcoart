@@ -1,0 +1,21 @@
+# Configuración local (sobrescribe para desarrollo — contiene credenciales)
+js/config.local.js
+
+# WordPress / WooCommerce
+*.log
+debug.log
+wp-content/debug.log
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.cache/
+.vscode/
+.idea/
+
+# Build artifacts
+dist/
+node_modules/

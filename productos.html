@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lupa Ecoart - Catálogo</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
+                    },
+                    colors: {
+                        primary: {
+                            50: '#F7F2FB',
+                            100: '#EDE3F5',
+                            200: '#D9C6EB',
+                            300: '#B996D6',
+                            400: '#8F5DB9',
+                            500: '#6B3896',
+                            600: '#522077',
+                            700: '#3D1260',
+                            800: '#2C0847',
+                            900: '#1B042D'
+                        },
+                        accent: '#5A0B4D',
+                        iris: '#1F1450'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-black font-sans antialiased">
+
+       <!-- ================= NAVBAR DESKTOP ================= -->
+    <nav id="navbar-scroll"
+         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-800/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+
+        <!-- Buscador centrado absoluto -->
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+            <div class="relative">
+                <input type="text"
+                       id="search-input"
+                       placeholder="Buscar obras y objetos..."
+                       class="w-full pl-10 pr-4 py-2 bg-primary-700 text-white placeholder-primary-200 border border-primary-600 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-primary-200"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Contenedor flex normal -->
+        <div class="flex items-center justify-between px-6 py-3 relative">
+
+            <!-- Marca + navegación (izquierda) -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="index.html" class="hidden xl:flex items-center gap-2 mr-4 text-white">
+                    <img src="assets/logo.svg" alt="" class="h-8 w-8">
+                    <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
+                </a>
+                <a href="index.html"
+                   class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                    Inicio
+                </a>
+                <a href="productos.html"
+                   class="px-4 py-2 rounded-full bg-primary-600 text-white font-medium transition whitespace-nowrap">
+                    Catálogo
+                </a>
+            </div>
+
+            <!-- Spacer invisible para que el carrito se mantenga a la derecha -->
+            <div class="w-10 flex-shrink-0"></div>
+
+            <!-- Carrito (derecha) -->
+            <a href="carrito.html" class="relative p-2 hover:bg-primary-700 rounded-full transition flex-shrink-0 block" aria-label="Carrito">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+                </svg>
+                <span id="cart-count-nav" class="absolute -top-0.5 -right-0.5 bg-white text-primary-800 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    0
+                </span>
+            </a>
+
+        </div>
+    </nav>
+
+    <!-- ================= HEADER ================= -->
+    <section class="bg-primary-800 text-white pt-20 md:pt-28 pb-10 relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-accent/50 blur-3xl"></div>
+        <div class="container mx-auto px-4 relative">
+
+            <!-- Botón mobile para abrir filtros -->
+            <div class="flex items-center justify-between mb-4 md:hidden">
+                <button id="filtros-toggle"
+                        class="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white px-4 py-2 rounded-full transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                    Filtros
+                </button>
+                <span class="text-sm text-primary-200" id="products-count"></span>
+            </div>
+
+            <p class="text-xs uppercase tracking-widest text-primary-200 mb-2 hidden md:block">Lupa Ecoart</p>
+            <h1 class="text-3xl md:text-5xl font-light">Nuestra <span class="font-semibold">colección</span></h1>
+            <p class="text-primary-200 mt-2 hidden md:block">Arte sustentable y objetos hechos a mano</p>
+
+        </div>
+    </section>
+
+    <!-- ================= CONTENIDO PRINCIPAL ================= -->
+    <div class="container mx-auto px-4 py-10">
+        <div class="flex gap-8">
+
+            <!-- ================= SIDEBAR FILTROS (Desktop) ================= -->
+            <aside class="hidden md:block w-64 flex-shrink-0">
+                <div class="bg-white rounded-2xl border border-primary-100 p-6 sticky top-24">
+
+                    <!-- Categorías -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-lg mb-4 text-black">Categorías</h3>
+                        <ul class="space-y-1">
+                            <li>
+                                <button class="category-btn w-full text-left px-3 py-2 rounded-xl hover:bg-primary-50 transition bg-primary-50 text-primary-800 font-semibold"
+                                        data-category="all">
+                                    Todas las piezas
+                                </button>
+                            </li>
+                            <li>
+                                <button class="category-btn w-full text-left px-3 py-2 rounded-xl hover:bg-primary-50 transition text-neutral-700"
+                                        data-category="cuadros">
+                                    Cuadros
+                                </button>
+                            </li>
+                            <li>
+                                <button class="category-btn w-full text-left px-3 py-2 rounded-xl hover:bg-primary-50 transition text-neutral-700"
+                                        data-category="ceramica">
+                                    Cerámica
+                                </button>
+                            </li>
+                            <li>
+                                <button class="category-btn w-full text-left px-3 py-2 rounded-xl hover:bg-primary-50 transition text-neutral-700"
+                                        data-category="macrame">
+                                    Macramé
+                                </button>
+                            </li>
+                            <li>
+                                <button class="category-btn w-full text-left px-3 py-2 rounded-xl hover:bg-primary-50 transition text-neutral-700"
+                                        data-category="velas">
+                                    Velas &amp; Aromas
+                                </button>
+                            </li>
+                            <li>
+                                <button class="category-btn w-full text-left px-3 py-2 rounded-xl hover:bg-primary-50 transition text-neutral-700"
+                                        data-category="decoracion">
+                                    Decoración
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Filtro de Precio -->
+                    <div class="mb-6 pb-6 border-b border-primary-100">
+                        <h3 class="font-semibold text-lg mb-4 text-black">Precio</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="precio" value="all" checked class="accent-primary-800">
+                                <span class="text-sm">Todos</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="precio" value="0-1500" class="accent-primary-800">
+                                <span class="text-sm">Menos de $ 1.500</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="precio" value="1500-3000" class="accent-primary-800">
+                                <span class="text-sm">$ 1.500 - $ 3.000</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="precio" value="3000-6000" class="accent-primary-800">
+                                <span class="text-sm">$ 3.000 - $ 6.000</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="precio" value="6000+" class="accent-primary-800">
+                                <span class="text-sm">Más de $ 6.000</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Ordenar -->
+                    <div>
+                        <h3 class="font-semibold text-lg mb-4 text-black">Ordenar por</h3>
+                        <select id="sort-select"
+                                class="w-full px-3 py-2 border border-primary-100 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary-400">
+                            <option value="default">Relevancia</option>
+                            <option value="price-asc">Precio: menor a mayor</option>
+                            <option value="price-desc">Precio: mayor a menor</option>
+                            <option value="name-asc">Nombre: A-Z</option>
+                            <option value="name-desc">Nombre: Z-A</option>
+                        </select>
+                    </div>
+
+                </div>
+            </aside>
+
+            <!-- ================= GRID DE PRODUCTOS ================= -->
+            <main class="flex-1">
+
+                <!-- Loading -->
+                <div id="loading" class="text-center py-20 hidden">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-800"></div>
+                    <p class="mt-4 text-neutral-600">Cargando piezas...</p>
+                </div>
+
+                <!-- Grid -->
+                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Los productos se cargan con JS -->
+                </div>
+
+                <!-- Sin resultados -->
+                <div id="no-results" class="hidden text-center py-20">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 text-primary-800 flex items-center justify-center">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-black">No encontramos piezas</h3>
+                    <p class="text-neutral-600">Probá con otros filtros</p>
+                </div>
+
+            </main>
+
+        </div>
+    </div>
+
+    <!-- ================= DRAWER FILTROS MOBILE ================= -->
+    <div id="drawer-overlay"
+         class="fixed inset-0 bg-primary-900/60 z-40 hidden opacity-0 transition-opacity"></div>
+
+    <div id="filtros-drawer"
+         class="fixed top-0 left-0 h-full w-72 bg-primary-800 shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden overflow-y-auto">
+
+        <div class="bg-primary-900 text-white p-6 flex items-center justify-between sticky top-0 z-10">
+            <div>
+                <h2 class="text-xl font-semibold">Filtros</h2>
+                <p class="text-sm text-primary-300">Refiná tu búsqueda</p>
+            </div>
+            <button id="close-filtros" class="text-white p-2 hover:bg-primary-700 rounded-full" aria-label="Cerrar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-4">
+
+            <!-- Categorías mobile -->
+            <div class="mb-6">
+                <h3 class="text-xs uppercase text-primary-300 font-semibold mb-3 tracking-wider px-3">Categorías</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <button class="category-btn-mobile w-full text-left px-3 py-3 rounded-xl bg-primary-700 text-white font-semibold"
+                                data-category="all">
+                            Todas las piezas
+                        </button>
+                    </li>
+                    <li>
+                        <button class="category-btn-mobile w-full text-left px-3 py-3 rounded-xl hover:bg-primary-700 text-white"
+                                data-category="cuadros">
+                            Cuadros
+                        </button>
+                    </li>
+                    <li>
+                        <button class="category-btn-mobile w-full text-left px-3 py-3 rounded-xl hover:bg-primary-700 text-white"
+                                data-category="ceramica">
+                            Cerámica
+                        </button>
+                    </li>
+                    <li>
+                        <button class="category-btn-mobile w-full text-left px-3 py-3 rounded-xl hover:bg-primary-700 text-white"
+                                data-category="macrame">
+                            Macramé
+                        </button>
+                    </li>
+                    <li>
+                        <button class="category-btn-mobile w-full text-left px-3 py-3 rounded-xl hover:bg-primary-700 text-white"
+                                data-category="velas">
+                            Velas &amp; Aromas
+                        </button>
+                    </li>
+                    <li>
+                        <button class="category-btn-mobile w-full text-left px-3 py-3 rounded-xl hover:bg-primary-700 text-white"
+                                data-category="decoracion">
+                            Decoración
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="border-t border-primary-700 my-4"></div>
+
+            <!-- Precio mobile -->
+            <div class="mb-6">
+                <h3 class="text-xs uppercase text-primary-300 font-semibold mb-3 tracking-wider px-3">Precio</h3>
+                <div class="space-y-2 px-3">
+                    <label class="flex items-center gap-2 cursor-pointer text-white">
+                        <input type="radio" name="precio-mobile" value="all" checked class="accent-white">
+                        <span class="text-sm">Todos</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-white">
+                        <input type="radio" name="precio-mobile" value="0-1500" class="accent-white">
+                        <span class="text-sm">Menos de $ 1.500</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-white">
+                        <input type="radio" name="precio-mobile" value="1500-3000" class="accent-white">
+                        <span class="text-sm">$ 1.500 - $ 3.000</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-white">
+                        <input type="radio" name="precio-mobile" value="3000-6000" class="accent-white">
+                        <span class="text-sm">$ 3.000 - $ 6.000</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-white">
+                        <input type="radio" name="precio-mobile" value="6000+" class="accent-white">
+                        <span class="text-sm">Más de $ 6.000</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Botón aplicar -->
+            <button id="aplicar-filtros"
+                    class="w-full bg-white text-primary-800 font-semibold py-3 rounded-full hover:bg-primary-100 transition">
+                Ver resultados
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= SCRIPTS ================= -->
+    <script src="js/config.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/productos.js"></script>
+
+</body>
+</html>

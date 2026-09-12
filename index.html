@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lupa Ecoart - Inicio</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
+                    },
+                    colors: {
+                        primary: {
+                            50: '#F7F2FB',
+                            100: '#EDE3F5',
+                            200: '#D9C6EB',
+                            300: '#B996D6',
+                            400: '#8F5DB9',
+                            500: '#6B3896',
+                            600: '#522077',
+                            700: '#3D1260',
+                            800: '#2C0847',  // color principal base
+                            900: '#1B042D'
+                        },
+                        accent: '#5A0B4D',   // ciruela (análogo)
+                        iris: '#1F1450'      // índigo (análogo)
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-black font-sans antialiased">
+
+        <!-- ================= NAVBAR DESKTOP ================= -->
+    <nav id="navbar-scroll"
+         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-800/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+
+        <!-- Buscador centrado absoluto -->
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+            <div class="relative">
+                <input type="text"
+                       id="search-input"
+                       placeholder="Buscar obras y objetos..."
+                       class="w-full pl-10 pr-4 py-2 bg-primary-700 text-white placeholder-primary-200 border border-primary-600 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-primary-200"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Contenedor flex normal -->
+        <div class="flex items-center justify-between px-6 py-3 relative">
+
+            <!-- Marca + navegación (izquierda) -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="index.html" class="hidden xl:flex items-center gap-2 mr-4 text-white">
+                    <img src="assets/logo.svg" alt="" class="h-8 w-8">
+                    <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
+                </a>
+                <a href="index.html"
+                   class="px-4 py-2 rounded-full bg-primary-600 text-white font-medium transition whitespace-nowrap">
+                    Inicio
+                </a>
+                <a href="productos.html"
+                   class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                    Catálogo
+                </a>
+            </div>
+
+            <!-- Spacer invisible para que el carrito se mantenga a la derecha -->
+            <div class="w-10 flex-shrink-0"></div>
+
+            <!-- Carrito (derecha) -->
+            <a href="carrito.html" class="relative p-2 hover:bg-primary-700 rounded-full transition flex-shrink-0 block" aria-label="Carrito">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+                </svg>
+                <span id="cart-count-nav" class="absolute -top-0.5 -right-0.5 bg-white text-primary-800 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    0
+                </span>
+            </a>
+
+        </div>
+    </nav>
+
+
+        <!-- ================= HERO ================= -->
+    <section class="bg-primary-800 text-white relative min-h-[540px] md:min-h-[660px] flex items-center justify-center overflow-hidden">
+
+        <!-- Formas decorativas (tonos análogos) -->
+        <div class="absolute -top-32 -left-24 w-96 h-96 rounded-full bg-accent/60 blur-3xl"></div>
+        <div class="absolute -bottom-40 -right-20 w-[28rem] h-[28rem] rounded-full bg-iris/80 blur-3xl"></div>
+        <div class="absolute inset-0 opacity-[0.07]" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 22px 22px;"></div>
+
+        <!-- Botón hamburguesa (solo mobile) -->
+        <button id="menu-toggle"
+                class="md:hidden absolute top-4 right-4 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white p-2 rounded-full transition z-50" aria-label="Menú">
+            <svg id="icon-hamburger" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+
+        <!-- Contenido centrado -->
+        <div class="container mx-auto px-4 text-center relative z-10 py-20">
+
+            <!-- Logo -->
+            <div class="flex justify-center mb-6">
+                <img src="assets/logo.svg"
+                     alt="Lupa Ecoart"
+                     class="w-20 md:w-24 h-auto hover:scale-105 transition-transform duration-300">
+            </div>
+
+            <p class="uppercase tracking-[0.35em] text-xs md:text-sm text-primary-200 mb-4">Arte sustentable · Hecho a mano</p>
+
+            <h1 class="text-5xl sm:text-6xl md:text-8xl font-light tracking-tight mb-6">
+                Lupa <span class="font-semibold">Ecoart</span>
+            </h1>
+
+            <p class="max-w-xl mx-auto text-base md:text-lg text-primary-100 mb-10 leading-relaxed">
+                Piezas únicas creadas con materiales recuperados.
+                Mirá de cerca: cada detalle cuenta una historia.
+            </p>
+
+            <!-- Botones CTA -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="productos.html"
+                   class="inline-block bg-white hover:bg-primary-100 text-primary-800 font-semibold px-8 md:px-10 py-3 md:py-4 rounded-full transition shadow-2xl tracking-wide text-sm">
+                    Ver colección
+                </a>
+                <a href="#nosotros"
+                   class="inline-block border border-white/40 hover:bg-white/10 text-white font-medium px-8 md:px-10 py-3 md:py-4 rounded-full transition tracking-wide text-sm">
+                    Nuestra filosofía
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+
+        <!-- ================= CATEGORÍAS (solo desktop) ================= -->
+    <section class="bg-primary-50 hidden md:block">
+        <div class="container mx-auto px-4 py-16">
+            <div class="flex items-end justify-between mb-8">
+                <div>
+                    <p class="text-xs uppercase tracking-widest text-primary-500 font-medium mb-1">Explorá</p>
+                    <h2 class="text-3xl font-semibold text-black">Categorías</h2>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 lg:grid-cols-5 gap-4">
+
+                <a href="productos.html?cat=cuadros" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-800 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Cuadros</h3>
+                </a>
+
+                <a href="productos.html?cat=ceramica" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-800 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3h6M10 3v3.5C7 8 5 10.8 5 14a7 7 0 0014 0c0-3.2-2-6-5-7.5V3M6 13h12"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Cerámica</h3>
+                </a>
+
+                <a href="productos.html?cat=macrame" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-800 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16M7 4v4l5 5 5-5V4M12 4v9M9 10l-3 5v5M15 10l3 5v5M12 13v8"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Macramé</h3>
+                </a>
+
+                <a href="productos.html?cat=velas" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-800 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c1.6 2 2.2 3.1 2.2 4.1a2.2 2.2 0 11-4.4 0C9.8 6.1 10.4 5 12 3zM12 9.5V11M7.5 11h9v10h-9z"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Velas &amp; Aromas</h3>
+                </a>
+
+                <a href="productos.html?cat=decoracion" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-800 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Decoración</h3>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+     <!-- ================= PRODUCTOS DESTACADOS ================= -->
+    <section id="productos" class="container mx-auto px-4 py-16">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <p class="text-xs uppercase tracking-widest text-primary-500 font-medium mb-1">Selección</p>
+                <h2 class="text-3xl font-semibold text-black">Piezas destacadas</h2>
+            </div>
+            <a href="productos.html" class="text-primary-700 hover:text-primary-900 font-medium whitespace-nowrap">
+                Ver todas →
+            </a>
+        </div>
+
+        <!-- Loading -->
+        <div id="featured-loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-800"></div>
+        </div>
+
+        <div id="featured-products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </section>
+
+        <!-- ================= BENEFICIOS / FILOSOFÍA ================= -->
+    <section id="nosotros" class="bg-primary-800 py-16 text-white relative overflow-hidden">
+        <div class="absolute -right-24 top-0 w-80 h-80 rounded-full bg-accent/50 blur-3xl"></div>
+        <div class="container mx-auto px-4 relative">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-light mb-3">Arte con <span class="font-semibold">segunda vida</span></h2>
+                <p class="text-primary-200">Transformamos papel, madera y fibras recuperadas en objetos que se miran con lupa.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+
+                <div class="px-4">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Materiales recuperados</h3>
+                    <p class="text-primary-200">Cada pieza le da una nueva vida a lo que otros descartan</p>
+                </div>
+
+                <div class="px-4">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.05 4.575a1.575 1.575 0 10-3.15 0v3m3.15-3v-1.5a1.575 1.575 0 013.15 0v1.5m-3.15 0l.075 5.925m3.075.75V4.575m0 0a1.575 1.575 0 013.15 0V15M6.9 7.575a1.575 1.575 0 10-3.15 0v8.175a6.75 6.75 0 006.75 6.75h2.018a5.25 5.25 0 003.712-1.538l1.732-1.732a5.25 5.25 0 001.538-3.712l.003-2.024a.668.668 0 01.198-.471 1.575 1.575 0 10-2.228-2.228 3.818 3.818 0 00-1.12 2.687M6.9 7.575V12m6.27 4.318A4.49 4.49 0 0116.35 15"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Hecho a mano</h3>
+                    <p class="text-primary-200">Obras únicas de artistas y artesanos locales</p>
+                </div>
+
+                <div class="px-4">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Envío gratis</h3>
+                    <p class="text-primary-200">En compras mayores a $ 3.000</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+        <!-- ================= FOOTER ================= -->
+    <footer class="bg-primary-900 text-white">
+        <div class="container mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <a href="index.html" class="flex items-center gap-2">
+                <img src="assets/logo.svg" alt="" class="h-8 w-8">
+                <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
+            </a>
+            <div class="flex items-center gap-6 text-sm text-primary-200">
+                <a href="productos.html" class="hover:text-white transition">Catálogo</a>
+                <a href="carrito.html" class="hover:text-white transition">Carrito</a>
+                <a href="#nosotros" class="hover:text-white transition">Filosofía</a>
+            </div>
+            <p class="text-xs text-primary-300">© 2026 Lupa Ecoart</p>
+        </div>
+    </footer>
+
+
+
+           <!-- ================= DRAWER MOBILE ================= -->
+    <div id="drawer-overlay"
+         class="fixed inset-0 bg-primary-900/60 z-40 hidden transition-opacity opacity-0"></div>
+
+    <div id="drawer"
+         class="fixed top-0 right-0 h-full w-72 bg-primary-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden overflow-y-auto">
+
+        <!-- Header del drawer -->
+        <div class="bg-primary-900 text-white p-6">
+            <h2 class="text-xl font-light">Lupa <span class="font-semibold">Ecoart</span></h2>
+            <p class="text-sm text-primary-300">Navegá por la tienda</p>
+        </div>
+
+        <!-- Categorías -->
+        <div class="p-4">
+            <h3 class="text-xs uppercase text-primary-300 font-semibold mb-3 tracking-wider px-3">Categorías</h3>
+
+            <a href="productos.html?cat=cuadros" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
+                <span class="font-medium text-white">Cuadros</span>
+            </a>
+            <a href="productos.html?cat=ceramica" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
+                <span class="font-medium text-white">Cerámica</span>
+            </a>
+            <a href="productos.html?cat=macrame" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
+                <span class="font-medium text-white">Macramé</span>
+            </a>
+            <a href="productos.html?cat=velas" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
+                <span class="font-medium text-white">Velas &amp; Aromas</span>
+            </a>
+            <a href="productos.html?cat=decoracion" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
+                <span class="font-medium text-white">Decoración</span>
+            </a>
+        </div>
+
+        <div class="border-t border-primary-700 mx-4"></div>
+
+        <!-- Otros links -->
+        <div class="p-4">
+            <a href="index.html" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
+                <span class="font-medium text-white">Inicio</span>
+            </a>
+            <a href="productos.html" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
+                <span class="font-medium text-white">Catálogo</span>
+            </a>
+            <a href="carrito.html" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
+                <span class="font-medium text-white">Carrito</span>
+                <span id="cart-count-drawer" class="ml-auto bg-white text-primary-800 text-xs font-bold px-2 py-1 rounded-full">0</span>
+            </a>
+        </div>
+
+    </div>
+
+
+
+             <script>
+        const toggle = document.getElementById('menu-toggle');
+        const drawer = document.getElementById('drawer');
+        const overlay = document.getElementById('drawer-overlay');
+        const iconHamburger = document.getElementById('icon-hamburger');
+        const iconClose = document.getElementById('icon-close');
+
+        function openDrawer() {
+            drawer.classList.remove('translate-x-full');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.add('opacity-100'), 10);
+            iconHamburger.classList.add('hidden');
+            iconClose.classList.remove('hidden');
+        }
+
+        function closeDrawer() {
+            drawer.classList.add('translate-x-full');
+            overlay.classList.remove('opacity-100');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+            iconHamburger.classList.remove('hidden');
+            iconClose.classList.add('hidden');
+        }
+
+        toggle.addEventListener('click', () => {
+            if (drawer.classList.contains('translate-x-full')) {
+                openDrawer();
+            } else {
+                closeDrawer();
+            }
+        });
+
+        // Cerrar al hacer click en el overlay
+        overlay.addEventListener('click', closeDrawer);
+
+        // Cerrar con tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDrawer();
+        });
+    </script>
+
+        <script>
+        // Navbar inteligente: aparece al subir, se oculta al bajar
+        const navbar = document.getElementById('navbar-scroll');
+        let lastScroll = 0;
+        const scrollThreshold = 10; // px mínimos para considerar scroll
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+
+            // Ignorar scrolls muy pequeños
+            if (Math.abs(currentScroll - lastScroll) < scrollThreshold) return;
+
+            // Si bajamos → ocultar navbar
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                navbar.classList.add('-translate-y-full');
+            }
+            // Si subimos → mostrar navbar
+            else if (currentScroll < lastScroll) {
+                navbar.classList.remove('-translate-y-full');
+            }
+
+            lastScroll = currentScroll;
+        });
+    </script>
+
+
+    <script src="js/config.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/index.js"></script>
+
+</body>
+</html>
