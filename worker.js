@@ -33,6 +33,7 @@ const ALLOWED_PATHS = [
 function corsHeaders(request, env) {
     const origin = request.headers.get('Origin') || '';
     const allowed = (env.ALLOWED_ORIGINS || '')
+        .trim()
         .split(',')
         .map(o => o.trim())
         .filter(Boolean);
@@ -71,7 +72,12 @@ export default {
             return jsonError('Solo se permiten requests GET', 405, cors);
         }
 
-        if (!env.WC_BASE_URL || !env.WC_CONSUMER_KEY || !env.WC_CONSUMER_SECRET) {
+        // Los secrets cargados por consola pueden traer espacios o saltos de linea
+        const baseUrl = (env.WC_BASE_URL || '').trim().replace(/\/+$/, '');
+        const consumerKey = (env.WC_CONSUMER_KEY || '').trim();
+        const consumerSecret = (env.WC_CONSUMER_SECRET || '').trim();
+
+        if (!baseUrl || !consumerKey || !consumerSecret) {
             return jsonError('El Worker no tiene los secrets configurados', 500, cors);
         }
 
@@ -80,15 +86,20 @@ export default {
         }
 
         // Construir la URL de WooCommerce
-        const wcUrl = new URL(`${env.WC_BASE_URL}/wp-json/wc/v3${url.pathname}`);
+        let wcUrl;
+        try {
+            wcUrl = new URL(`${baseUrl}/wp-json/wc/v3${url.pathname}`);
+        } catch {
+            return jsonError('WC_BASE_URL no es una URL valida', 500, cors);
+        }
         url.searchParams.forEach((value, key) => {
             // Nunca dejamos que el cliente pise las credenciales
             if (key !== 'consumer_key' && key !== 'consumer_secret') {
                 wcUrl.searchParams.set(key, value);
             }
         });
-        wcUrl.searchParams.set('consumer_key', env.WC_CONSUMER_KEY);
-        wcUrl.searchParams.set('consumer_secret', env.WC_CONSUMER_SECRET);
+        wcUrl.searchParams.set('consumer_key', consumerKey);
+        wcUrl.searchParams.set('consumer_secret', consumerSecret);
 
         let resp;
         try {
