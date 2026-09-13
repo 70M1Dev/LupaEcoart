@@ -25,7 +25,9 @@ const WC_CONFIG = {
     //   Sin dominio (gratis): https://lupaecoart-wc-proxy.<tu-subdominio>.workers.dev
     //
     // Dejalo en '' para pegarle directo a WordPress (solo desarrollo local).
-    PROXY_URL: 'https://lupaecoart-wc-proxy.upa-coart.workers.dev',
+    // Worker ya deployado: https://lupaecoart-wc-proxy.upa-coart.workers.dev
+    // Queda vacio (modo boceto) hasta que la tienda tenga productos cargados.
+    PROXY_URL: '',
 
     // ------------------------------------------------------------------
     // Solo se usa cuando PROXY_URL esta vacio (desarrollo local)
