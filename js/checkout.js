@@ -77,7 +77,7 @@ document.getElementById('place-order-btn').addEventListener('click', (e) => {
 
     if (cart.length === 0) {
         alert('Tu carrito está vacío');
-        window.location.href = 'productos.html';
+        window.location.href = 'productos';
         return;
     }
 
@@ -112,7 +112,7 @@ document.getElementById('place-order-btn').addEventListener('click', (e) => {
         alert('¡Pedido confirmado! Te contactaremos pronto.');
         localStorage.removeItem('cart');
         localStorage.removeItem('coupon');
-        window.location.href = 'index.html';
+        window.location.href = './';
     }, 1500);
 });
 

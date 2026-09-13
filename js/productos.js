@@ -158,7 +158,7 @@ function renderProducts() {
 
         grid.innerHTML = filtered.map(product => `
             <div class="bg-white rounded-2xl border border-primary-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col">
-                <a href="producto.html?id=${product.id}" class="block flex-1">
+                <a href="producto?id=${product.id}" class="block flex-1">
                     <div class="relative overflow-hidden bg-primary-50">
                         <img src="${product.image}"
                              alt="${product.name}"

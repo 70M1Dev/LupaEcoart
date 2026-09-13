@@ -61,14 +61,14 @@ function showCartNotification(message) {
     setTimeout(() => notif.remove(), 2500);
 }
 
-// Buscador del navbar: fuera del catálogo, Enter lleva a productos.html?q=...
-// (en productos.html la búsqueda filtra en vivo desde js/productos.js)
+// Buscador del navbar: fuera del catálogo, Enter lleva a productos?q=...
+// (en productos la búsqueda filtra en vivo desde js/productos.js)
 function setupNavSearch() {
     const input = document.getElementById('search-input');
     if (!input || document.getElementById('products-grid')) return;
     input.addEventListener('keydown', (e) => {
         if (e.key !== 'Enter' || !input.value.trim()) return;
-        location.href = `productos.html?q=${encodeURIComponent(input.value.trim())}`;
+        location.href = `productos?q=${encodeURIComponent(input.value.trim())}`;
     });
 }
 

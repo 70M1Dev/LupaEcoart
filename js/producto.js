@@ -294,7 +294,7 @@ document.getElementById('buy-now-btn').addEventListener('click', () => {
     if (!currentProduct || !requireSize()) return;
     const qty = parseInt(document.getElementById('quantity').value);
     handleAddToCart(selectedSize, qty);
-    window.location.href = 'carrito.html';
+    window.location.href = 'carrito';
 });
 
 // ==========================================
@@ -317,7 +317,7 @@ function handleAddToCart(size, qty) {
 async function renderRelated() {
     const related = await fetchRelatedProducts(currentProduct.relatedIds);
     document.getElementById('related-products').innerHTML = related.map(p => `
-        <a href="producto.html?id=${p.id}" class="bg-white rounded-2xl border border-primary-100 overflow-hidden hover:shadow-xl transition-all group">
+        <a href="producto?id=${p.id}" class="bg-white rounded-2xl border border-primary-100 overflow-hidden hover:shadow-xl transition-all group">
             <div class="overflow-hidden bg-primary-50">
                 <img src="${p.images[0]}" alt="${p.name}" class="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500">
             </div>

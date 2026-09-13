@@ -152,7 +152,7 @@ document.getElementById('apply-coupon').addEventListener('click', () => {
 // ==========================================
 document.getElementById('checkout-btn').addEventListener('click', () => {
     if (cart.length === 0) return;
-    window.location.href = 'checkout.html';
+    window.location.href = 'checkout';
 });
 
 // ==========================================
