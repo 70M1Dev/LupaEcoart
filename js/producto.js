@@ -78,8 +78,7 @@ function getURLParam(param) {
 }
 
 function getCategoryName(cat) {
-    const names = { papeleria: 'Papelería', 'corte-laser': 'Corte láser', personalizados: 'Personalizados', otros: 'Otros' };
-    return names[cat] || cat;
+    return wcCategoryName(cat);
 }
 
 // ==========================================

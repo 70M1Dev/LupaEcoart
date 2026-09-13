@@ -36,7 +36,7 @@ function mapWCProduct(p) {
         price: price,
         originalPrice: onSale ? regular : null,
         // Tomamos el slug de la primera categoría asignada en WooCommerce.
-        // Tiene que coincidir con: papeleria, corte-laser, personalizados, otros
+        // Tiene que coincidir con WC_CATEGORIES (js/config.js)
         category: p.categories && p.categories.length ? p.categories[0].slug : '',
         image: p.images && p.images.length ? p.images[0].src : 'https://placehold.co/300x350/E6EBB1/4A501C?text=Sin+imagen',
         badge: badge,
@@ -62,6 +62,7 @@ let currentCategory = 'all';
 let currentPriceRange = 'all';
 let currentSort = 'default';
 let currentSearch = '';
+let productsReady = false;
 
 // Clases del botón de categoría activo / inactivo
 const CAT_ACTIVE = ['bg-primary-50', 'text-primary-800', 'font-semibold'];
@@ -100,15 +101,13 @@ function sortProducts(products, sort) {
     }
 }
 
-// Obtener nombre legible de categoría
-function getCategoryName(cat) {
-    const names = {
-        papeleria: 'Papelería',
-        'corte-laser': 'Corte láser',
-        personalizados: 'Personalizados',
-        otros: 'Otros'
-    };
-    return names[cat] || cat;
+// La búsqueda mira nombre y categoría, sin distinguir tildes ni mayúsculas.
+// Todas las palabras tienen que aparecer ("soporte laptop" = "laptop soporte").
+function matchesSearch(product, query) {
+    const words = wcNormalize(query).split(' ').filter(Boolean);
+    if (!words.length) return true;
+    const haystack = wcNormalize(`${product.name} ${wcCategoryName(product.category)}`);
+    return words.every(w => haystack.includes(w));
 }
 
 // ==========================================
@@ -120,12 +119,15 @@ function renderProducts() {
     const noResults = document.getElementById('no-results');
     const countEl = document.getElementById('products-count');
 
+    // Hasta que llegue la API, init() se encarga del primer render
+    if (!productsReady) return;
+
     loading.classList.remove('hidden');
 
     // Filtrar productos
     let filtered = productsData.filter(p => {
         const matchCategory = currentCategory === 'all' || p.category === currentCategory;
-        const matchSearch = p.name.toLowerCase().includes(currentSearch.toLowerCase());
+        const matchSearch = matchesSearch(p, currentSearch);
         const matchPrice = checkPrice(p.price, currentPriceRange);
         return matchCategory && matchSearch && matchPrice;
     });
@@ -170,7 +172,7 @@ function renderProducts() {
                         ` : ''}
                     </div>
                     <div class="p-5">
-                        <p class="text-xs text-mustard uppercase tracking-wider font-medium mb-1">${getCategoryName(product.category)}</p>
+                        <p class="text-xs text-mustard uppercase tracking-wider font-medium mb-1">${wcCategoryName(product.category)}</p>
                         <h3 class="font-medium text-lg leading-snug mb-2 line-clamp-2 text-black">${product.name}</h3>
                         <div class="flex items-baseline gap-2">
                             <span class="text-xl font-bold text-black">${wcPrice(product.price)}</span>
@@ -299,16 +301,30 @@ function setupMobileFilters() {
 // ==========================================
 // BÚSQUEDA
 // ==========================================
+// Hay dos buscadores (navbar desktop y encabezado mobile): se mantienen sincronizados.
 function setupSearch() {
-    const searchInput = document.getElementById('search-input');
+    const inputs = document.querySelectorAll('[data-search]');
     let searchTimeout;
 
-    searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            currentSearch = e.target.value;
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+            inputs.forEach(other => { if (other !== input) other.value = input.value; });
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentSearch = input.value;
+                renderProducts();
+            }, 300);
+        });
+
+        // Enter aplica ya, sin esperar el debounce (y cierra el teclado en mobile)
+        input.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            clearTimeout(searchTimeout);
+            currentSearch = input.value;
             renderProducts();
-        }, 300);
+            input.blur();
+        });
     });
 }
 
@@ -337,9 +353,6 @@ async function init() {
     // Mostrar loading mientras llega la API
     document.getElementById('loading').classList.remove('hidden');
 
-    // Traer productos reales de WooCommerce
-    await fetchProductsFromWC();
-
     // Leer categoría de la URL
     const categoryFromURL = getURLParam('cat');
     if (categoryFromURL) {
@@ -352,14 +365,19 @@ async function init() {
     const searchFromURL = getURLParam('q');
     if (searchFromURL) {
         currentSearch = searchFromURL;
-        document.getElementById('search-input').value = searchFromURL;
+        document.querySelectorAll('[data-search]').forEach(i => { i.value = searchFromURL; });
     }
 
-    // Configurar event listeners
+    // Los listeners van antes de pedir la API: si la respuesta tarda,
+    // lo que se escriba mientras tanto no se pierde.
     setupDesktopFilters();
     setupMobileFilters();
     setupSearch();
     setupNavbar();
+
+    // Traer productos reales de WooCommerce
+    await fetchProductsFromWC();
+    productsReady = true;
 
     // Renderizar productos
     renderProducts();

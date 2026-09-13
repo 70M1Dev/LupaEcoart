@@ -22,10 +22,28 @@ function updateCartCounters() {
     const cart = getCart();
     const total = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
-    const navCount = document.getElementById('cart-count-nav');
-    const drawerCount = document.getElementById('cart-count-drawer');
-    if (navCount) navCount.textContent = total;
-    if (drawerCount) drawerCount.textContent = total;
+    ['cart-count-nav', 'cart-count-drawer', 'cart-count-mobile'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = total;
+    });
+}
+
+// Botón flotante de carrito para mobile (en desktop el carrito está en el navbar).
+// No se muestra en páginas con <body data-cart-widget="off"> (carrito, checkout).
+function setupMobileCartWidget() {
+    if (document.body.dataset.cartWidget === 'off') return;
+    const widget = document.createElement('a');
+    widget.href = 'carrito';
+    widget.setAttribute('aria-label', 'Ver carrito');
+    widget.className = 'md:hidden fixed bottom-5 right-5 z-30 h-14 w-14 rounded-full bg-primary-700 hover:bg-primary-800 text-white shadow-xl flex items-center justify-center transition';
+    widget.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+        </svg>
+        <span id="cart-count-mobile" class="absolute -top-1 -right-1 bg-accent text-black text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">0</span>
+    `;
+    document.body.appendChild(widget);
 }
 
 // Añade un producto al carrito (o suma cantidad si ya existe con la misma medida).
@@ -61,19 +79,22 @@ function showCartNotification(message) {
     setTimeout(() => notif.remove(), 2500);
 }
 
-// Buscador del navbar: fuera del catálogo, Enter lleva a productos?q=...
-// (en productos la búsqueda filtra en vivo desde js/productos.js)
+// Buscadores (navbar desktop + drawer mobile): fuera del catálogo, Enter lleva
+// a productos?q=... (en productos la búsqueda filtra en vivo desde js/productos.js)
 function setupNavSearch() {
-    const input = document.getElementById('search-input');
-    if (!input || document.getElementById('products-grid')) return;
-    input.addEventListener('keydown', (e) => {
-        if (e.key !== 'Enter' || !input.value.trim()) return;
-        location.href = `productos?q=${encodeURIComponent(input.value.trim())}`;
+    if (document.getElementById('products-grid')) return;
+    document.querySelectorAll('[data-search]').forEach(input => {
+        input.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' || !input.value.trim()) return;
+            e.preventDefault();
+            location.href = `productos?q=${encodeURIComponent(input.value.trim())}`;
+        });
     });
 }
 
 // Actualizar contadores apenas carga cualquier página que incluya este script
 document.addEventListener('DOMContentLoaded', () => {
+    setupMobileCartWidget();
     updateCartCounters();
     setupNavSearch();
 });

@@ -31,18 +31,18 @@
         }
     </script>
 </head>
-<body class="bg-white text-black font-sans antialiased">
+<body data-cart-widget="off" class="bg-white text-black font-sans antialiased">
 
     <!-- ================= NAVBAR DESKTOP ================= -->
     <nav id="navbar-scroll"
          class="hidden md:block fixed top-0 left-0 right-0 bg-primary-500/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
 
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 z-10 pointer-events-none">
             <div class="relative">
                 <input type="text"
-                       id="search-input"
+                       id="search-input" data-search
                        placeholder="Buscar obras y objetos..."
-                       class="w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
+                       class="pointer-events-auto w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
                 <svg xmlns="http://www.w3.org/2000/svg"
                      class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/80"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -179,6 +179,14 @@
     <div id="drawer" class="fixed top-0 right-0 h-full w-72 bg-primary-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden overflow-y-auto">
         <div class="bg-primary-900 text-white p-6 sticky top-0 z-10">
             <h2 class="text-xl font-light">Lupa <span class="font-semibold">Ecoart</span></h2>
+        </div>
+        <div class="px-4 pt-4">
+            <div class="relative">
+                <input type="text" data-search enterkeyhint="search" aria-label="Buscar"
+                       placeholder="Buscar obras y objetos..."
+                       class="w-full pl-10 pr-4 py-2.5 bg-white/15 text-white placeholder-white/70 border border-white/25 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
         </div>
         <div class="p-4">
             <a href="./" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">

@@ -44,12 +44,12 @@
          class="hidden md:block fixed top-0 left-0 right-0 bg-primary-500/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
 
         <!-- Buscador centrado absoluto -->
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 z-10 pointer-events-none">
             <div class="relative">
                 <input type="text"
-                       id="search-input"
+                       id="search-input" data-search
                        placeholder="Buscar obras y objetos..."
-                       class="w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
+                       class="pointer-events-auto w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
                 <svg xmlns="http://www.w3.org/2000/svg"
                      class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/80"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,6 +119,14 @@
             <h1 class="text-3xl md:text-5xl font-light">Nuestra <span class="font-semibold">colección</span></h1>
             <p class="text-white/85 mt-2 hidden md:block">Arte sustentable y objetos hechos a mano</p>
 
+            <!-- Buscador mobile (el del navbar solo se ve en desktop) -->
+            <div class="relative mt-5 md:hidden">
+                <input type="text" data-search enterkeyhint="search" aria-label="Buscar"
+                       placeholder="Buscar obras y objetos..."
+                       class="w-full pl-10 pr-4 py-2.5 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+
         </div>
     </section>
 
@@ -156,6 +164,12 @@
                                 <button class="category-btn w-full text-left px-3 py-2 rounded-xl hover:bg-primary-50 transition text-neutral-700"
                                         data-category="personalizados">
                                     Personalizados
+                                </button>
+                            </li>
+                            <li>
+                                <button class="category-btn w-full text-left px-3 py-2 rounded-xl hover:bg-primary-50 transition text-neutral-700"
+                                        data-category="reciclables">
+                                    Reciclables
                                 </button>
                             </li>
                             <li>
@@ -287,6 +301,12 @@
                         <button class="category-btn-mobile w-full text-left px-3 py-3 rounded-xl hover:bg-primary-700 text-white"
                                 data-category="personalizados">
                             Personalizados
+                        </button>
+                    </li>
+                    <li>
+                        <button class="category-btn-mobile w-full text-left px-3 py-3 rounded-xl hover:bg-primary-700 text-white"
+                                data-category="reciclables">
+                            Reciclables
                         </button>
                     </li>
                     <li>

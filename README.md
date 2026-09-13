@@ -45,7 +45,7 @@ js/
 - Fondos de texto blancos, texto negro; texto blanco sobre zonas oscuras
 - Botones con texto blanco en `primary-700` (oliva oscuro) para que el texto se lea bien
 - Tipografía: Outfit (Google Fonts)
-- Categorías (slugs de WooCommerce): `papeleria`, `corte-laser`, `personalizados`, `otros`
+- Categorías (slugs de WooCommerce): `papeleria`, `corte-laser`, `personalizados`, `reciclables`, `otros` (definidas en `WC_CATEGORIES`, `js/config.js`)
 
 ## 👀 Modo boceto
 

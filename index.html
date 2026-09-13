@@ -46,12 +46,12 @@
          class="hidden md:block fixed top-0 left-0 right-0 bg-primary-500/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
 
         <!-- Buscador centrado absoluto -->
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 z-10 pointer-events-none">
             <div class="relative">
                 <input type="text"
-                       id="search-input"
+                       id="search-input" data-search
                        placeholder="Buscar obras y objetos..."
-                       class="w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
+                       class="pointer-events-auto w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
                 <svg xmlns="http://www.w3.org/2000/svg"
                      class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/80"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,7 +169,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
 
                 <a href="productos?cat=papeleria" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
                     <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-700 text-primary-800 group-hover:text-white flex items-center justify-center transition">
@@ -190,6 +190,13 @@
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
                     </div>
                     <h3 class="font-medium text-black">Personalizados</h3>
+                </a>
+
+                <a href="productos?cat=reciclables" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-700 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Reciclables</h3>
                 </a>
 
                 <a href="productos?cat=otros" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
@@ -293,6 +300,16 @@
             <p class="text-sm text-primary-300">Navegá por la tienda</p>
         </div>
 
+        <!-- Buscador mobile -->
+        <div class="px-4 pt-4">
+            <div class="relative">
+                <input type="text" data-search enterkeyhint="search" aria-label="Buscar"
+                       placeholder="Buscar obras y objetos..."
+                       class="w-full pl-10 pr-4 py-2.5 bg-white/15 text-white placeholder-white/70 border border-white/25 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+        </div>
+
         <!-- Categorías -->
         <div class="p-4">
             <h3 class="text-xs uppercase text-primary-300 font-semibold mb-3 tracking-wider px-3">Categorías</h3>
@@ -305,6 +322,9 @@
             </a>
             <a href="productos?cat=personalizados" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
                 <span class="font-medium text-white">Personalizados</span>
+            </a>
+            <a href="productos?cat=reciclables" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
+                <span class="font-medium text-white">Reciclables</span>
             </a>
             <a href="productos?cat=otros" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition">
                 <span class="font-medium text-white">Otros</span>

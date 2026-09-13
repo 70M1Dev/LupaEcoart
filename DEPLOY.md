@@ -64,6 +64,7 @@ En hPanel:
    | Papelería | `papeleria` |
    | Corte láser | `corte-laser` |
    | Personalizados | `personalizados` |
+   | Reciclables | `reciclables` |
    | Otros | `otros` |
 
 3. `Productos → Atributos`: crear el atributo **Medida** (lo usan los productos
@@ -168,7 +169,7 @@ No hace falta darle a nadie credenciales FTP.
 - [ ] WordPress instalado en Hostinger con SSL
 - [ ] Enlaces permanentes en "Nombre de la entrada" y `/wp-json/` responde JSON
 - [ ] WooCommerce instalado y moneda en UYU
-- [ ] Categorías creadas con los slugs `papeleria`, `corte-laser`, `personalizados`, `otros`
+- [ ] Categorías creadas con los slugs `papeleria`, `corte-laser`, `personalizados`, `reciclables`, `otros`
 - [ ] Atributo **Medida** creado
 - [ ] Usuario del cliente con rol **Gestor de tienda**
 - [ ] Productos de prueba cargados (alguno destacado)

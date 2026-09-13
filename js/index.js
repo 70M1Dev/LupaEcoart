@@ -2,11 +2,6 @@
 // PRODUCTOS DESTACADOS (HOME) - WooCommerce
 // ==========================================
 
-function getCategoryNameHome(cat) {
-    const names = { papeleria: 'Papelería', 'corte-laser': 'Corte láser', personalizados: 'Personalizados', otros: 'Otros' };
-    return names[cat] || cat;
-}
-
 // Igual al mapeo usado en productos.js
 function mapWCProductHome(p) {
     const price = parseFloat(p.price || p.regular_price || 0);
@@ -68,7 +63,7 @@ function renderFeaturedProducts(products) {
                     ` : ''}
                 </div>
                 <div class="p-5">
-                    <p class="text-xs text-mustard uppercase tracking-wider font-medium mb-1">${getCategoryNameHome(product.category)}</p>
+                    <p class="text-xs text-mustard uppercase tracking-wider font-medium mb-1">${wcCategoryName(product.category)}</p>
                     <h3 class="font-medium text-lg leading-snug mb-2 line-clamp-2 text-black">${product.name}</h3>
                     <div class="flex items-baseline gap-2">
                         <span class="text-xl font-bold text-black">${wcPrice(product.price)}</span>

@@ -143,6 +143,34 @@ function wcRenderError(containerId, err) {
     if (err) console.error(`[LupaEcoart] ${containerId}:`, err);
 }
 
+// Categorias de WooCommerce: slug → nombre visible.
+// Los slugs tienen que coincidir exactamente con los creados en WordPress.
+const WC_CATEGORIES = {
+    papeleria: 'Papelería',
+    'corte-laser': 'Corte láser',
+    personalizados: 'Personalizados',
+    reciclables: 'Reciclables',
+    otros: 'Otros'
+};
+
+function wcCategoryName(slug) {
+    return WC_CATEGORIES[slug] || slug;
+}
+
+// Texto comparable para busquedas: minusculas, sin tildes y sin espacios sobrantes.
+// Asi "laser" encuentra "Corte láser" y "Laptop " encuentra "Soporte Laptop".
+// Marcas diacriticas combinantes (U+0300 a U+036F) que quedan tras normalize('NFD').
+const WC_DIACRITICS = new RegExp('[' + String.fromCharCode(0x300) + '-' + String.fromCharCode(0x36f) + ']', 'g');
+
+function wcNormalize(text) {
+    return String(text || '')
+        .normalize('NFD')
+        .replace(WC_DIACRITICS, '')
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 // Formatea precios en pesos uruguayos.
 function wcPrice(value) {
     const n = Number(value);
