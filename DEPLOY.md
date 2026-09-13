@@ -61,11 +61,10 @@ En hPanel:
 
    | Nombre | Slug |
    |---|---|
-   | Cuadros | `cuadros` |
-   | Cerámica | `ceramica` |
-   | Macramé | `macrame` |
-   | Velas & Aromas | `velas` |
-   | Decoración | `decoracion` |
+   | Papelería | `papeleria` |
+   | Corte láser | `corte-laser` |
+   | Personalizados | `personalizados` |
+   | Otros | `otros` |
 
 3. `Productos → Atributos`: crear el atributo **Medida** (lo usan los productos
    que se venden en varios tamaños).
@@ -169,7 +168,7 @@ No hace falta darle a nadie credenciales FTP.
 - [ ] WordPress instalado en Hostinger con SSL
 - [ ] Enlaces permanentes en "Nombre de la entrada" y `/wp-json/` responde JSON
 - [ ] WooCommerce instalado y moneda en UYU
-- [ ] Categorías creadas con los slugs `cuadros`, `ceramica`, `macrame`, `velas`, `decoracion`
+- [ ] Categorías creadas con los slugs `papeleria`, `corte-laser`, `personalizados`, `otros`
 - [ ] Atributo **Medida** creado
 - [ ] Usuario del cliente con rol **Gestor de tienda**
 - [ ] Productos de prueba cargados (alguno destacado)

@@ -40,11 +40,12 @@ js/
 
 ## 🎨 Identidad
 
-- Color principal: `#2C0847` (escala `primary-50` … `primary-900` en el `tailwind.config` de cada HTML)
-- Análogos: ciruela `#5A0B4D` (`accent`) e índigo `#1F1450` (`iris`)
+- Color principal: `#8F9B2F` (`primary-500`; escala `primary-50` … `primary-900` en el `tailwind.config` de cada HTML)
+- Secundarios: naranja `#FCA321` (`accent`), crema `#E6EBB1` (`cream`), verde agua `#7ABFB1` (`teal`), mostaza `#A68A26` (`mustard`)
 - Fondos de texto blancos, texto negro; texto blanco sobre zonas oscuras
+- Botones con texto blanco en `primary-700` (oliva oscuro) para que el texto se lea bien
 - Tipografía: Outfit (Google Fonts)
-- Categorías (slugs de WooCommerce): `cuadros`, `ceramica`, `macrame`, `velas`, `decoracion`
+- Categorías (slugs de WooCommerce): `papeleria`, `corte-laser`, `personalizados`, `otros`
 
 ## 👀 Modo boceto
 

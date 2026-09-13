@@ -18,27 +18,27 @@
                     },
                     colors: {
                         primary: {
-                            50: '#F7F2FB', 100: '#EDE3F5', 200: '#D9C6EB',
-                            300: '#B996D6', 400: '#8F5DB9', 500: '#6B3896',
-                            600: '#522077', 700: '#3D1260', 800: '#2C0847',
-                            900: '#1B042D'
+                            50: '#F7F9E8', 100: '#EEF2CF', 200: '#DDE4A3',
+                            300: '#C3CE6E', 400: '#A8B444', 500: '#8F9B2F',  // color principal
+                            600: '#76802A', 700: '#5E6622', 800: '#4A501C',
+                            900: '#33370F'
                         },
-                        accent: '#5A0B4D',
-                        iris: '#1F1450'
+                        accent: '#FCA321',
+                        teal: '#7ABFB1', cream: '#E6EBB1', mustard: '#A68A26'
                     }
                 }
             }
         }
     </script>
     <style>
-        .field { width: 100%; padding: .75rem 1rem; border: 1px solid #EDE3F5; border-radius: .75rem; background: #fff; }
-        .field:focus { outline: none; box-shadow: 0 0 0 2px #8F5DB9; }
+        .field { width: 100%; padding: .75rem 1rem; border: 1px solid #EEF2CF; border-radius: .75rem; background: #fff; }
+        .field:focus { outline: none; box-shadow: 0 0 0 2px #A8B444; }
     </style>
 </head>
 <body class="bg-white text-black font-sans antialiased">
 
     <!-- ================= NAVBAR SIMPLE ================= -->
-    <nav class="fixed top-0 left-0 right-0 bg-primary-800 shadow-lg z-50">
+    <nav class="fixed top-0 left-0 right-0 bg-primary-500 shadow-lg z-50">
         <div class="flex items-center justify-between px-6 py-3">
             <a href="index.html" class="flex items-center gap-2 text-white">
                 <img src="assets/logo.svg" alt="" class="h-7 w-7">
@@ -49,7 +49,7 @@
     </nav>
 
     <!-- ================= PASOS ================= -->
-    <section class="bg-primary-800 text-white pt-20 pb-8">
+    <section class="bg-primary-500 text-white pt-20 pb-8">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-center gap-2 md:gap-4 text-sm md:text-base">
                 <div class="flex items-center gap-2 opacity-60">
@@ -225,7 +225,7 @@
                     </div>
 
                     <button id="place-order-btn"
-                            class="w-full bg-primary-800 hover:bg-primary-600 text-white font-semibold py-4 rounded-full transition mb-6">
+                            class="w-full bg-primary-700 hover:bg-primary-800 text-white font-semibold py-4 rounded-full transition mb-6">
                         Confirmar y pagar
                     </button>
 

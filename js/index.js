@@ -3,7 +3,7 @@
 // ==========================================
 
 function getCategoryNameHome(cat) {
-    const names = { cuadros: 'Cuadros', ceramica: 'Cerámica', macrame: 'Macramé', velas: 'Velas & Aromas', decoracion: 'Decoración' };
+    const names = { papeleria: 'Papelería', 'corte-laser': 'Corte láser', personalizados: 'Personalizados', otros: 'Otros' };
     return names[cat] || cat;
 }
 
@@ -29,7 +29,7 @@ function mapWCProductHome(p) {
         price: price,
         originalPrice: onSale ? regular : null,
         category: p.categories && p.categories.length ? p.categories[0].slug : '',
-        image: p.images && p.images.length ? p.images[0].src : 'https://placehold.co/300x350/EDE3F5/2C0847?text=Sin+imagen',
+        image: p.images && p.images.length ? p.images[0].src : 'https://placehold.co/300x350/E6EBB1/4A501C?text=Sin+imagen',
         badge: badge
     };
 }
@@ -62,13 +62,13 @@ function renderFeaturedProducts(products) {
                          alt="${product.name}"
                          class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500">
                     ${product.badge ? `
-                        <span class="absolute top-3 left-3 ${product.badge.includes('-') ? 'bg-accent' : 'bg-primary-800'} text-white text-xs font-semibold px-3 py-1 rounded-full">
+                        <span class="absolute top-3 left-3 ${product.badge.includes('-') ? 'bg-accent text-black' : 'bg-teal text-black'} text-xs font-semibold px-3 py-1 rounded-full">
                             ${product.badge}
                         </span>
                     ` : ''}
                 </div>
                 <div class="p-5">
-                    <p class="text-xs text-primary-500 uppercase tracking-wider font-medium mb-1">${getCategoryNameHome(product.category)}</p>
+                    <p class="text-xs text-mustard uppercase tracking-wider font-medium mb-1">${getCategoryNameHome(product.category)}</p>
                     <h3 class="font-medium text-lg leading-snug mb-2 line-clamp-2 text-black">${product.name}</h3>
                     <div class="flex items-baseline gap-2">
                         <span class="text-xl font-bold text-black">${wcPrice(product.price)}</span>
@@ -77,7 +77,7 @@ function renderFeaturedProducts(products) {
                 </div>
             </a>
             <div class="px-5 pb-5">
-                <button onclick="handleAddToCartHome(${product.id})" class="w-full bg-primary-800 hover:bg-primary-600 text-white py-2.5 rounded-full transition font-semibold text-sm">
+                <button onclick="handleAddToCartHome(${product.id})" class="w-full bg-primary-700 hover:bg-primary-800 text-white py-2.5 rounded-full transition font-semibold text-sm">
                     Añadir al carrito
                 </button>
             </div>

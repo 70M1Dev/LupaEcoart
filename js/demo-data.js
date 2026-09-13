@@ -16,64 +16,64 @@ const demoDate = daysAgo => new Date(Date.now() - daysAgo * DEMO_DAY).toISOStrin
 const DEMO_PRODUCTS = [
     {
         id: 1, name: 'Cuadro Botánico en Papel Reciclado', price: '2890', regular_price: '3400', on_sale: true,
-        featured: true, date_created: demoDate(40), categories: [{ slug: 'cuadros' }],
-        images: [demoImg('2C0847', 'FFFFFF', 'Cuadro Botánico'), demoImg('EDE3F5', '2C0847', 'Detalle')],
+        featured: true, date_created: demoDate(40), categories: [{ slug: 'papeleria' }],
+        images: [demoImg('5E6622', 'FFFFFF', 'Cuadro Botánico'), demoImg('E6EBB1', '5E6622', 'Detalle')],
         description: '<p>Composición de hojas prensadas sobre papel 100% reciclado, enmarcada en madera recuperada. Cada pieza es única.</p>',
         attributes: [{ name: 'Medida', options: ['20x30', '30x40', '40x50'] }],
         related_ids: [2, 5, 7, 3], stock_status: 'instock'
     },
     {
         id: 2, name: 'Maceta de Cerámica Esmaltada', price: '1650', regular_price: '1650', on_sale: false,
-        featured: true, date_created: demoDate(5), categories: [{ slug: 'ceramica' }],
-        images: [demoImg('3D1260', 'FFFFFF', 'Maceta Cerámica'), demoImg('D9C6EB', '2C0847', 'Esmalte')],
+        featured: true, date_created: demoDate(5), categories: [{ slug: 'corte-laser' }],
+        images: [demoImg('8F9B2F', 'FFFFFF', 'Maceta Cerámica'), demoImg('FCA321', '5E6622', 'Esmalte')],
         description: '<p>Modelada a mano con arcilla local y esmaltes libres de plomo. Incluye orificio de drenaje.</p>',
         attributes: [{ name: 'Tamaño', options: ['S', 'M', 'L'] }],
         related_ids: [4, 6, 1, 8], stock_status: 'instock'
     },
     {
         id: 3, name: 'Tapiz de Macramé Algodón Natural', price: '3200', regular_price: '3200', on_sale: false,
-        featured: true, date_created: demoDate(60), categories: [{ slug: 'macrame' }],
-        images: [demoImg('5A0B4D', 'FFFFFF', 'Tapiz Macramé'), demoImg('EDE3F5', '5A0B4D', 'Tejido')],
+        featured: true, date_created: demoDate(60), categories: [{ slug: 'personalizados' }],
+        images: [demoImg('A68A26', 'FFFFFF', 'Tapiz Macramé'), demoImg('E6EBB1', 'A68A26', 'Tejido')],
         description: '<p>Tejido a mano con cuerda de algodón reciclado sobre rama de eucalipto.</p>',
         attributes: [],
         related_ids: [7, 1, 5, 2], stock_status: 'instock'
     },
     {
         id: 4, name: 'Vela de Soja en Frasco Reutilizado', price: '690', regular_price: '850', on_sale: true,
-        featured: true, date_created: demoDate(2), categories: [{ slug: 'velas' }],
-        images: [demoImg('1F1450', 'FFFFFF', 'Vela de Soja'), demoImg('D9C6EB', '1F1450', 'Aroma')],
+        featured: true, date_created: demoDate(2), categories: [{ slug: 'otros' }],
+        images: [demoImg('7ABFB1', 'FFFFFF', 'Vela de Soja'), demoImg('FCA321', '7ABFB1', 'Aroma')],
         description: '<p>Cera de soja con aceites esenciales de lavanda. Frasco de vidrio recuperado, listo para reutilizar.</p>',
         attributes: [],
         related_ids: [6, 2, 8, 3], stock_status: 'instock'
     },
     {
         id: 5, name: 'Lámina Ilustrada Fauna Nativa', price: '1200', regular_price: '1200', on_sale: false,
-        featured: false, date_created: demoDate(30), categories: [{ slug: 'cuadros' }],
-        images: [demoImg('EDE3F5', '2C0847', 'Fauna Nativa')],
+        featured: false, date_created: demoDate(30), categories: [{ slug: 'papeleria' }],
+        images: [demoImg('E6EBB1', '5E6622', 'Fauna Nativa')],
         description: '<p>Impresión giclée sobre papel de algodón con tintas a base de agua.</p>',
         attributes: [{ name: 'Medida', options: ['A4', 'A3'] }],
         related_ids: [1, 7, 3, 8], stock_status: 'instock'
     },
     {
         id: 6, name: 'Set de Cuencos Cerámica Artesanal', price: '2400', regular_price: '2400', on_sale: false,
-        featured: false, date_created: demoDate(9), categories: [{ slug: 'ceramica' }],
-        images: [demoImg('522077', 'FFFFFF', 'Set de Cuencos')],
+        featured: false, date_created: demoDate(9), categories: [{ slug: 'corte-laser' }],
+        images: [demoImg('76802A', 'FFFFFF', 'Set de Cuencos')],
         description: '<p>Tres cuencos de gres torneados a mano, aptos para alimentos y lavavajillas.</p>',
         attributes: [],
         related_ids: [2, 4, 8, 1], stock_status: 'instock'
     },
     {
         id: 7, name: 'Portamacetas Colgante de Macramé', price: '980', regular_price: '980', on_sale: false,
-        featured: false, date_created: demoDate(80), categories: [{ slug: 'macrame' }],
-        images: [demoImg('D9C6EB', '3D1260', 'Portamacetas')],
+        featured: false, date_created: demoDate(80), categories: [{ slug: 'personalizados' }],
+        images: [demoImg('FCA321', '8F9B2F', 'Portamacetas')],
         description: '<p>Colgante de cuerda reciclada con aro de madera. Soporta macetas de hasta 18 cm.</p>',
         attributes: [],
         related_ids: [3, 2, 6, 1], stock_status: 'instock'
     },
     {
         id: 8, name: 'Espejo con Marco de Madera Recuperada', price: '6800', regular_price: '7500', on_sale: true,
-        featured: false, date_created: demoDate(20), categories: [{ slug: 'decoracion' }],
-        images: [demoImg('2C0847', 'D9C6EB', 'Espejo Madera')],
+        featured: false, date_created: demoDate(20), categories: [{ slug: 'otros' }],
+        images: [demoImg('5E6622', 'FCA321', 'Espejo Madera')],
         description: '<p>Marco realizado con tablas de pallets recuperados, lijado y terminado con cera natural.</p>',
         attributes: [{ name: 'Medida', options: ['50 cm', '70 cm'] }],
         related_ids: [1, 6, 3, 4], stock_status: 'instock'

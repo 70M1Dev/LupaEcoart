@@ -18,13 +18,13 @@
                     },
                     colors: {
                         primary: {
-                            50: '#F7F2FB', 100: '#EDE3F5', 200: '#D9C6EB',
-                            300: '#B996D6', 400: '#8F5DB9', 500: '#6B3896',
-                            600: '#522077', 700: '#3D1260', 800: '#2C0847',
-                            900: '#1B042D'
+                            50: '#F7F9E8', 100: '#EEF2CF', 200: '#DDE4A3',
+                            300: '#C3CE6E', 400: '#A8B444', 500: '#8F9B2F',  // color principal
+                            600: '#76802A', 700: '#5E6622', 800: '#4A501C',
+                            900: '#33370F'
                         },
-                        accent: '#5A0B4D',
-                        iris: '#1F1450'
+                        accent: '#FCA321',
+                        teal: '#7ABFB1', cream: '#E6EBB1', mustard: '#A68A26'
                     }
                 }
             }
@@ -35,16 +35,16 @@
 
     <!-- ================= NAVBAR DESKTOP ================= -->
     <nav id="navbar-scroll"
-         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-800/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-500/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
 
         <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
             <div class="relative">
                 <input type="text"
                        id="search-input"
                        placeholder="Buscar obras y objetos..."
-                       class="w-full pl-10 pr-4 py-2 bg-primary-700 text-white placeholder-primary-200 border border-primary-600 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
+                       class="w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
                 <svg xmlns="http://www.w3.org/2000/svg"
-                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-primary-200"
+                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/80"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -58,15 +58,15 @@
                     <img src="assets/logo.svg" alt="" class="h-8 w-8">
                     <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
                 </a>
-                <a href="index.html" class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                <a href="index.html" class="px-4 py-2 rounded-full hover:bg-primary-600 text-white font-medium transition whitespace-nowrap">
                     Inicio
                 </a>
-                <a href="productos.html" class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                <a href="productos.html" class="px-4 py-2 rounded-full hover:bg-primary-600 text-white font-medium transition whitespace-nowrap">
                     Catálogo
                 </a>
             </div>
             <div class="w-10 flex-shrink-0"></div>
-            <a href="carrito.html" class="relative p-2 bg-primary-600 text-white rounded-full transition flex-shrink-0" aria-label="Carrito">
+            <a href="carrito.html" class="relative p-2 bg-primary-700 text-white rounded-full transition flex-shrink-0" aria-label="Carrito">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
                 </svg>
@@ -86,11 +86,11 @@
     </button>
 
     <!-- ================= HEADER ================= -->
-    <section class="bg-primary-800 text-white pt-20 md:pt-28 pb-10 relative overflow-hidden">
-        <div class="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-accent/50 blur-3xl"></div>
+    <section class="bg-primary-500 text-white pt-20 md:pt-28 pb-10 relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-teal/40 blur-3xl"></div>
         <div class="container mx-auto px-4 relative">
             <h1 class="text-3xl md:text-5xl font-light">Tu <span class="font-semibold">carrito</span></h1>
-            <p class="text-primary-200 mt-2" id="cart-subtitle">0 productos en tu carrito</p>
+            <p class="text-white/85 mt-2" id="cart-subtitle">0 productos en tu carrito</p>
         </div>
     </section>
 
@@ -122,7 +122,7 @@
                     <div class="flex gap-2">
                         <input type="text" id="coupon-input" placeholder="Ingresá tu código"
                                class="flex-1 min-w-0 px-4 py-2 bg-white border border-primary-100 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-400">
-                        <button id="apply-coupon" class="bg-primary-800 hover:bg-primary-600 text-white px-6 py-2 rounded-full font-semibold transition">
+                        <button id="apply-coupon" class="bg-primary-700 hover:bg-primary-800 text-white px-6 py-2 rounded-full font-semibold transition">
                             Aplicar
                         </button>
                     </div>
@@ -160,7 +160,7 @@
                         <span class="text-2xl font-bold text-black" id="total">$0</span>
                     </div>
 
-                    <button id="checkout-btn" class="w-full bg-primary-800 hover:bg-primary-600 text-white font-semibold py-4 rounded-full transition mb-4">
+                    <button id="checkout-btn" class="w-full bg-primary-700 hover:bg-primary-800 text-white font-semibold py-4 rounded-full transition mb-4">
                         Proceder al pago
                     </button>
 

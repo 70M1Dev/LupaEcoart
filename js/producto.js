@@ -33,7 +33,7 @@ function mapWCProductDetail(p) {
         description: p.description || p.short_description || '',
         images: p.images && p.images.length
             ? p.images.map(img => img.src)
-            : ['https://placehold.co/600x700/EDE3F5/2C0847?text=Sin+imagen'],
+            : ['https://placehold.co/600x700/E6EBB1/4A501C?text=Sin+imagen'],
         sizes: sizeAttr ? sizeAttr.options : [],
         badge: badge,
         relatedIds: p.related_ids || []
@@ -78,7 +78,7 @@ function getURLParam(param) {
 }
 
 function getCategoryName(cat) {
-    const names = { cuadros: 'Cuadros', ceramica: 'Cerámica', macrame: 'Macramé', velas: 'Velas & Aromas', decoracion: 'Decoración' };
+    const names = { papeleria: 'Papelería', 'corte-laser': 'Corte láser', personalizados: 'Personalizados', otros: 'Otros' };
     return names[cat] || cat;
 }
 
@@ -122,7 +122,7 @@ async function loadProduct() {
         badgeEl.textContent = currentProduct.badge;
         if (!currentProduct.badge.includes('-')) {
             badgeEl.classList.remove('bg-accent');
-            badgeEl.classList.add('bg-primary-800');
+            badgeEl.classList.add('bg-teal');
         }
         badgeEl.classList.remove('hidden');
     }

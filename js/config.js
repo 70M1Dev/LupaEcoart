@@ -126,14 +126,14 @@ function wcRenderError(containerId, err) {
 
     container.innerHTML = `
         <div class="col-span-full flex flex-col items-center justify-center text-center py-16 px-4">
-            <svg class="w-12 h-12 text-primary-200 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <svg class="w-12 h-12 text-primary-300 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                       d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
             </svg>
             <h3 class="text-lg font-semibold text-black mb-1">${titulo}</h3>
             <p class="text-sm text-neutral-500 max-w-sm">${texto}</p>
             <button onclick="location.reload()"
-                    class="mt-5 px-5 py-2 bg-primary-800 hover:bg-primary-600 text-white text-sm font-semibold rounded-full transition">
+                    class="mt-5 px-5 py-2 bg-primary-700 hover:bg-primary-800 text-white text-sm font-semibold rounded-full transition">
                 Reintentar
             </button>
         </div>

@@ -18,13 +18,13 @@
                     },
                     colors: {
                         primary: {
-                            50: '#F7F2FB', 100: '#EDE3F5', 200: '#D9C6EB',
-                            300: '#B996D6', 400: '#8F5DB9', 500: '#6B3896',
-                            600: '#522077', 700: '#3D1260', 800: '#2C0847',
-                            900: '#1B042D'
+                            50: '#F7F9E8', 100: '#EEF2CF', 200: '#DDE4A3',
+                            300: '#C3CE6E', 400: '#A8B444', 500: '#8F9B2F',  // color principal
+                            600: '#76802A', 700: '#5E6622', 800: '#4A501C',
+                            900: '#33370F'
                         },
-                        accent: '#5A0B4D',
-                        iris: '#1F1450'
+                        accent: '#FCA321',
+                        teal: '#7ABFB1', cream: '#E6EBB1', mustard: '#A68A26'
                     }
                 }
             }
@@ -35,16 +35,16 @@
 
     <!-- ================= NAVBAR DESKTOP ================= -->
     <nav id="navbar-scroll"
-         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-800/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-500/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
 
         <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
             <div class="relative">
                 <input type="text"
                        id="search-input"
                        placeholder="Buscar obras y objetos..."
-                       class="w-full pl-10 pr-4 py-2 bg-primary-700 text-white placeholder-primary-200 border border-primary-600 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
+                       class="w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
                 <svg xmlns="http://www.w3.org/2000/svg"
-                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-primary-200"
+                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/80"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -58,15 +58,15 @@
                     <img src="assets/logo.svg" alt="" class="h-8 w-8">
                     <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
                 </a>
-                <a href="index.html" class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                <a href="index.html" class="px-4 py-2 rounded-full hover:bg-primary-600 text-white font-medium transition whitespace-nowrap">
                     Inicio
                 </a>
-                <a href="productos.html" class="px-4 py-2 rounded-full hover:bg-primary-700 text-white font-medium transition whitespace-nowrap">
+                <a href="productos.html" class="px-4 py-2 rounded-full hover:bg-primary-600 text-white font-medium transition whitespace-nowrap">
                     Catálogo
                 </a>
             </div>
             <div class="w-10 flex-shrink-0"></div>
-            <a href="carrito.html" class="relative p-2 hover:bg-primary-700 rounded-full transition flex-shrink-0 block" aria-label="Carrito">
+            <a href="carrito.html" class="relative p-2 hover:bg-primary-600 rounded-full transition flex-shrink-0 block" aria-label="Carrito">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
                 </svg>
@@ -132,7 +132,7 @@
                     </div>
 
                     <!-- Badge -->
-                    <span id="product-badge" class="absolute top-4 left-4 bg-accent text-white text-xs font-semibold px-3 py-1 rounded-full hidden">
+                    <span id="product-badge" class="absolute top-4 left-4 bg-accent text-black text-xs font-semibold px-3 py-1 rounded-full hidden">
                         -20%
                     </span>
                 </div>
@@ -143,7 +143,7 @@
             <div>
 
                 <!-- Categoría -->
-                <p class="text-xs text-primary-500 uppercase tracking-widest font-medium mb-2" id="product-category">
+                <p class="text-xs text-mustard uppercase tracking-widest font-medium mb-2" id="product-category">
                     …
                 </p>
 
@@ -154,7 +154,7 @@
 
                 <!-- Rating -->
                 <div class="flex items-center gap-2 mb-5">
-                    <div class="flex text-primary-500">
+                    <div class="flex text-accent">
                         <span>★</span><span>★</span><span>★</span><span>★</span><span class="text-primary-100">★</span>
                     </div>
                     <span class="text-sm text-neutral-500">(4.0) · 23 reseñas</span>
@@ -164,7 +164,7 @@
                 <div class="flex items-baseline gap-3 mb-2">
                     <span class="text-4xl font-bold text-black" id="product-price">$0</span>
                     <span class="text-xl text-neutral-400 line-through hidden" id="product-original-price">$0</span>
-                    <span class="bg-accent text-white text-xs font-semibold px-2.5 py-1 rounded-full hidden" id="product-discount">-20%</span>
+                    <span class="bg-accent text-black text-xs font-semibold px-2.5 py-1 rounded-full hidden" id="product-discount">-20%</span>
                 </div>
 
                 <!-- Cuotas -->
@@ -201,7 +201,7 @@
                     <div class="flex gap-3">
                         <button class="w-10 h-10 rounded-full bg-[#C8A27A] border-2 border-primary-100 hover:border-primary-800 transition" title="Natural"></button>
                         <button class="w-10 h-10 rounded-full bg-white border-2 border-primary-100 hover:border-primary-800 transition" title="Blanco"></button>
-                        <button class="w-10 h-10 rounded-full bg-primary-800 border-2 border-primary-100 hover:border-primary-400 transition" title="Violeta"></button>
+                        <button class="w-10 h-10 rounded-full bg-primary-800 border-2 border-primary-100 hover:border-primary-400 transition" title="Oliva"></button>
                     </div>
                 </div>
 
@@ -226,7 +226,7 @@
                         Añadir al carrito
                     </button>
                     <button id="buy-now-btn"
-                            class="flex-1 bg-primary-800 hover:bg-primary-600 text-white font-semibold py-4 rounded-full transition">
+                            class="flex-1 bg-primary-700 hover:bg-primary-800 text-white font-semibold py-4 rounded-full transition">
                         Comprar ahora
                     </button>
                 </div>
