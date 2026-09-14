@@ -38,7 +38,14 @@ const WC_CONFIG = {
     // Modo boceto: mientras no haya backend configurado, muestra productos
     // de ejemplo (js/demo-data.js). Se apaga solo al completar PROXY_URL.
     // ------------------------------------------------------------------
-    DEMO: true
+    DEMO: true,
+
+    // ------------------------------------------------------------------
+    // WhatsApp de la tienda para "Coordinar por WhatsApp" (solo digitos,
+    // con codigo de pais, sin + ni espacios). Ej: '59899123456'.
+    // Vacio = no se muestra el boton de WhatsApp al confirmar el pedido.
+    // ------------------------------------------------------------------
+    WHATSAPP_NUMBER: ''
 };
 
 // ==========================================

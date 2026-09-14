@@ -72,9 +72,12 @@
 
     <!-- ================= CHECKOUT ================= -->
     <div class="container mx-auto px-4 py-10">
-        <h1 class="text-3xl font-semibold mb-8 text-black">Finalizar compra</h1>
+        <h1 id="checkout-title" class="text-3xl font-semibold mb-8 text-black">Finalizar compra</h1>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Confirmación (se muestra al crear el pedido) -->
+        <section id="order-success" class="hidden max-w-xl mx-auto bg-white rounded-2xl border border-primary-100 shadow-sm p-8 text-center" aria-live="polite"></section>
+
+        <div id="checkout-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             <!-- Formularios -->
             <div class="lg:col-span-2 space-y-6">
@@ -124,27 +127,28 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">Departamento *</label>
+                            <!-- Los value son los códigos de departamento de WooCommerce -->
                             <select id="state" required class="field">
                                 <option value="">Seleccioná...</option>
-                                <option>Artigas</option>
-                                <option>Canelones</option>
-                                <option>Cerro Largo</option>
-                                <option>Colonia</option>
-                                <option>Durazno</option>
-                                <option>Flores</option>
-                                <option>Florida</option>
-                                <option>Lavalleja</option>
-                                <option>Maldonado</option>
-                                <option>Montevideo</option>
-                                <option>Paysandú</option>
-                                <option>Río Negro</option>
-                                <option>Rivera</option>
-                                <option>Rocha</option>
-                                <option>Salto</option>
-                                <option>San José</option>
-                                <option>Soriano</option>
-                                <option>Tacuarembó</option>
-                                <option>Treinta y Tres</option>
+                                <option value="UY-AR">Artigas</option>
+                                <option value="UY-CA">Canelones</option>
+                                <option value="UY-CL">Cerro Largo</option>
+                                <option value="UY-CO">Colonia</option>
+                                <option value="UY-DU">Durazno</option>
+                                <option value="UY-FS">Flores</option>
+                                <option value="UY-FD">Florida</option>
+                                <option value="UY-LA">Lavalleja</option>
+                                <option value="UY-MA">Maldonado</option>
+                                <option value="UY-MO">Montevideo</option>
+                                <option value="UY-PA">Paysandú</option>
+                                <option value="UY-RN">Río Negro</option>
+                                <option value="UY-RV">Rivera</option>
+                                <option value="UY-RO">Rocha</option>
+                                <option value="UY-SA">Salto</option>
+                                <option value="UY-SJ">San José</option>
+                                <option value="UY-SO">Soriano</option>
+                                <option value="UY-TA">Tacuarembó</option>
+                                <option value="UY-TT">Treinta y Tres</option>
                             </select>
                         </div>
                         <div>
@@ -162,33 +166,9 @@
                 <div class="bg-white rounded-2xl border border-primary-100 p-6">
                     <h2 class="text-xl font-semibold mb-4">Método de pago</h2>
 
-                    <div class="space-y-3">
-                        <label class="flex items-start gap-3 p-4 border-2 border-primary-100 rounded-2xl cursor-pointer hover:border-primary-800 transition payment-option">
-                            <input type="radio" name="payment" value="mercadopago" checked class="mt-1 accent-primary-800">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-semibold">Mercado Pago</span>
-                                    <span class="bg-primary-800 text-white text-xs px-2 py-0.5 rounded-full">Recomendado</span>
-                                </div>
-                                <p class="text-sm text-neutral-600 mt-1">Tarjeta de crédito, débito o dinero en cuenta</p>
-                            </div>
-                        </label>
-
-                        <label class="flex items-start gap-3 p-4 border-2 border-primary-100 rounded-2xl cursor-pointer hover:border-primary-800 transition payment-option">
-                            <input type="radio" name="payment" value="transfer" class="mt-1 accent-primary-800">
-                            <div class="flex-1">
-                                <span class="font-semibold">Transferencia bancaria</span>
-                                <p class="text-sm text-neutral-600 mt-1">10% de descuento adicional</p>
-                            </div>
-                        </label>
-
-                        <label class="flex items-start gap-3 p-4 border-2 border-primary-100 rounded-2xl cursor-pointer hover:border-primary-800 transition payment-option">
-                            <input type="radio" name="payment" value="cash" class="mt-1 accent-primary-800">
-                            <div class="flex-1">
-                                <span class="font-semibold">Efectivo (Abitab / Redpagos)</span>
-                                <p class="text-sm text-neutral-600 mt-1">Generás un cupón y pagás en cualquier local</p>
-                            </div>
-                        </label>
+                    <!-- Los métodos activos vienen de WooCommerce (js/checkout.js) -->
+                    <div id="payment-methods" class="space-y-3">
+                        <p class="text-sm text-neutral-500">Cargando métodos de pago…</p>
                     </div>
                 </div>
             </div>
@@ -198,35 +178,56 @@
                 <div class="bg-white rounded-2xl border border-primary-100 shadow-sm p-6 sticky top-24">
                     <h2 class="text-xl font-semibold mb-6 pb-4 border-b border-primary-100">Tu pedido</h2>
 
-                    <!-- Productos -->
+                    <!-- Productos (precios calculados por WooCommerce) -->
                     <div id="checkout-items" class="space-y-4 mb-6 max-h-64 overflow-y-auto">
-                        <!-- Se carga con JS -->
+                        <p class="text-sm text-neutral-500">Preparando tu pedido…</p>
                     </div>
+
+                    <!-- Avisos de stock al armar el pedido -->
+                    <div id="checkout-notices" class="hidden mb-4 bg-cream/60 border border-mustard/40 text-sm rounded-2xl px-4 py-3 space-y-1" role="status"></div>
+
+                    <!-- Cupón -->
+                    <div class="mb-4">
+                        <div class="flex gap-2">
+                            <input type="text" id="checkout-coupon" placeholder="Cupón de descuento" autocapitalize="characters"
+                                   class="flex-1 min-w-0 px-4 py-2 bg-white border border-primary-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary-400">
+                            <button id="checkout-coupon-btn" type="button"
+                                    class="bg-primary-50 hover:bg-primary-100 text-primary-800 px-4 py-2 rounded-full text-sm font-semibold transition disabled:opacity-50">
+                                Aplicar
+                            </button>
+                        </div>
+                        <p id="checkout-coupon-message" class="text-xs mt-2 hidden"></p>
+                    </div>
+
+                    <!-- Opciones de envío -->
+                    <div id="shipping-rates" class="hidden mb-4 space-y-2"></div>
 
                     <!-- Totales -->
                     <div class="space-y-3 mb-6 pt-4 border-t border-primary-100">
                         <div class="flex justify-between text-sm">
                             <span class="text-neutral-600">Subtotal</span>
-                            <span class="font-semibold" id="checkout-subtotal">$0</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-neutral-600">Envío</span>
-                            <span class="font-semibold" id="checkout-shipping">Gratis</span>
+                            <span class="font-semibold" id="checkout-subtotal">—</span>
                         </div>
                         <div id="checkout-discount-row" class="flex justify-between text-sm hidden">
                             <span class="text-neutral-600">Descuento</span>
-                            <span class="font-semibold text-primary-600" id="checkout-discount">-$0</span>
+                            <span class="font-semibold text-primary-600" id="checkout-discount">—</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-neutral-600">Envío</span>
+                            <span class="font-semibold" id="checkout-shipping">Elegí el departamento</span>
                         </div>
                     </div>
 
                     <div class="flex justify-between items-center pt-4 border-t border-primary-100 mb-6">
                         <span class="text-lg font-semibold">Total</span>
-                        <span class="text-2xl font-bold text-black" id="checkout-total">$0</span>
+                        <span class="text-2xl font-bold text-black" id="checkout-total">—</span>
                     </div>
 
-                    <button id="place-order-btn"
-                            class="w-full bg-primary-700 hover:bg-primary-800 text-white font-semibold py-4 rounded-full transition mb-6">
-                        Confirmar y pagar
+                    <p id="checkout-error" class="hidden mb-4 text-sm text-red-700 bg-red-50 rounded-2xl px-4 py-3" role="alert"></p>
+
+                    <button id="place-order-btn" disabled
+                            class="w-full bg-primary-700 hover:bg-primary-800 text-white font-semibold py-4 rounded-full transition mb-6 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Confirmar pedido
                     </button>
 
                     <div class="text-center text-xs text-neutral-500 space-y-1">
@@ -240,9 +241,9 @@
     </div>
 
     <!-- ================= SCRIPTS ================= -->
-    <script src="js/config.js?v=20260914-3"></script>
-    <script src="js/cart.js?v=20260914-3"></script>
-    <script src="js/checkout.js?v=20260914-3"></script>
+    <script src="js/config.js?v=20260914-4"></script>
+    <script src="js/cart.js?v=20260914-4"></script>
+    <script src="js/checkout.js?v=20260914-4"></script>
 
 </body>
 </html>

@@ -340,11 +340,18 @@ function showLogin(message) {
     $('login-user').focus();
 }
 
+// Vistas del panel y la pestaña a la que pertenece cada una.
+const VIEW_TABS = { catalog: 'catalog', editor: 'catalog', orders: 'orders', order: 'orders' };
+
 function showView(name) {
     $('view-login').hidden = true;
     $('view-app').hidden = false;
-    $('view-catalog').hidden = name !== 'catalog';
-    $('view-editor').hidden = name !== 'editor';
+    Object.keys(VIEW_TABS).forEach(view => {
+        $(`view-${view}`).hidden = view !== name;
+    });
+    document.querySelectorAll('[data-tab]').forEach(tab => {
+        tab.setAttribute('aria-selected', String(tab.dataset.tab === VIEW_TABS[name]));
+    });
     window.scrollTo(0, 0);
 }
 
@@ -904,6 +911,283 @@ async function onDeleteProduct() {
 }
 
 // ==========================================
+// PEDIDOS
+// ==========================================
+
+const ORDER_STATUS = {
+    pending: { label: 'Pendiente de pago', cls: 'bg-neutral-200 text-neutral-700' },
+    'on-hold': { label: 'En espera', cls: 'bg-accent/25 text-black' },
+    processing: { label: 'Procesando', cls: 'bg-teal/30 text-primary-900' },
+    completed: { label: 'Completado', cls: 'bg-primary-100 text-primary-800' },
+    cancelled: { label: 'Cancelado', cls: 'bg-red-100 text-red-700' },
+    refunded: { label: 'Reembolsado', cls: 'bg-neutral-200 text-neutral-700' },
+    failed: { label: 'Fallido', cls: 'bg-red-100 text-red-700' },
+    'checkout-draft': { label: 'Borrador', cls: 'bg-neutral-100 text-neutral-500' }
+};
+
+// Estados que se pueden elegir a mano desde el panel.
+const ORDER_STATUS_CHOICES = ['pending', 'on-hold', 'processing', 'completed', 'cancelled'];
+
+const orders = {
+    list: [],
+    page: 1,
+    total: 0,
+    totalPages: 1,
+    search: '',
+    status: '',
+    loadSeq: 0,
+    loaded: false,
+    current: null
+};
+
+function statusBadge(status) {
+    const s = ORDER_STATUS[status] || { label: status, cls: 'bg-neutral-200 text-neutral-700' };
+    return `<span class="badge ${s.cls}">${esc(s.label)}</span>`;
+}
+
+function formatDate(iso) {
+    if (!iso) return '';
+    // date_created de WooCommerce viene sin zona: es la hora de la tienda.
+    return new Date(iso).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+function customerName(order) {
+    const b = order.billing || {};
+    return decodeEntities(`${b.first_name || ''} ${b.last_name || ''}`.trim()) || 'Sin nombre';
+}
+
+// Teléfono uruguayo → número para wa.me (598 + número sin el 0 inicial).
+function whatsappDigits(phone) {
+    let digits = String(phone || '').replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('00')) digits = digits.slice(2);
+    if (digits.startsWith('598')) return digits;
+    if (digits.startsWith('0')) digits = digits.slice(1);
+    return digits.length === 8 ? `598${digits}` : digits;
+}
+
+function orderRow(o) {
+    const items = (o.line_items || []).reduce((sum, item) => sum + item.quantity, 0);
+    return `
+        <article class="card p-4 flex flex-col sm:flex-row sm:items-center gap-3 cursor-pointer hover:border-primary-300 transition" data-order-id="${o.id}" tabindex="0" role="button" aria-label="Ver pedido ${esc(o.number)}">
+            <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                    <span class="font-semibold">#${esc(o.number)}</span>
+                    ${statusBadge(o.status)}
+                    <span class="text-xs text-neutral-500">${esc(formatDate(o.date_created))}</span>
+                </div>
+                <p class="text-sm text-neutral-700 truncate">${esc(customerName(o))} · ${items} ${items === 1 ? 'producto' : 'productos'}</p>
+                <p class="text-xs text-neutral-500">${esc(decodeEntities(o.payment_method_title || 'Sin método de pago'))}</p>
+            </div>
+            <p class="text-lg font-bold whitespace-nowrap">${wcPrice(o.total)}</p>
+        </article>`;
+}
+
+async function loadOrders() {
+    const seq = ++orders.loadSeq;
+    const list = $('orders-list');
+    list.innerHTML = '<div class="card p-8 text-center text-neutral-500">Cargando pedidos…</div>';
+    $('orders-pagination').hidden = true;
+
+    try {
+        const { data, total, totalPages } = await api('GET', 'orders', {
+            params: {
+                per_page: ADMIN_PER_PAGE,
+                page: orders.page,
+                search: orders.search,
+                status: orders.status || 'any',
+                orderby: 'date',
+                order: 'desc'
+            }
+        });
+        if (seq !== orders.loadSeq) return;
+
+        orders.list = data.filter(o => o.status !== 'checkout-draft');
+        orders.total = total || orders.list.length;
+        orders.totalPages = Math.max(1, totalPages || 1);
+        orders.loaded = true;
+        renderOrders();
+    } catch (err) {
+        if (seq !== orders.loadSeq) return;
+        list.innerHTML = `
+            <div class="card p-8 text-center">
+                <p class="font-semibold mb-1">No pudimos cargar los pedidos</p>
+                <p class="text-sm text-neutral-500 mb-4">${esc(err.message)}</p>
+                <button type="button" class="btn-ghost" data-orders-retry>Reintentar</button>
+            </div>`;
+        $('orders-count').textContent = '';
+        if (err.status === 401) handleError(err);
+    }
+}
+
+function renderOrders() {
+    const filtering = orders.search || orders.status;
+    $('orders-count').textContent = orders.total === 1 ? '1 pedido' : `${orders.total} pedidos`;
+    $('orders-list').innerHTML = orders.list.length
+        ? orders.list.map(orderRow).join('')
+        : `<div class="card p-8 text-center text-neutral-500">
+               ${filtering ? 'Ningún pedido coincide con los filtros.' : 'Todavía no entraron pedidos.'}
+           </div>`;
+
+    $('orders-pagination').hidden = orders.totalPages <= 1;
+    $('orders-page-info').textContent = `Página ${orders.page} de ${orders.totalPages}`;
+    $('orders-prev').disabled = orders.page <= 1;
+    $('orders-next').disabled = orders.page >= orders.totalPages;
+}
+
+// Códigos de departamento de WooCommerce (los mismos que usa checkout.html).
+const UY_STATES = {
+    'UY-AR': 'Artigas', 'UY-CA': 'Canelones', 'UY-CL': 'Cerro Largo', 'UY-CO': 'Colonia',
+    'UY-DU': 'Durazno', 'UY-FS': 'Flores', 'UY-FD': 'Florida', 'UY-LA': 'Lavalleja',
+    'UY-MA': 'Maldonado', 'UY-MO': 'Montevideo', 'UY-PA': 'Paysandú', 'UY-RN': 'Río Negro',
+    'UY-RV': 'Rivera', 'UY-RO': 'Rocha', 'UY-SA': 'Salto', 'UY-SJ': 'San José',
+    'UY-SO': 'Soriano', 'UY-TA': 'Tacuarembó', 'UY-TT': 'Treinta y Tres'
+};
+
+function addressLines(a) {
+    if (!a) return [];
+    return [
+        `${a.address_1 || ''} ${a.address_2 || ''}`.trim(),
+        [a.city, UY_STATES[a.state] || a.state, a.postcode].filter(Boolean).join(', ')
+    ].filter(Boolean).map(decodeEntities);
+}
+
+function renderOrderDetail(o) {
+    const phone = (o.billing && o.billing.phone) || (o.shipping && o.shipping.phone) || '';
+    const wa = whatsappDigits(phone);
+    const shipTo = o.shipping && o.shipping.address_1 ? o.shipping : o.billing;
+    const shippingLine = (o.shipping_lines || [])[0];
+    let adminUrl = '';
+    try { adminUrl = `${new URL(o.payment_url).origin}/wp-admin/admin.php?page=wc-orders&action=edit&id=${o.id}`; } catch { /* sin payment_url */ }
+
+    const itemsHtml = (o.line_items || []).map(item => `
+        <div class="flex justify-between gap-3 py-2 border-b border-neutral-100 last:border-0">
+            <span>${esc(decodeEntities(item.name))} <span class="text-neutral-500">×${item.quantity}</span></span>
+            <span class="font-semibold whitespace-nowrap">${wcPrice(item.subtotal)}</span>
+        </div>`).join('');
+
+    const discount = Number(o.discount_total || 0);
+    const coupons = (o.coupon_lines || []).map(c => c.code.toUpperCase()).join(', ');
+
+    $('order-detail').innerHTML = `
+        <div class="flex flex-wrap items-center gap-3 mb-1">
+            <h1 class="text-2xl font-semibold">Pedido #${esc(o.number)}</h1>
+            ${statusBadge(o.status)}
+        </div>
+        <p class="text-sm text-neutral-500 mb-5">${esc(formatDate(o.date_created))} · ${esc(decodeEntities(o.payment_method_title || 'Sin método de pago'))}${o.date_paid ? ` · pagado ${esc(formatDate(o.date_paid))}` : ''}</p>
+
+        <div class="space-y-4">
+            <div class="card p-5">
+                <h2 class="font-semibold mb-3">Estado</h2>
+                <div class="flex flex-wrap items-center gap-2">
+                    <select id="order-status-select" class="input !w-auto">
+                        ${ORDER_STATUS_CHOICES.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${esc(ORDER_STATUS[s].label)}</option>`).join('')}
+                        ${ORDER_STATUS_CHOICES.includes(o.status) ? '' : `<option value="${esc(o.status)}" selected disabled>${esc((ORDER_STATUS[o.status] || { label: o.status }).label)}</option>`}
+                    </select>
+                    <button id="order-status-save" type="button" class="btn-primary" disabled>Guardar estado</button>
+                </div>
+                <p class="hint">Al cancelar, WooCommerce devuelve el stock de los productos.</p>
+            </div>
+
+            <div class="card p-5">
+                <h2 class="font-semibold mb-3">Cliente</h2>
+                <p class="font-medium">${esc(customerName(o))}</p>
+                ${o.billing && o.billing.email ? `<p class="text-sm"><a class="text-primary-700 underline" href="mailto:${esc(o.billing.email)}">${esc(o.billing.email)}</a></p>` : ''}
+                ${phone ? `<p class="text-sm">${esc(phone)}</p>` : ''}
+                ${wa ? `<a href="https://wa.me/${wa}?text=${encodeURIComponent(`Hola ${o.billing.first_name || ''}, te escribimos de Lupa Ecoart por tu pedido #${o.number}.`)}" target="_blank" rel="noopener"
+                          class="inline-flex mt-3 px-4 py-2 rounded-full bg-[#1FAF38] hover:bg-[#178a2c] text-white text-sm font-semibold transition">Escribir por WhatsApp</a>` : ''}
+            </div>
+
+            <div class="card p-5">
+                <h2 class="font-semibold mb-3">Envío</h2>
+                ${addressLines(shipTo).map(l => `<p class="text-sm">${esc(l)}</p>`).join('') || '<p class="text-sm text-neutral-500">Sin dirección</p>'}
+                ${shippingLine ? `<p class="text-sm text-neutral-500 mt-2">${esc(decodeEntities(shippingLine.method_title))} · ${Number(shippingLine.total) === 0 ? 'Gratis' : wcPrice(shippingLine.total)}</p>` : ''}
+            </div>
+
+            ${o.customer_note ? `
+            <div class="card p-5">
+                <h2 class="font-semibold mb-3">Nota del cliente</h2>
+                <p class="text-sm whitespace-pre-line">${esc(decodeEntities(o.customer_note))}</p>
+            </div>` : ''}
+
+            <div class="card p-5">
+                <h2 class="font-semibold mb-2">Productos</h2>
+                <div class="text-sm">${itemsHtml}</div>
+                <div class="text-sm mt-3 space-y-1">
+                    ${discount ? `<div class="flex justify-between text-primary-700"><span>Descuento${coupons ? ` (${esc(coupons)})` : ''}</span><span>-${wcPrice(discount)}</span></div>` : ''}
+                    <div class="flex justify-between"><span>Envío</span><span>${Number(o.shipping_total) === 0 ? 'Gratis' : wcPrice(o.shipping_total)}</span></div>
+                    <div class="flex justify-between text-base font-bold pt-2 border-t border-neutral-100"><span>Total</span><span>${wcPrice(o.total)}</span></div>
+                </div>
+            </div>
+
+            ${adminUrl ? `<a href="${esc(adminUrl)}" target="_blank" rel="noopener" class="inline-block text-sm text-primary-700 underline">Abrir en WordPress</a>` : ''}
+        </div>`;
+
+    $('order-status-select').addEventListener('change', e => {
+        $('order-status-save').disabled = e.target.value === o.status;
+    });
+    $('order-status-save').addEventListener('click', () => saveOrderStatus(o));
+}
+
+async function openOrder(id) {
+    showView('order');
+    $('order-detail').innerHTML = '<div class="card p-8 text-center text-neutral-500">Cargando pedido…</div>';
+    try {
+        const { data } = await api('GET', `orders/${id}`);
+        orders.current = data;
+        renderOrderDetail(data);
+    } catch (err) {
+        $('order-detail').innerHTML = `<div class="card p-8 text-center text-neutral-500">${esc(err.message)}</div>`;
+        handleError(err);
+    }
+}
+
+async function saveOrderStatus(order) {
+    const status = $('order-status-select').value;
+    if (status === order.status) return;
+
+    if (status === 'cancelled') {
+        const ok = await confirmDialog(
+            `¿Cancelar el pedido #${order.number}?`,
+            'El pedido queda cancelado y el stock de sus productos vuelve a estar disponible.',
+            'Cancelar pedido'
+        );
+        if (!ok) return;
+    }
+
+    const button = $('order-status-save');
+    button.disabled = true;
+    button.textContent = 'Guardando…';
+    try {
+        const { data } = await api('PUT', `orders/${order.id}`, { body: { status } });
+        orders.current = data;
+        renderOrderDetail(data);
+        orders.loaded = false; // la lista se recarga al volver
+        toast(`Pedido #${data.number}: ${(ORDER_STATUS[data.status] || { label: data.status }).label}.`);
+    } catch (err) {
+        button.disabled = false;
+        button.textContent = 'Guardar estado';
+        handleError(err);
+    }
+}
+
+async function openTab(tab) {
+    const onEditor = !$('view-editor').hidden;
+    if (tab === 'orders' && onEditor && state.dirty) {
+        const discard = await confirmDialog('¿Descartar cambios?', 'Los cambios del producto que no guardaste se van a perder.', 'Descartar');
+        if (!discard) return;
+        state.dirty = false;
+        state.editing = null;
+    }
+    if (tab === 'catalog') {
+        if ($('view-editor').hidden) showView('catalog');
+        return;
+    }
+    showView('orders');
+    if (!orders.loaded) loadOrders();
+}
+
+// ==========================================
 // ARRANQUE
 // ==========================================
 
@@ -915,6 +1199,45 @@ function bindEvents() {
     });
 
     $('new-product-btn').addEventListener('click', () => openEditor(null));
+
+    document.querySelectorAll('[data-tab]').forEach(tab => {
+        tab.addEventListener('click', () => openTab(tab.dataset.tab));
+    });
+
+    $('orders-refresh').addEventListener('click', loadOrders);
+    $('orders-search').addEventListener('input', debounce(e => {
+        orders.search = e.target.value.trim();
+        orders.page = 1;
+        loadOrders();
+    }, 350));
+    $('orders-status').addEventListener('change', e => {
+        orders.status = e.target.value;
+        orders.page = 1;
+        loadOrders();
+    });
+    $('orders-prev').addEventListener('click', () => { orders.page--; loadOrders(); });
+    $('orders-next').addEventListener('click', () => { orders.page++; loadOrders(); });
+
+    const ordersList = $('orders-list');
+    ordersList.addEventListener('click', e => {
+        if (e.target.closest('[data-orders-retry]')) {
+            loadOrders();
+            return;
+        }
+        const row = e.target.closest('[data-order-id]');
+        if (row) openOrder(row.dataset.orderId);
+    });
+    ordersList.addEventListener('keydown', e => {
+        const row = e.target.closest('[data-order-id]');
+        if (row && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            openOrder(row.dataset.orderId);
+        }
+    });
+    $('order-back').addEventListener('click', () => {
+        showView('orders');
+        if (!orders.loaded) loadOrders();
+    });
 
     $('filter-search').addEventListener('input', debounce(e => {
         state.filters.search = e.target.value.trim();

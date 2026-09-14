@@ -47,6 +47,8 @@
         .btn-ghost { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-neutral-300 bg-white hover:bg-neutral-100 text-black font-medium transition disabled:opacity-50; }
         .btn-danger { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-red-700 hover:bg-red-50 font-semibold transition disabled:opacity-50; }
         .badge { @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold; }
+        .tab-btn { @apply px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-neutral-500 hover:text-black transition; }
+        .tab-btn[aria-selected="true"] { @apply border-primary-600 text-black; }
     </style>
 </head>
 <body class="bg-neutral-50 text-black font-sans antialiased min-h-screen">
@@ -101,6 +103,13 @@
             </div>
         </header>
 
+        <nav class="bg-white border-b border-neutral-200" aria-label="Secciones del panel">
+            <div class="max-w-6xl mx-auto px-4 flex gap-1" role="tablist">
+                <button type="button" class="tab-btn" role="tab" data-tab="catalog" aria-selected="true">Catálogo</button>
+                <button type="button" class="tab-btn" role="tab" data-tab="orders" aria-selected="false">Pedidos</button>
+            </div>
+        </nav>
+
         <!-- ---------- CATALOGO ---------- -->
         <section id="view-catalog" class="max-w-6xl mx-auto px-4 py-6">
             <div class="flex flex-wrap items-center gap-3 mb-5">
@@ -128,6 +137,43 @@
                 <span id="page-info" class="text-sm text-neutral-600"></span>
                 <button id="page-next" type="button" class="btn-ghost">Siguiente →</button>
             </nav>
+        </section>
+
+        <!-- ---------- PEDIDOS ---------- -->
+        <section id="view-orders" class="max-w-6xl mx-auto px-4 py-6" hidden>
+            <div class="flex flex-wrap items-center gap-3 mb-5">
+                <h1 class="text-2xl font-semibold mr-auto">Pedidos</h1>
+                <button id="orders-refresh" type="button" class="btn-ghost">Actualizar</button>
+            </div>
+
+            <div class="card p-3 mb-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
+                <input id="orders-search" type="search" class="input" placeholder="Buscar por nombre, email o número…" aria-label="Buscar pedidos">
+                <select id="orders-status" class="input sm:w-56" aria-label="Estado">
+                    <option value="">Todos los estados</option>
+                    <option value="processing">Procesando (pagado)</option>
+                    <option value="on-hold">En espera</option>
+                    <option value="pending">Pendiente de pago</option>
+                    <option value="completed">Completado</option>
+                    <option value="cancelled">Cancelado</option>
+                    <option value="refunded">Reembolsado</option>
+                    <option value="failed">Fallido</option>
+                </select>
+            </div>
+
+            <p id="orders-count" class="text-sm text-neutral-500 mb-3" aria-live="polite"></p>
+            <div id="orders-list" class="space-y-3"></div>
+
+            <nav id="orders-pagination" class="flex items-center justify-between mt-6" hidden>
+                <button id="orders-prev" type="button" class="btn-ghost">← Anterior</button>
+                <span id="orders-page-info" class="text-sm text-neutral-600"></span>
+                <button id="orders-next" type="button" class="btn-ghost">Siguiente →</button>
+            </nav>
+        </section>
+
+        <!-- ---------- DETALLE DE PEDIDO ---------- -->
+        <section id="view-order" class="max-w-3xl mx-auto px-4 py-6" hidden>
+            <button id="order-back" type="button" class="text-sm font-medium text-primary-700 hover:underline mb-3">← Volver a pedidos</button>
+            <div id="order-detail"></div>
         </section>
 
         <!-- ---------- EDITOR ---------- -->
@@ -235,13 +281,13 @@
 
     <div id="toasts" class="fixed bottom-20 inset-x-4 sm:left-auto sm:right-4 sm:w-96 z-[60] space-y-2"></div>
 
-    <script src="js/config.js?v=20260914-3"></script>
+    <script src="js/config.js?v=20260914-4"></script>
     <script>
         // Modo prueba solo en local: admin?demo usa datos en memoria.
         if (WC_IS_LOCAL_DEV && new URLSearchParams(location.search).has('demo') && typeof DEMO_PRODUCTS === 'undefined') {
             document.write('<script src="js/demo-data.js"><\/script>');
         }
     </script>
-    <script src="js/admin.js?v=20260914-3"></script>
+    <script src="js/admin.js?v=20260914-4"></script>
 </body>
 </html>

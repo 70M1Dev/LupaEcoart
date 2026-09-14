@@ -4,10 +4,8 @@
 let cart = getCart();
 let appliedCoupon = JSON.parse(localStorage.getItem('coupon')) || null;
 
-// Cupones válidos → porcentaje de descuento
-const COUPONS = { ECOART10: 0.10, BIENVENIDO15: 0.15 };
-
-// Envío gratis desde este monto (pesos uruguayos)
+// Estimación de envío para el carrito. El valor final lo calcula WooCommerce
+// en el checkout (zona Uruguay: $ 250, gratis desde $ 3.000).
 const FREE_SHIPPING_FROM = 3000;
 const SHIPPING_COST = 250;
 
@@ -24,10 +22,6 @@ function getSubtotal() {
 
 function getShipping(subtotal) {
     return subtotal >= FREE_SHIPPING_FROM ? 0 : SHIPPING_COST;
-}
-
-function getDiscount(subtotal) {
-    return appliedCoupon && COUPONS[appliedCoupon] ? subtotal * COUPONS[appliedCoupon] : 0;
 }
 
 // Maximo para una linea: stock del producto menos lo que ocupan sus otras medidas.
@@ -134,21 +128,15 @@ function updateQty(index, change) {
 function updateTotals() {
     const subtotal = getSubtotal();
     const shipping = getShipping(subtotal);
-    const discount = getDiscount(subtotal);
-    const total = subtotal + shipping - discount;
+    const total = subtotal + shipping;
 
     document.getElementById('subtotal').textContent = wcPrice(subtotal);
     document.getElementById('shipping').textContent = shipping === 0 ? 'Gratis' : wcPrice(shipping);
     document.getElementById('shipping').className = `font-semibold ${shipping === 0 ? 'text-primary-600' : ''}`;
     document.getElementById('total').textContent = wcPrice(total);
 
-    const discountRow = document.getElementById('discount-row');
-    if (discount > 0) {
-        discountRow.classList.remove('hidden');
-        document.getElementById('discount').textContent = `-${wcPrice(discount)}`;
-    } else {
-        discountRow.classList.add('hidden');
-    }
+    // El descuento del cupón lo calcula WooCommerce en el checkout.
+    document.getElementById('discount-row').classList.add('hidden');
 }
 
 // ==========================================
@@ -158,17 +146,16 @@ document.getElementById('apply-coupon').addEventListener('click', () => {
     const code = document.getElementById('coupon-input').value.trim().toUpperCase();
     const msgEl = document.getElementById('coupon-message');
 
-    if (COUPONS[code]) {
-        appliedCoupon = code;
-        msgEl.textContent = `Cupón "${code}" aplicado`;
-        msgEl.className = 'text-sm mt-2 text-primary-600 font-medium';
-    } else if (code === '') {
+    // Los cupones viven en WooCommerce: acá solo se guarda el código y el
+    // checkout lo valida y muestra el descuento real.
+    if (code === '') {
+        appliedCoupon = null;
         msgEl.textContent = 'Ingresá un código';
         msgEl.className = 'text-sm mt-2 text-neutral-600';
     } else {
-        msgEl.textContent = 'Cupón inválido';
-        msgEl.className = 'text-sm mt-2 text-red-600';
-        appliedCoupon = null;
+        appliedCoupon = code;
+        msgEl.textContent = `Guardamos "${code}": el descuento se aplica al finalizar la compra.`;
+        msgEl.className = 'text-sm mt-2 text-primary-600 font-medium';
     }
     // checkout.js lee el cupón desde localStorage
     localStorage.setItem('coupon', JSON.stringify(appliedCoupon));
