@@ -20,5 +20,6 @@ Thumbs.db
 dist/
 node_modules/
 
-# Cloudflare Wrangler (cache local)
+# Cloudflare Wrangler (cache local y secrets de desarrollo)
 .wrangler/
+.dev.vars

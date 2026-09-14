@@ -162,6 +162,37 @@ No hace falta darle a nadie credenciales FTP.
 4. Descomenta el bloque `[[routes]]` de `wrangler.toml`, corre `wrangler deploy`
    y actualiza `PROXY_URL` a `https://api.tudominio.com`.
 
+## Paso 7 — Panel de tienda (`/admin`)
+
+1. **Usuario de la dueña**: `Usuarios → Añadir nuevo`, rol **Gestor de tienda**
+   (si ya existe, revisá el rol).
+2. **Contraseña de aplicación**: entrá a WordPress *con ese usuario* →
+   `Usuarios → Perfil` → abajo de todo, *Contraseñas de aplicación* → nombre
+   `Panel Lupa Ecoart` → **Añadir**. Copiá la clave (24 letras en grupos de 4):
+   se muestra **una sola vez**. Esa es la "contraseña" del panel.
+   Para quitarle el acceso a un dispositivo, se revoca desde la misma pantalla.
+3. **Worker**: `ALLOWED_ORIGINS` tiene que incluir el dominio del panel
+   (`https://lupaecoart.site`). Después `wrangler deploy` para publicar las
+   rutas `/admin/…`.
+4. Entrá a `https://lupaecoart.site/admin` y probá.
+
+### Si el login dice "WordPress no reconoció la clave"
+
+Con usuario y clave correctos, eso significa que el hosting le está sacando el
+header `Authorization` a PHP. En Hostinger → Administrador de archivos →
+`.htaccess` de WordPress, agregá **arriba** del bloque `# BEGIN WordPress`:
+
+```apache
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+```
+
+Si hay algún plugin de seguridad (Wordfence, iThemes, etc.), revisá que no tenga
+desactivadas las contraseñas de aplicación o la REST API.
+
 ---
 
 ## Checklist
@@ -178,6 +209,9 @@ No hace falta darle a nadie credenciales FTP.
 - [ ] `curl` al Worker devuelve JSON de productos
 - [ ] `PROXY_URL` actualizado en `js/config.js` y pusheado (apaga el modo boceto)
 - [ ] `ALLOWED_ORIGINS` incluye el dominio real del frontend
+- [ ] Contraseña de aplicación creada para el usuario *Gestor de tienda*
+- [ ] Worker redeployado con las rutas `/admin/…`
+- [ ] Login en `/admin` funciona y se puede cambiar el stock de un producto
 
 ## Pendiente de desarrollo
 

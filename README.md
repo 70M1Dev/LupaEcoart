@@ -22,6 +22,7 @@ productos.html           ← Catálogo con filtros (categoría, precio, búsqued
 producto.html            ← Detalle de producto con galería + medidas
 carrito.html             ← Carrito con cupones (localStorage)
 checkout.html            ← Formulario de checkout
+admin.html               ← Panel de tienda (stock, altas y edición de productos)
 assets/logo.svg          ← Logo (lupa + hoja)
 worker.js                ← Cloudflare Worker (proxy de la API)
 wrangler.toml            ← Config de deploy del Worker
@@ -35,8 +36,33 @@ js/
 ├── productos.js         ← Lista con filtros
 ├── producto.js          ← Detalle + productos relacionados
 ├── carrito.js           ← Carrito + cupones
-└── checkout.js          ← Formulario de checkout (simulado)
+├── checkout.js          ← Formulario de checkout (simulado)
+└── admin.js             ← Panel de tienda
 ```
+
+## 🧰 Panel de tienda (`/admin`)
+
+`https://lupaecoart.site/admin` — la dueña de la tienda entra con su **usuario de
+WordPress** y una **contraseña de aplicación** y desde ahí:
+
+- ve el catálogo completo (publicados y borradores) con buscador y filtros;
+- cambia el stock en el momento (disponible / agotado / cantidad);
+- crea productos nuevos y edita los existentes: fotos (se achican solas a
+  1600 px), nombre, categoría, descripción, precio, oferta, medidas,
+  publicado y destacado;
+- elimina productos (van a la papelera de WordPress, se pueden recuperar).
+
+Cómo funciona: el panel le pega al Worker en `/admin/…` con la contraseña de
+aplicación, y el Worker la reenvía a WordPress **sin agregar las API keys**. Así
+WooCommerce aplica los permisos del usuario (rol *Gestor de tienda*). No hay
+ninguna clave de escritura guardada en el navegador, en GitHub ni en Cloudflare.
+
+Los cambios se ven en la tienda en hasta 5 minutos (caché del Worker).
+
+Configuración inicial: ver **Paso 7** en `DEPLOY.md`.
+
+**Modo prueba local:** `http://localhost:…/admin?demo` trabaja en memoria con
+los productos de `js/demo-data.js` (cualquier usuario entra, no toca la tienda).
 
 ## 🎨 Identidad
 
@@ -114,11 +140,14 @@ y hacé push.
 
 El Worker:
 
-- solo acepta `GET`;
-- solo deja pasar `/products`, `/products/{id}` y `/products/categories`
-  (nadie puede leer órdenes ni clientes a través del proxy);
+- en la zona pública solo acepta `GET` y solo deja pasar `/products`,
+  `/products/{id}` y `/products/categories` (nadie puede leer órdenes ni
+  clientes a través del proxy);
 - ignora `consumer_key` / `consumer_secret` que mande el cliente;
-- cachea 5 minutos en el edge;
+- cachea 5 minutos en el edge la zona pública;
+- en `/admin/…` exige usuario + contraseña de aplicación, no usa las API keys,
+  no cachea, rechaza orígenes fuera de `ALLOWED_ORIGINS` y solo permite
+  productos, categorías, subida de fotos y `/me`;
 - responde CORS solo a los orígenes de `ALLOWED_ORIGINS`.
 
 ### 3. WordPress

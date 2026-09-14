@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Lupa Ecoart - Panel de tienda</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
+                    },
+                    colors: {
+                        primary: {
+                            50: '#F7F9E8',
+                            100: '#EEF2CF',
+                            200: '#DDE4A3',
+                            300: '#C3CE6E',
+                            400: '#A8B444',
+                            500: '#8F9B2F',  // color principal
+                            600: '#76802A',
+                            700: '#5E6622',
+                            800: '#4A501C',
+                            900: '#33370F'
+                        },
+                        accent: '#FCA321',
+                        teal: '#7ABFB1', cream: '#E6EBB1', mustard: '#A68A26'
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        [hidden] { display: none !important; }
+        .card { @apply bg-white rounded-2xl border border-neutral-200 shadow-sm; }
+        .label { @apply block text-sm font-semibold text-neutral-800 mb-1.5; }
+        .hint { @apply text-xs text-neutral-500 mt-1; }
+        .input { @apply w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-black focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-500; }
+        .btn-primary { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-primary-700 hover:bg-primary-800 text-white font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed; }
+        .btn-ghost { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-neutral-300 bg-white hover:bg-neutral-100 text-black font-medium transition disabled:opacity-50; }
+        .btn-danger { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-red-700 hover:bg-red-50 font-semibold transition disabled:opacity-50; }
+        .badge { @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold; }
+    </style>
+</head>
+<body class="bg-neutral-50 text-black font-sans antialiased min-h-screen">
+
+    <!-- ================= LOGIN ================= -->
+    <main id="view-login" class="min-h-screen flex items-center justify-center px-4 py-10 bg-primary-50" hidden>
+        <form id="login-form" class="w-full max-w-sm card p-8 shadow-xl" novalidate>
+            <div class="flex flex-col items-center text-center mb-6">
+                <img src="assets/logo.svg" alt="" class="h-14 w-14 mb-3">
+                <h1 class="text-2xl font-light">Lupa <span class="font-semibold">Ecoart</span></h1>
+                <p class="text-sm text-neutral-500">Panel de tienda</p>
+            </div>
+
+            <p id="login-demo" class="mb-4 text-xs font-semibold text-primary-800 bg-primary-100 rounded-xl px-3 py-2" hidden>
+                Modo prueba: cualquier usuario entra y los cambios no tocan la tienda real.
+            </p>
+
+            <div class="space-y-4">
+                <div>
+                    <label for="login-user" class="label">Usuario</label>
+                    <input id="login-user" class="input" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+                </div>
+                <div>
+                    <label for="login-pass" class="label">Contraseña de aplicación</label>
+                    <input id="login-pass" type="password" class="input" autocomplete="current-password" required>
+                    <p class="hint">Es la clave de 24 letras que se crea en WordPress, no la contraseña normal.</p>
+                </div>
+                <label class="flex items-center gap-2 text-sm text-neutral-700">
+                    <input id="login-remember" type="checkbox" class="h-4 w-4 accent-primary-700">
+                    Recordarme en este dispositivo
+                </label>
+            </div>
+
+            <p id="login-error" class="mt-4 text-sm text-red-700 bg-red-50 rounded-xl px-3 py-2" role="alert" hidden></p>
+
+            <button id="login-submit" type="submit" class="btn-primary w-full mt-6">Ingresar</button>
+        </form>
+    </main>
+
+    <!-- ================= APP ================= -->
+    <div id="view-app" hidden>
+        <header class="bg-primary-500 text-white sticky top-0 z-40 shadow">
+            <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+                <img src="assets/logo.svg" alt="" class="h-8 w-8">
+                <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
+                <span class="hidden sm:inline text-white/80 text-sm">· Panel</span>
+                <span id="user-name" class="ml-auto hidden sm:inline text-sm text-white/90"></span>
+                <a href="./" target="_blank" rel="noopener"
+                   class="ml-auto sm:ml-0 px-3 py-1.5 rounded-full hover:bg-primary-600 text-sm font-medium transition">Ver tienda</a>
+                <button id="logout-btn" type="button"
+                        class="px-3 py-1.5 rounded-full bg-primary-700 hover:bg-primary-800 text-sm font-semibold transition">Salir</button>
+            </div>
+        </header>
+
+        <!-- ---------- CATALOGO ---------- -->
+        <section id="view-catalog" class="max-w-6xl mx-auto px-4 py-6">
+            <div class="flex flex-wrap items-center gap-3 mb-5">
+                <h1 class="text-2xl font-semibold mr-auto">Catálogo</h1>
+                <button id="new-product-btn" type="button" class="btn-primary">+ Nuevo producto</button>
+            </div>
+
+            <div class="card p-3 mb-4 grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3">
+                <input id="filter-search" type="search" class="input" placeholder="Buscar por nombre…" aria-label="Buscar">
+                <select id="filter-category" class="input sm:w-48" aria-label="Categoría">
+                    <option value="">Todas las categorías</option>
+                </select>
+                <select id="filter-stock" class="input sm:w-40" aria-label="Stock">
+                    <option value="">Todo el stock</option>
+                    <option value="instock">Disponibles</option>
+                    <option value="outofstock">Agotados</option>
+                </select>
+            </div>
+
+            <p id="catalog-count" class="text-sm text-neutral-500 mb-3" aria-live="polite"></p>
+            <div id="product-list" class="space-y-3"></div>
+
+            <nav id="pagination" class="flex items-center justify-between mt-6" hidden>
+                <button id="page-prev" type="button" class="btn-ghost">← Anterior</button>
+                <span id="page-info" class="text-sm text-neutral-600"></span>
+                <button id="page-next" type="button" class="btn-ghost">Siguiente →</button>
+            </nav>
+        </section>
+
+        <!-- ---------- EDITOR ---------- -->
+        <section id="view-editor" class="max-w-3xl mx-auto px-4 py-6" hidden>
+            <button id="editor-back" type="button" class="text-sm font-medium text-primary-700 hover:underline mb-3">← Volver al catálogo</button>
+            <h1 id="editor-title" class="text-2xl font-semibold mb-5">Nuevo producto</h1>
+
+            <form id="editor-form" class="space-y-5 pb-28" novalidate>
+                <div class="card p-5">
+                    <h2 class="font-semibold mb-1">Fotos</h2>
+                    <p class="hint mb-3 !mt-0">La primera es la foto principal. Usá las flechas para cambiar el orden.</p>
+                    <div id="image-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+                </div>
+
+                <div class="card p-5 space-y-4">
+                    <h2 class="font-semibold">Datos</h2>
+                    <div>
+                        <label for="f-name" class="label">Nombre *</label>
+                        <input id="f-name" class="input" maxlength="120" required>
+                    </div>
+                    <div>
+                        <label for="f-category" class="label">Categoría *</label>
+                        <select id="f-category" class="input" required></select>
+                    </div>
+                    <div>
+                        <label for="f-description" class="label">Descripción</label>
+                        <textarea id="f-description" class="input min-h-[120px]" rows="5"></textarea>
+                        <p class="hint">Dejá una línea en blanco para separar párrafos.</p>
+                    </div>
+                </div>
+
+                <div class="card p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <h2 class="font-semibold sm:col-span-2">Precio (pesos uruguayos)</h2>
+                    <div>
+                        <label for="f-price" class="label">Precio *</label>
+                        <input id="f-price" type="number" inputmode="decimal" min="0" step="any" class="input" required>
+                    </div>
+                    <div>
+                        <label for="f-sale" class="label">Precio de oferta</label>
+                        <input id="f-sale" type="number" inputmode="decimal" min="0" step="any" class="input">
+                        <p class="hint">Vacío = sin oferta.</p>
+                    </div>
+                </div>
+
+                <div class="card p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <h2 class="font-semibold sm:col-span-2">Stock y medidas</h2>
+                    <div>
+                        <label for="f-stock-mode" class="label">Stock</label>
+                        <select id="f-stock-mode" class="input">
+                            <option value="instock">Disponible</option>
+                            <option value="outofstock">Agotado</option>
+                            <option value="qty">Controlar cantidad</option>
+                        </select>
+                    </div>
+                    <div id="f-stock-qty-wrap" hidden>
+                        <label for="f-stock-qty" class="label">Unidades</label>
+                        <input id="f-stock-qty" type="number" inputmode="numeric" min="0" step="1" class="input">
+                        <p class="hint">Con 0 se muestra como agotado.</p>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="f-sizes" class="label">Medidas</label>
+                        <input id="f-sizes" class="input" placeholder="Ej: 20x30, 30x40, A4">
+                        <p class="hint">Separadas por coma. Vacío si el producto tiene una sola medida.</p>
+                    </div>
+                </div>
+
+                <div class="card p-5 space-y-3">
+                    <h2 class="font-semibold">Visibilidad</h2>
+                    <label class="flex items-start gap-3">
+                        <input id="f-published" type="checkbox" class="mt-1 h-4 w-4 accent-primary-700">
+                        <span><span class="font-medium">Publicado</span><br>
+                            <span class="text-sm text-neutral-500">Si lo destildás queda como borrador y no se ve en la tienda.</span></span>
+                    </label>
+                    <label class="flex items-start gap-3">
+                        <input id="f-featured" type="checkbox" class="mt-1 h-4 w-4 accent-primary-700">
+                        <span><span class="font-medium">Destacado</span><br>
+                            <span class="text-sm text-neutral-500">Aparece en la página de inicio.</span></span>
+                    </label>
+                </div>
+
+                <p id="editor-error" class="text-sm text-red-700 bg-red-50 rounded-xl px-4 py-3" role="alert" hidden></p>
+
+                <div class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-neutral-200 z-30">
+                    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-2">
+                        <button id="editor-delete" type="button" class="btn-danger">Eliminar</button>
+                        <button id="editor-cancel" type="button" class="btn-ghost ml-auto">Cancelar</button>
+                        <button id="editor-save" type="submit" class="btn-primary">Guardar</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <!-- ================= CONFIRMACION ================= -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" hidden>
+        <div class="card w-full max-w-sm p-6 shadow-xl" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <h2 id="confirm-title" class="text-lg font-semibold mb-2"></h2>
+            <p id="confirm-text" class="text-sm text-neutral-600 mb-6"></p>
+            <div class="flex justify-end gap-2">
+                <button id="confirm-cancel" type="button" class="btn-ghost">Cancelar</button>
+                <button id="confirm-ok" type="button" class="btn-primary"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toasts" class="fixed bottom-20 inset-x-4 sm:left-auto sm:right-4 sm:w-96 z-[60] space-y-2"></div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Modo prueba solo en local: admin?demo usa datos en memoria.
+        if (WC_IS_LOCAL_DEV && new URLSearchParams(location.search).has('demo') && typeof DEMO_PRODUCTS === 'undefined') {
+            document.write('<script src="js/demo-data.js"><\/script>');
+        }
+    </script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
