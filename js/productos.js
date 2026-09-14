@@ -59,7 +59,8 @@ async function fetchProductsFromWC() {
 // ESTADO GLOBAL
 // ==========================================
 let currentCategory = 'all';
-let currentPriceRange = 'all';
+let currentPriceMin = null; // null = sin límite
+let currentPriceMax = null;
 let currentSort = 'default';
 let currentSearch = '';
 let productsReady = false;
@@ -79,14 +80,19 @@ function getURLParam(param) {
     return params.get(param);
 }
 
-// Verificar rango de precio (pesos uruguayos)
-function checkPrice(price, range) {
-    if (range === 'all') return true;
-    if (range === '0-1500') return price < 1500;
-    if (range === '1500-3000') return price >= 1500 && price < 3000;
-    if (range === '3000-6000') return price >= 3000 && price < 6000;
-    if (range === '6000+') return price >= 6000;
+// Verificar rango de precio (pesos uruguayos). Los límites son inclusivos;
+// si el usuario carga el mínimo mayor que el máximo, se interpretan al revés.
+function checkPrice(price, min, max) {
+    if (min !== null && max !== null && min > max) [min, max] = [max, min];
+    if (min !== null && price < min) return false;
+    if (max !== null && price > max) return false;
     return true;
+}
+
+// Valor de un campo de precio: vacío o inválido = sin límite
+function parsePriceInput(value) {
+    const n = parseFloat(String(value).replace(',', '.'));
+    return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
 // Ordenar productos
@@ -128,7 +134,7 @@ function renderProducts() {
     let filtered = productsData.filter(p => {
         const matchCategory = currentCategory === 'all' || p.category === currentCategory;
         const matchSearch = matchesSearch(p, currentSearch);
-        const matchPrice = checkPrice(p.price, currentPriceRange);
+        const matchPrice = checkPrice(p.price, currentPriceMin, currentPriceMax);
         return matchCategory && matchSearch && matchPrice;
     });
 
@@ -234,14 +240,6 @@ function setupDesktopFilters() {
         });
     });
 
-    // Precio
-    document.querySelectorAll('input[name="precio"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            currentPriceRange = e.target.value;
-            renderProducts();
-        });
-    });
-
     // Ordenar
     document.getElementById('sort-select').addEventListener('change', (e) => {
         currentSort = e.target.value;
@@ -283,18 +281,60 @@ function setupMobileFilters() {
         });
     });
 
-    // Precio mobile
-    document.querySelectorAll('input[name="precio-mobile"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            currentPriceRange = e.target.value;
-        });
-    });
-
-    // Aplicar filtros
+    // Aplicar filtros (el precio ya queda sincronizado por setupPriceFilter)
     aplicarFiltrosBtn.addEventListener('click', () => {
         markDesktopCategory(currentCategory);
         renderProducts();
         closeFiltros();
+    });
+}
+
+// ==========================================
+// FILTRO DE PRECIO (MÍN / MÁX)
+// ==========================================
+// Hay dos pares de campos (sidebar desktop y drawer mobile): se mantienen
+// sincronizados. Filtra mientras se escribe (con debounce); en mobile el
+// resultado se ve al cerrar el drawer con "Ver resultados".
+function setupPriceFilter() {
+    const inputs = document.querySelectorAll('[data-price]');
+    const clearBtns = document.querySelectorAll('[data-price-clear]');
+    let priceTimeout;
+
+    function updatePriceState() {
+        const min = document.querySelector('[data-price="min"]').value;
+        const max = document.querySelector('[data-price="max"]').value;
+        currentPriceMin = parsePriceInput(min);
+        currentPriceMax = parsePriceInput(max);
+        const active = currentPriceMin !== null || currentPriceMax !== null;
+        clearBtns.forEach(btn => btn.classList.toggle('hidden', !active));
+    }
+
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+            document.querySelectorAll(`[data-price="${input.dataset.price}"]`)
+                .forEach(other => { if (other !== input) other.value = input.value; });
+            updatePriceState();
+            clearTimeout(priceTimeout);
+            priceTimeout = setTimeout(renderProducts, 400);
+        });
+
+        // Enter aplica ya, sin esperar el debounce
+        input.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            clearTimeout(priceTimeout);
+            renderProducts();
+            input.blur();
+        });
+    });
+
+    clearBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            inputs.forEach(input => { input.value = ''; });
+            updatePriceState();
+            clearTimeout(priceTimeout);
+            renderProducts();
+        });
     });
 }
 
@@ -372,6 +412,7 @@ async function init() {
     // lo que se escriba mientras tanto no se pierde.
     setupDesktopFilters();
     setupMobileFilters();
+    setupPriceFilter();
     setupSearch();
     setupNavbar();
 
