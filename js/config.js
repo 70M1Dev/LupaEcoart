@@ -157,6 +157,22 @@ function wcCategoryName(slug) {
     return WC_CATEGORIES[slug] || slug;
 }
 
+// Tope de unidades por producto cuando WooCommerce no controla la cantidad.
+const WC_MAX_QTY = 10;
+
+// Unidades que se pueden comprar de un producto de WooCommerce:
+// 0 si esta agotado, el stock real si "Gestionar inventario" esta activo
+// (y no acepta reservas), o WC_MAX_QTY si no se lleva la cuenta.
+function wcStockLimit(p) {
+    if (!p || p.stock_status === 'outofstock' || p.purchasable === false) return 0;
+    let limit = WC_MAX_QTY;
+    if (p.manage_stock && !p.backorders_allowed && p.stock_quantity !== null && p.stock_quantity !== undefined) {
+        limit = Math.max(0, parseInt(p.stock_quantity, 10) || 0);
+    }
+    if (p.sold_individually) limit = Math.min(limit, 1);
+    return limit;
+}
+
 // Texto comparable para busquedas: minusculas, sin tildes y sin espacios sobrantes.
 // Asi "laser" encuentra "Corte láser" y "Laptop " encuentra "Soporte Laptop".
 // Marcas diacriticas combinantes (U+0300 a U+036F) que quedan tras normalize('NFD').

@@ -25,7 +25,8 @@ function mapWCProductHome(p) {
         originalPrice: onSale ? regular : null,
         category: p.categories && p.categories.length ? p.categories[0].slug : '',
         image: p.images && p.images.length ? p.images[0].src : 'https://placehold.co/300x350/E6EBB1/4A501C?text=Sin+imagen',
-        badge: badge
+        badge: badge,
+        stockLimit: wcStockLimit(p) // unidades que se pueden comprar (0 = agotado)
     };
 }
 
@@ -72,9 +73,15 @@ function renderFeaturedProducts(products) {
                 </div>
             </a>
             <div class="px-5 pb-5">
-                <button onclick="handleAddToCartHome(${product.id})" class="w-full bg-primary-700 hover:bg-primary-800 text-white py-2.5 rounded-full transition font-semibold text-sm">
-                    Añadir al carrito
-                </button>
+                ${product.stockLimit > 0 ? `
+                    <button onclick="handleAddToCartHome(${product.id})" class="w-full bg-primary-700 hover:bg-primary-800 text-white py-2.5 rounded-full transition font-semibold text-sm">
+                        Añadir al carrito
+                    </button>
+                ` : `
+                    <button disabled class="w-full bg-neutral-200 text-neutral-500 py-2.5 rounded-full font-semibold text-sm cursor-not-allowed">
+                        Sin stock
+                    </button>
+                `}
             </div>
         </div>
     `).join('');
@@ -87,7 +94,8 @@ function handleAddToCartHome(productId) {
             id: product.id,
             name: product.name,
             price: product.price,
-            image: product.image
+            image: product.image,
+            maxQty: product.stockLimit
         });
     }
 }

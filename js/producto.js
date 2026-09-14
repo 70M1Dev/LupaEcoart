@@ -35,6 +35,9 @@ function mapWCProductDetail(p) {
             ? p.images.map(img => img.src)
             : ['https://placehold.co/600x700/E6EBB1/4A501C?text=Sin+imagen'],
         sizes: sizeAttr ? sizeAttr.options : [],
+        // Unidades que se pueden comprar (0 = agotado) y stock real si se controla
+        stockLimit: wcStockLimit(p),
+        stockQuantity: p.manage_stock && !p.backorders_allowed ? p.stock_quantity : null,
         badge: badge,
         relatedIds: p.related_ids || []
     };
@@ -132,6 +135,9 @@ async function loadProduct() {
     // Cargar medidas
     renderSizes();
 
+    // Stock y tope de cantidad
+    renderStock();
+
     // Cargar productos relacionados
     renderRelated();
 }
@@ -219,16 +225,78 @@ function renderSizes() {
 }
 
 // ==========================================
-// CANTIDAD
+// STOCK Y CANTIDAD
 // ==========================================
+// El tope es el stock de WooCommerce menos lo que ya esta en el carrito.
+
+function availableToAdd() {
+    if (!currentProduct) return 0;
+    return Math.max(0, currentProduct.stockLimit - cartQuantityFor(currentProduct.id));
+}
+
+function clampQuantityInput() {
+    const input = document.getElementById('quantity');
+    const max = Math.max(1, availableToAdd());
+    input.max = max;
+    input.value = Math.min(Math.max(1, parseInt(input.value, 10) || 1), max);
+}
+
+function renderStock() {
+    if (!currentProduct) return;
+    const info = document.getElementById('stock-info');
+    const { stockLimit, stockQuantity } = currentProduct;
+    const inCart = cartQuantityFor(currentProduct.id);
+    const available = availableToAdd();
+    const inCartText = inCart ? ` · ${inCart} en tu carrito` : '';
+
+    let text;
+    let tone = 'text-primary-700';
+    if (stockLimit === 0) {
+        text = 'Sin stock';
+        tone = 'text-red-600';
+    } else if (available === 0) {
+        text = stockQuantity !== null
+            ? `Ya tenés en tu carrito todas las unidades disponibles (${inCart}).`
+            : `Llegaste al máximo de ${stockLimit} unidades por compra.`;
+        tone = 'text-neutral-700';
+    } else if (stockQuantity !== null) {
+        text = (stockQuantity <= 3
+            ? `¡${stockQuantity === 1 ? 'Última unidad' : `Últimas ${stockQuantity} unidades`}!`
+            : `${stockQuantity} unidades disponibles`) + inCartText;
+        if (stockQuantity <= 3) tone = 'text-red-600';
+    } else {
+        text = 'En stock' + inCartText;
+    }
+
+    info.textContent = text;
+    info.className = `text-sm font-medium mt-3 ${tone}`;
+
+    const blocked = available === 0;
+    ['qty-minus', 'qty-plus', 'quantity', 'add-to-cart-btn'].forEach(id => {
+        document.getElementById(id).disabled = blocked;
+    });
+    // "Comprar ahora" sigue activo si ya hay unidades en el carrito: lleva al carrito.
+    document.getElementById('buy-now-btn').disabled = blocked && inCart === 0;
+
+    clampQuantityInput();
+}
+
 document.getElementById('qty-minus').addEventListener('click', () => {
     const input = document.getElementById('quantity');
-    if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
+    input.value = Math.max(1, (parseInt(input.value, 10) || 1) - 1);
 });
 
 document.getElementById('qty-plus').addEventListener('click', () => {
     const input = document.getElementById('quantity');
-    if (parseInt(input.value) < 10) input.value = parseInt(input.value) + 1;
+    const next = (parseInt(input.value, 10) || 1) + 1;
+    if (next <= availableToAdd()) input.value = next;
+});
+
+document.getElementById('quantity').addEventListener('change', clampQuantityInput);
+
+// Si el carrito cambia en otra pestaña, recalculamos lo disponible
+window.addEventListener('storage', e => {
+    if (e.key === CART_STORAGE_KEY) renderStock();
 });
 
 // ==========================================
@@ -285,15 +353,18 @@ function requireSize() {
 
 document.getElementById('add-to-cart-btn').addEventListener('click', () => {
     if (!currentProduct || !requireSize()) return;
-    const qty = parseInt(document.getElementById('quantity').value);
+    const qty = parseInt(document.getElementById('quantity').value, 10) || 1;
     handleAddToCart(selectedSize, qty);
 });
 
 document.getElementById('buy-now-btn').addEventListener('click', () => {
-    if (!currentProduct || !requireSize()) return;
-    const qty = parseInt(document.getElementById('quantity').value);
-    handleAddToCart(selectedSize, qty);
-    window.location.href = 'carrito';
+    if (!currentProduct) return;
+    if (availableToAdd() > 0) {
+        if (!requireSize()) return;
+        const qty = parseInt(document.getElementById('quantity').value, 10) || 1;
+        handleAddToCart(selectedSize, qty);
+    }
+    if (cartQuantityFor(currentProduct.id) > 0) window.location.href = 'carrito';
 });
 
 // ==========================================
@@ -306,8 +377,10 @@ function handleAddToCart(size, qty) {
         price: currentProduct.price,
         image: currentProduct.images[0],
         size: size,
-        quantity: qty
+        quantity: qty,
+        maxQty: currentProduct.stockLimit
     });
+    renderStock();
 }
 
 // ==========================================

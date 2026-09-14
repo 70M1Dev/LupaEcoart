@@ -46,15 +46,37 @@ function setupMobileCartWidget() {
     document.body.appendChild(widget);
 }
 
+// Unidades de un producto que ya estan en el carrito, sumando todas las medidas:
+// en WooCommerce el stock es del producto, no de cada medida.
+function cartQuantityFor(productId, cart = getCart()) {
+    return cart
+        .filter(item => item.id === productId)
+        .reduce((sum, item) => sum + (item.quantity || 1), 0);
+}
+
 // Añade un producto al carrito (o suma cantidad si ya existe con la misma medida).
-// product = { id, name, price, image, size (opcional), quantity (opcional, default 1) }
+// product = { id, name, price, image, size (opcional), quantity (opcional, default 1),
+//             maxQty (opcional: unidades en stock, ver wcStockLimit) }
+// Nunca deja pasar del stock. Devuelve cuantas unidades agrego.
 function addToCart(product) {
     const cart = getCart();
     const size = product.size || null;
+    const wanted = product.quantity || 1;
+    const limit = Number.isFinite(product.maxQty) ? product.maxQty : WC_MAX_QTY;
+    const available = Math.max(0, limit - cartQuantityFor(product.id, cart));
+
+    if (available === 0) {
+        showCartNotification(limit === 0
+            ? `${product.name} está sin stock`
+            : `Ya tenés en el carrito todas las unidades disponibles de ${product.name}`, 'warning');
+        return 0;
+    }
+
+    const qty = Math.min(wanted, available);
     const existing = cart.find(item => item.id === product.id && item.size === size);
 
     if (existing) {
-        existing.quantity = (existing.quantity || 1) + (product.quantity || 1);
+        existing.quantity = (existing.quantity || 1) + qty;
     } else {
         cart.push({
             id: product.id,
@@ -62,21 +84,69 @@ function addToCart(product) {
             price: product.price,
             image: product.image,
             size: size,
-            quantity: product.quantity || 1
+            quantity: qty
         });
     }
+    cart.forEach(item => { if (item.id === product.id) item.maxQty = limit; });
 
     saveCartToStorage(cart);
-    showCartNotification(`${product.name}${size ? ` (${size})` : ''} añadido al carrito`);
+    if (qty < wanted) {
+        showCartNotification(`Agregamos ${qty} de ${product.name}: no hay más stock`, 'warning');
+    } else {
+        showCartNotification(`${product.name}${size ? ` (${size})` : ''} añadido al carrito`);
+    }
+    return qty;
+}
+
+// Vuelve a consultar WooCommerce y ajusta el carrito al stock actual: baja
+// cantidades y quita lo que se agoto o se despublico. Devuelve los cambios
+// hechos [{ name, size, before, after, limit, managed }]. Si la API falla, no toca nada.
+async function refreshCartStock() {
+    const cart = getCart();
+    const ids = [...new Set(cart.map(item => item.id))];
+    if (!ids.length) return [];
+
+    let products;
+    try {
+        products = await wcFetchJson('products', { include: ids.join(','), per_page: 100 });
+    } catch (err) {
+        console.error('[LupaEcoart] No se pudo actualizar el stock del carrito:', err);
+        return [];
+    }
+
+    const limits = {};
+    const managed = {};
+    ids.forEach(id => {
+        const p = products.find(x => x.id === id);
+        limits[id] = p && (p.status === undefined || p.status === 'publish') ? wcStockLimit(p) : 0;
+        managed[id] = !!(p && p.manage_stock && !p.backorders_allowed);
+    });
+
+    const left = { ...limits };
+    const changes = [];
+    const updated = [];
+    cart.forEach(item => {
+        const before = item.quantity || 1;
+        const after = Math.min(before, left[item.id]);
+        left[item.id] -= after;
+        if (after !== before) {
+            changes.push({ name: item.name, size: item.size, before, after, limit: limits[item.id], managed: managed[item.id] });
+        }
+        if (after > 0) updated.push({ ...item, quantity: after, maxQty: limits[item.id] });
+    });
+
+    saveCartToStorage(updated);
+    return changes;
 }
 
 // Notificación visual reutilizable
-function showCartNotification(message) {
+function showCartNotification(message, type = 'ok') {
     const notif = document.createElement('div');
-    notif.className = 'fixed top-20 right-4 bg-primary-800 text-white px-6 py-3 rounded-full shadow-xl z-50 text-sm font-semibold';
+    notif.className = `fixed top-20 right-4 left-4 sm:left-auto ${type === 'warning' ? 'bg-neutral-900' : 'bg-primary-800'} text-white px-6 py-3 rounded-full shadow-xl z-50 text-sm font-semibold text-center`;
+    notif.setAttribute('role', 'status');
     notif.textContent = message;
     document.body.appendChild(notif);
-    setTimeout(() => notif.remove(), 2500);
+    setTimeout(() => notif.remove(), type === 'warning' ? 4000 : 2500);
 }
 
 // Buscadores (navbar desktop + drawer mobile): fuera del catálogo, Enter lleva

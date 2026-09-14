@@ -150,7 +150,7 @@ function friendlyError(status, data) {
         return 'Usuario o contraseña incorrectos.';
     }
     if (code === 'rest_not_logged_in') {
-        return 'WordPress no reconoció la clave. Revisá que sea una contraseña de aplicación.';
+        return 'WordPress no reconoció la clave. La contraseña normal no sirve: usá una contraseña de aplicación (WordPress → Usuarios → Perfil → Contraseñas de aplicación).';
     }
     if (status === 401) return 'Usuario o contraseña incorrectos.';
     if (status === 403) return 'Tu usuario no tiene permiso para hacer esto.';

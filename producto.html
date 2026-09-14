@@ -195,38 +195,29 @@
                     </p>
                 </div>
 
-                <!-- Terminación (opcional) -->
-                <div class="mb-6">
-                    <h3 class="font-semibold text-sm uppercase tracking-wider mb-3">Terminación</h3>
-                    <div class="flex gap-3">
-                        <button class="w-10 h-10 rounded-full bg-[#C8A27A] border-2 border-primary-100 hover:border-primary-800 transition" title="Natural"></button>
-                        <button class="w-10 h-10 rounded-full bg-white border-2 border-primary-100 hover:border-primary-800 transition" title="Blanco"></button>
-                        <button class="w-10 h-10 rounded-full bg-primary-800 border-2 border-primary-100 hover:border-primary-400 transition" title="Oliva"></button>
-                    </div>
-                </div>
-
-                <!-- Cantidad -->
+                <!-- Cantidad (el máximo sale del stock de WooCommerce, ver renderStock) -->
                 <div class="mb-8">
                     <h3 class="font-semibold text-sm uppercase tracking-wider mb-3">Cantidad</h3>
                     <div class="flex items-center gap-3">
-                        <button id="qty-minus" class="w-10 h-10 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition">−</button>
-                        <input type="number" id="quantity" value="1" min="1" max="10"
-                               class="w-16 h-10 text-center border border-primary-100 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-primary-400">
-                        <button id="qty-plus" class="w-10 h-10 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition">+</button>
+                        <button id="qty-minus" aria-label="Restar una unidad" class="w-10 h-10 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">−</button>
+                        <input type="number" id="quantity" value="1" min="1" aria-label="Cantidad"
+                               class="w-16 h-10 text-center border border-primary-100 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-primary-400 disabled:opacity-40">
+                        <button id="qty-plus" aria-label="Sumar una unidad" class="w-10 h-10 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">+</button>
                     </div>
+                    <p id="stock-info" class="text-sm font-medium mt-3 text-primary-700" aria-live="polite"></p>
                 </div>
 
                 <!-- Botones de acción -->
                 <div class="flex flex-col sm:flex-row gap-3 mb-6">
                     <button id="add-to-cart-btn"
-                            class="flex-1 border-2 border-primary-800 text-primary-800 hover:bg-primary-50 font-semibold py-4 rounded-full transition flex items-center justify-center gap-2">
+                            class="flex-1 border-2 border-primary-800 text-primary-800 hover:bg-primary-50 font-semibold py-4 rounded-full transition flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
                         </svg>
                         Añadir al carrito
                     </button>
                     <button id="buy-now-btn"
-                            class="flex-1 bg-primary-700 hover:bg-primary-800 text-white font-semibold py-4 rounded-full transition">
+                            class="flex-1 bg-primary-700 hover:bg-primary-800 text-white font-semibold py-4 rounded-full transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-primary-700">
                         Comprar ahora
                     </button>
                 </div>

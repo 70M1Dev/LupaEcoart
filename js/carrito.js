@@ -30,6 +30,40 @@ function getDiscount(subtotal) {
     return appliedCoupon && COUPONS[appliedCoupon] ? subtotal * COUPONS[appliedCoupon] : 0;
 }
 
+// Maximo para una linea: stock del producto menos lo que ocupan sus otras medidas.
+function maxQtyFor(index) {
+    const item = cart[index];
+    const limit = Number.isFinite(item.maxQty) ? item.maxQty : WC_MAX_QTY;
+    const others = cartQuantityFor(item.id, cart) - item.quantity;
+    return Math.max(1, limit - others);
+}
+
+// Aviso persistente cuando el stock de WooCommerce obligo a cambiar el carrito.
+function renderStockNotice(changes) {
+    const old = document.getElementById('stock-notice');
+    if (old) old.remove();
+    if (!changes.length) return;
+
+    const notice = document.createElement('div');
+    notice.id = 'stock-notice';
+    notice.setAttribute('role', 'status');
+    notice.className = 'mt-4 bg-cream/60 border border-mustard/40 text-black text-sm rounded-2xl px-4 py-3 space-y-1';
+    notice.innerHTML = changes.map(c => {
+        const name = `${c.name}${c.size && c.size !== 'Única' ? ` (${c.size})` : ''}`;
+        const p = document.createElement('p');
+        const units = `${c.after} ${c.after === 1 ? 'unidad' : 'unidades'}`;
+        if (c.after === 0) {
+            p.textContent = `"${name}" se quedó sin stock y lo quitamos del carrito.`;
+        } else if (c.managed) {
+            p.textContent = `Ajustamos "${name}" a ${units}: es lo que queda en stock.`;
+        } else {
+            p.textContent = `Ajustamos "${name}" a ${units}: el máximo por compra es ${c.limit}.`;
+        }
+        return p.outerHTML;
+    }).join('');
+    document.getElementById('cart-subtitle').insertAdjacentElement('afterend', notice);
+}
+
 // ==========================================
 // RENDERIZAR CARRITO
 // ==========================================
@@ -72,7 +106,7 @@ function renderCart() {
                     <div class="flex items-center gap-2">
                         <button onclick="updateQty(${index}, -1)" class="w-8 h-8 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition">−</button>
                         <span class="w-10 text-center font-semibold">${item.quantity}</span>
-                        <button onclick="updateQty(${index}, 1)" class="w-8 h-8 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition">+</button>
+                        <button onclick="updateQty(${index}, 1)" ${item.quantity >= maxQtyFor(index) ? 'disabled title="No hay más stock"' : ''} class="w-8 h-8 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">+</button>
                     </div>
                     <div class="text-right">
                         <p class="font-bold text-lg text-black">${wcPrice(item.price * item.quantity)}</p>
@@ -96,9 +130,8 @@ function removeItem(index) {
 }
 
 function updateQty(index, change) {
-    cart[index].quantity += change;
-    if (cart[index].quantity < 1) cart[index].quantity = 1;
-    if (cart[index].quantity > 10) cart[index].quantity = 10;
+    const item = cart[index];
+    item.quantity = Math.min(Math.max(1, item.quantity + change), maxQtyFor(index));
     persistCart();
     renderCart();
 }
@@ -205,3 +238,10 @@ window.addEventListener('scroll', () => {
 if (appliedCoupon) document.getElementById('coupon-input').value = appliedCoupon;
 renderCart();
 updateCartCounters();
+
+// Sincroniza con el stock actual de WooCommerce (el carrito puede tener días).
+refreshCartStock().then(changes => {
+    cart = getCart();
+    renderStockNotice(changes);
+    renderCart();
+});
