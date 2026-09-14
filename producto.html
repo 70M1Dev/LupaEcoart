@@ -152,12 +152,11 @@
                     Cargando...
                 </h1>
 
-                <!-- Rating -->
-                <div class="flex items-center gap-2 mb-5">
-                    <div class="flex text-accent">
-                        <span>★</span><span>★</span><span>★</span><span>★</span><span class="text-primary-100">★</span>
-                    </div>
-                    <span class="text-sm text-neutral-500">(4.0) · 23 reseñas</span>
+                <!-- Stock disponible (lo completa renderStock en js/producto.js) -->
+                <div class="mb-5">
+                    <span id="stock-info" class="inline-flex items-center text-sm font-semibold px-3 py-1.5 rounded-full bg-primary-50 text-primary-800" aria-live="polite">
+                        Consultando stock…
+                    </span>
                 </div>
 
                 <!-- Precio -->
@@ -204,7 +203,6 @@
                                class="w-16 h-10 text-center border border-primary-100 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-primary-400 disabled:opacity-40">
                         <button id="qty-plus" aria-label="Sumar una unidad" class="w-10 h-10 bg-primary-50 hover:bg-primary-100 text-primary-800 rounded-full font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">+</button>
                     </div>
-                    <p id="stock-info" class="text-sm font-medium mt-3 text-primary-700" aria-live="polite"></p>
                 </div>
 
                 <!-- Botones de acción -->
@@ -294,8 +292,8 @@
     </div>
 
     <!-- ================= SCRIPTS ================= -->
-    <script src="js/config.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/producto.js"></script>
+    <script src="js/config.js?v=20260914-3"></script>
+    <script src="js/cart.js?v=20260914-3"></script>
+    <script src="js/producto.js?v=20260914-3"></script>
 </body>
 </html>

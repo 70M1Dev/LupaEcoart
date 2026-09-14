@@ -235,13 +235,13 @@
 
     <div id="toasts" class="fixed bottom-20 inset-x-4 sm:left-auto sm:right-4 sm:w-96 z-[60] space-y-2"></div>
 
-    <script src="js/config.js"></script>
+    <script src="js/config.js?v=20260914-3"></script>
     <script>
         // Modo prueba solo en local: admin?demo usa datos en memoria.
         if (WC_IS_LOCAL_DEV && new URLSearchParams(location.search).has('demo') && typeof DEMO_PRODUCTS === 'undefined') {
             document.write('<script src="js/demo-data.js"><\/script>');
         }
     </script>
-    <script src="js/admin.js"></script>
+    <script src="js/admin.js?v=20260914-3"></script>
 </body>
 </html>

@@ -237,7 +237,9 @@ function availableToAdd() {
 function clampQuantityInput() {
     const input = document.getElementById('quantity');
     const max = Math.max(1, availableToAdd());
-    input.max = max;
+    // Sin inventario en WooCommerce no hay tope (Infinity no es un "max" valido)
+    if (Number.isFinite(max)) input.max = max;
+    else input.removeAttribute('max');
     input.value = Math.min(Math.max(1, parseInt(input.value, 10) || 1), max);
 }
 
@@ -247,29 +249,25 @@ function renderStock() {
     const { stockLimit, stockQuantity } = currentProduct;
     const inCart = cartQuantityFor(currentProduct.id);
     const available = availableToAdd();
-    const inCartText = inCart ? ` · ${inCart} en tu carrito` : '';
 
     let text;
-    let tone = 'text-primary-700';
+    let tone = 'bg-primary-50 text-primary-800';
     if (stockLimit === 0) {
         text = 'Sin stock';
-        tone = 'text-red-600';
-    } else if (available === 0) {
-        text = stockQuantity !== null
-            ? `Ya tenés en tu carrito todas las unidades disponibles (${inCart}).`
-            : `Llegaste al máximo de ${stockLimit} unidades por compra.`;
-        tone = 'text-neutral-700';
+        tone = 'bg-red-50 text-red-700';
     } else if (stockQuantity !== null) {
-        text = (stockQuantity <= 3
-            ? `¡${stockQuantity === 1 ? 'Última unidad' : `Últimas ${stockQuantity} unidades`}!`
-            : `${stockQuantity} unidades disponibles`) + inCartText;
-        if (stockQuantity <= 3) tone = 'text-red-600';
+        text = `Stock disponible: ${stockQuantity} ${stockQuantity === 1 ? 'unidad' : 'unidades'}`;
+        if (stockQuantity <= 3) tone = 'bg-accent/20 text-black';
     } else {
-        text = 'En stock' + inCartText;
+        // WooCommerce no lleva la cuenta de este producto: no hay numero que mostrar
+        text = 'Stock disponible';
+    }
+    if (stockLimit > 0 && inCart) {
+        text += available === 0 ? ' · ya están todas en tu carrito' : ` · ${inCart} en tu carrito`;
     }
 
     info.textContent = text;
-    info.className = `text-sm font-medium mt-3 ${tone}`;
+    info.className = `inline-flex items-center text-sm font-semibold px-3 py-1.5 rounded-full ${tone}`;
 
     const blocked = available === 0;
     ['qty-minus', 'qty-plus', 'quantity', 'add-to-cart-btn'].forEach(id => {

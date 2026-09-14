@@ -157,15 +157,13 @@ function wcCategoryName(slug) {
     return WC_CATEGORIES[slug] || slug;
 }
 
-// Tope de unidades por producto cuando WooCommerce no controla la cantidad.
-const WC_MAX_QTY = 10;
-
-// Unidades que se pueden comprar de un producto de WooCommerce:
-// 0 si esta agotado, el stock real si "Gestionar inventario" esta activo
-// (y no acepta reservas), o WC_MAX_QTY si no se lleva la cuenta.
+// Unidades que se pueden comprar de un producto de WooCommerce. El unico
+// limite es el stock real: 0 si esta agotado, la cantidad cargada si
+// "Gestionar inventario" esta activo (y no acepta reservas), 1 si se vende
+// individualmente, y sin tope (Infinity) si WooCommerce no lleva la cuenta.
 function wcStockLimit(p) {
     if (!p || p.stock_status === 'outofstock' || p.purchasable === false) return 0;
-    let limit = WC_MAX_QTY;
+    let limit = Infinity;
     if (p.manage_stock && !p.backorders_allowed && p.stock_quantity !== null && p.stock_quantity !== undefined) {
         limit = Math.max(0, parseInt(p.stock_quantity, 10) || 0);
     }

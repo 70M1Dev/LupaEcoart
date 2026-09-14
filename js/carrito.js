@@ -33,7 +33,7 @@ function getDiscount(subtotal) {
 // Maximo para una linea: stock del producto menos lo que ocupan sus otras medidas.
 function maxQtyFor(index) {
     const item = cart[index];
-    const limit = Number.isFinite(item.maxQty) ? item.maxQty : WC_MAX_QTY;
+    const limit = Number.isFinite(item.maxQty) ? item.maxQty : Infinity; // null = sin tope
     const others = cartQuantityFor(item.id, cart) - item.quantity;
     return Math.max(1, limit - others);
 }
@@ -51,14 +51,9 @@ function renderStockNotice(changes) {
     notice.innerHTML = changes.map(c => {
         const name = `${c.name}${c.size && c.size !== 'Única' ? ` (${c.size})` : ''}`;
         const p = document.createElement('p');
-        const units = `${c.after} ${c.after === 1 ? 'unidad' : 'unidades'}`;
-        if (c.after === 0) {
-            p.textContent = `"${name}" se quedó sin stock y lo quitamos del carrito.`;
-        } else if (c.managed) {
-            p.textContent = `Ajustamos "${name}" a ${units}: es lo que queda en stock.`;
-        } else {
-            p.textContent = `Ajustamos "${name}" a ${units}: el máximo por compra es ${c.limit}.`;
-        }
+        p.textContent = c.after === 0
+            ? `"${name}" se quedó sin stock y lo quitamos del carrito.`
+            : `Ajustamos "${name}" a ${c.after} ${c.after === 1 ? 'unidad' : 'unidades'}: es lo que queda en stock.`;
         return p.outerHTML;
     }).join('');
     document.getElementById('cart-subtitle').insertAdjacentElement('afterend', notice);

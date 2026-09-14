@@ -56,13 +56,14 @@ function cartQuantityFor(productId, cart = getCart()) {
 
 // Añade un producto al carrito (o suma cantidad si ya existe con la misma medida).
 // product = { id, name, price, image, size (opcional), quantity (opcional, default 1),
-//             maxQty (opcional: unidades en stock, ver wcStockLimit) }
+//             maxQty (opcional: unidades en stock, ver wcStockLimit; sin dato = sin tope) }
 // Nunca deja pasar del stock. Devuelve cuantas unidades agrego.
 function addToCart(product) {
     const cart = getCart();
     const size = product.size || null;
     const wanted = product.quantity || 1;
-    const limit = Number.isFinite(product.maxQty) ? product.maxQty : WC_MAX_QTY;
+    // En localStorage Infinity se guarda como null: cualquier no-numero es "sin tope".
+    const limit = Number.isFinite(product.maxQty) ? product.maxQty : Infinity;
     const available = Math.max(0, limit - cartQuantityFor(product.id, cart));
 
     if (available === 0) {
@@ -100,7 +101,7 @@ function addToCart(product) {
 
 // Vuelve a consultar WooCommerce y ajusta el carrito al stock actual: baja
 // cantidades y quita lo que se agoto o se despublico. Devuelve los cambios
-// hechos [{ name, size, before, after, limit, managed }]. Si la API falla, no toca nada.
+// hechos [{ name, size, before, after }]. Si la API falla, no toca nada.
 async function refreshCartStock() {
     const cart = getCart();
     const ids = [...new Set(cart.map(item => item.id))];
@@ -115,11 +116,9 @@ async function refreshCartStock() {
     }
 
     const limits = {};
-    const managed = {};
     ids.forEach(id => {
         const p = products.find(x => x.id === id);
         limits[id] = p && (p.status === undefined || p.status === 'publish') ? wcStockLimit(p) : 0;
-        managed[id] = !!(p && p.manage_stock && !p.backorders_allowed);
     });
 
     const left = { ...limits };
@@ -129,9 +128,7 @@ async function refreshCartStock() {
         const before = item.quantity || 1;
         const after = Math.min(before, left[item.id]);
         left[item.id] -= after;
-        if (after !== before) {
-            changes.push({ name: item.name, size: item.size, before, after, limit: limits[item.id], managed: managed[item.id] });
-        }
+        if (after !== before) changes.push({ name: item.name, size: item.size, before, after });
         if (after > 0) updated.push({ ...item, quantity: after, maxQty: limits[item.id] });
     });
 
