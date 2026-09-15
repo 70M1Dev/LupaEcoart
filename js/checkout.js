@@ -515,6 +515,17 @@ async function onPlaceOrder(e) {
     });
 }
 
+// Botón que abre WhatsApp de la tienda con el mensaje ya escrito.
+// Sin WHATSAPP_NUMBER configurado no se muestra.
+function whatsappButton(label, message) {
+    if (!WC_CONFIG.WHATSAPP_NUMBER) return '';
+    return `
+        <a href="https://wa.me/${esc(WC_CONFIG.WHATSAPP_NUMBER)}?text=${encodeURIComponent(message)}" target="_blank" rel="noopener"
+           class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-full bg-[#1FAF38] hover:bg-[#178a2c] text-white font-semibold transition mb-3">
+            ${esc(label)}
+        </a>`;
+}
+
 function showSuccess(result, method, email, totals) {
     const number = result.order_number || result.order_id;
     const unit = totals.currency_minor_unit;
@@ -523,17 +534,12 @@ function showSuccess(result, method, email, totals) {
     let instructions;
     let action = '';
     if (method === 'bacs') {
-        instructions = `Te enviamos un mail a ${email} con los datos de la cuenta para transferir ${total}. Preparamos tu pedido cuando se acredite el pago.`;
+        instructions = `Te enviamos un mail a ${email} con los datos de la cuenta para transferir ${total}. Cuando transfieras, mandanos el comprobante por WhatsApp y preparamos tu pedido apenas se acredite.`;
+        action = whatsappButton('Enviar comprobante por WhatsApp',
+            `¡Hola! Hice el pedido #${number} en Lupa Ecoart por ${total}. Te mando el comprobante de la transferencia.`);
     } else if (method === 'cod') {
         instructions = 'Te vamos a escribir por WhatsApp para coordinar el pago y la entrega.';
-        if (WC_CONFIG.WHATSAPP_NUMBER) {
-            const text = encodeURIComponent(`¡Hola! Hice el pedido #${number} en Lupa Ecoart.`);
-            action = `
-                <a href="https://wa.me/${esc(WC_CONFIG.WHATSAPP_NUMBER)}?text=${text}" target="_blank" rel="noopener"
-                   class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-full bg-[#1FAF38] hover:bg-[#178a2c] text-white font-semibold transition mb-3">
-                    Escribinos por WhatsApp
-                </a>`;
-        }
+        action = whatsappButton('Escribinos por WhatsApp', `¡Hola! Hice el pedido #${number} en Lupa Ecoart.`);
     } else {
         instructions = `Te enviamos la confirmación a ${email}.`;
     }

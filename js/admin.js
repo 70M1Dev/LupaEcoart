@@ -153,6 +153,10 @@ function friendlyError(status, data) {
         return 'WordPress no reconoció la clave. La contraseña normal no sirve: usá una contraseña de aplicación (WordPress → Usuarios → Perfil → Contraseñas de aplicación).';
     }
     if (status === 401) return 'Usuario o contraseña incorrectos.';
+    // 403 del propio Worker: la ruta no existe en la version publicada.
+    if (status === 403 && data && /^Endpoint no permitido/.test(data.error || '')) {
+        return 'Esta función todavía no está publicada en el servidor de la tienda (falta hacer "wrangler deploy").';
+    }
     if (status === 403) return 'Tu usuario no tiene permiso para hacer esto.';
     if (status === 413) return 'La foto es demasiado grande.';
     const message = data && (data.message || data.error);

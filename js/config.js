@@ -45,7 +45,7 @@ const WC_CONFIG = {
     // con codigo de pais, sin + ni espacios). Ej: '59899123456'.
     // Vacio = no se muestra el boton de WhatsApp al confirmar el pedido.
     // ------------------------------------------------------------------
-    WHATSAPP_NUMBER: ''
+    WHATSAPP_NUMBER: '59894319604'
 };
 
 // ==========================================

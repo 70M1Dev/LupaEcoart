@@ -25,5 +25,9 @@ workers_dev = true
 #   wrangler secret put WC_CONSUMER_SECRET # cs_...
 #   wrangler secret put ALLOWED_ORIGINS    # https://70m1dev.github.io,https://lupaecoart.com
 #
+# Aviso de pedidos nuevos por WhatsApp (CallMeBot, opcional):
+#   wrangler secret put CALLMEBOT_PHONE    # 59894319604
+#   wrangler secret put CALLMEBOT_APIKEY   # la que manda CallMeBot al activar
+#
 # ALLOWED_ORIGINS es la lista de dominios del frontend separados por coma.
 # Si queda vacia, el Worker responde a cualquier origen (util solo para probar).

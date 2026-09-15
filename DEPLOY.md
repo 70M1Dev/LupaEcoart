@@ -193,6 +193,31 @@ SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 Si hay algún plugin de seguridad (Wordfence, iThemes, etc.), revisá que no tenga
 desactivadas las contraseñas de aplicación o la REST API.
 
+## Paso 8 — Aviso de pedidos por WhatsApp (CallMeBot)
+
+Con cada pedido nuevo del checkout, el Worker manda un WhatsApp a la tienda con
+número de pedido, total, método de pago, cliente (con link `wa.me`), productos,
+envío y nota. Es gratis y solo avisa a la tienda, no a los clientes.
+
+1. Desde el WhatsApp del número que va a recibir los avisos (`+598 94 319 604`),
+   agendá el contacto de CallMeBot **+34 694 25 79 52** (el número puede cambiar:
+   confirmalo en https://www.callmebot.com/blog/free-api-whatsapp-messages/).
+2. Mandale el mensaje: `I allow callmebot to send me messages`
+3. Te responde con tu **apikey**. Cargala en Cloudflare (no va en GitHub ni en el chat):
+
+   ```bash
+   wrangler secret put CALLMEBOT_PHONE    # 59894319604
+   wrangler secret put CALLMEBOT_APIKEY   # la apikey que te mandó
+   ```
+
+4. `wrangler deploy` y hacé un pedido de prueba.
+
+Sin esos dos secrets el Worker no manda nada. Si CallMeBot falla, el pedido se
+crea igual (el error queda en `wrangler tail`).
+
+El número de la tienda para los botones de WhatsApp del checkout ("Enviar
+comprobante", "Escribinos") está en `WHATSAPP_NUMBER`, `js/config.js`.
+
 ---
 
 ## Checklist

@@ -206,7 +206,7 @@ async function handlePublic(request, env, url) {
     return relay(resp, cors, 'no-cache');
 }
 
-async function handleStore(request, env, url) {
+async function handleStore(request, env, url, ctx) {
     const cors = corsHeaders(request, env, 'store');
 
     if (originRejected(request, env)) {
@@ -260,7 +260,107 @@ async function handleStore(request, env, url) {
         return jsonError(`No se pudo contactar a WooCommerce: ${err.message}`, 502, cors);
     }
 
+    // Pedido creado: aviso por WhatsApp a la tienda sin demorar la respuesta.
+    if (url.pathname === '/store/checkout' && resp.ok) {
+        const order = await resp.clone().json().catch(() => null);
+        if (order && order.order_id) ctx.waitUntil(notifyNewOrder(env, order.order_id));
+    }
+
     return relay(resp, cors, 'no-store', ['Cart-Token']);
+}
+
+// ==========================================
+// AVISO DE PEDIDOS POR WHATSAPP (CallMeBot)
+// ==========================================
+// Secrets: CALLMEBOT_PHONE (ej: 59894319604) y CALLMEBOT_APIKEY.
+// Sin esos secrets no se manda nada. Si falla, el pedido no se ve afectado.
+
+const ORDER_STATUS_LABELS = {
+    pending: 'pendiente de pago',
+    'on-hold': 'en espera, confirmar pago',
+    processing: 'pagado',
+    completed: 'completado',
+    cancelled: 'cancelado',
+    failed: 'pago fallido',
+};
+
+function formatPesos(value) {
+    const n = Number(value);
+    return `$ ${(isFinite(n) ? n : 0).toLocaleString('es-UY', { maximumFractionDigits: 2 })}`;
+}
+
+// Telefono uruguayo del cliente → numero para wa.me (099123456 → 59899123456).
+function whatsappDigits(phone) {
+    const digits = String(phone || '').replace(/\D/g, '');
+    if (digits.startsWith('598') && digits.length >= 11) return digits;
+    if (digits.startsWith('09') && digits.length === 9) return `598${digits.slice(1)}`;
+    if (digits.startsWith('9') && digits.length === 8) return `598${digits}`;
+    return '';
+}
+
+async function fetchOrder(env, orderId) {
+    const baseUrl = readBaseUrl(env);
+    const url = new URL(`${baseUrl}/wp-json/wc/v3/orders/${orderId}`);
+    url.searchParams.set('consumer_key', (env.WC_CONSUMER_KEY || '').trim());
+    url.searchParams.set('consumer_secret', (env.WC_CONSUMER_SECRET || '').trim());
+    const resp = await fetch(url.toString(), { headers: { 'Accept': 'application/json' } });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return resp.json();
+}
+
+function orderMessage(order) {
+    const b = order.billing || {};
+    const s = order.shipping || {};
+    const status = ORDER_STATUS_LABELS[order.status] || order.status;
+    const lines = [
+        `🛒 *Nuevo pedido #${order.number || order.id}*`,
+        `Total: *${formatPesos(order.total)}*`,
+        `Pago: ${order.payment_method_title || order.payment_method} (${status})`,
+        '',
+        `Cliente: ${[b.first_name, b.last_name].filter(Boolean).join(' ')}`,
+    ];
+    if (b.phone) {
+        const wa = whatsappDigits(b.phone);
+        lines.push(`Tel: ${b.phone}${wa ? ` · wa.me/${wa}` : ''}`);
+    }
+    if (b.email) lines.push(`Email: ${b.email}`);
+    const place = [s.address_1 || b.address_1, s.city || b.city].filter(Boolean).join(', ');
+    if (place) lines.push(`Envío: ${place}`);
+
+    lines.push('', '*Productos*');
+    (order.line_items || []).forEach(item => lines.push(`- ${item.quantity} × ${item.name}`));
+    (order.shipping_lines || []).forEach(line => lines.push(`- ${line.method_title}: ${Number(line.total) === 0 ? 'gratis' : formatPesos(line.total)}`));
+    (order.coupon_lines || []).forEach(line => lines.push(`- Cupón ${String(line.code).toUpperCase()}: -${formatPesos(line.discount)}`));
+
+    if (order.customer_note) lines.push('', `Nota: ${order.customer_note}`);
+    lines.push('', 'Ver en el panel: https://lupaecoart.site/admin');
+    return lines.join('\n');
+}
+
+async function notifyNewOrder(env, orderId) {
+    const phone = (env.CALLMEBOT_PHONE || '').replace(/\D/g, '');
+    const apikey = (env.CALLMEBOT_APIKEY || '').trim();
+    if (!phone || !apikey) return;
+
+    let text;
+    try {
+        text = orderMessage(await fetchOrder(env, orderId));
+    } catch (err) {
+        // Sin detalle del pedido igual avisamos que entro uno.
+        console.error(`No se pudo leer el pedido ${orderId}: ${err.message}`);
+        text = `🛒 *Nuevo pedido #${orderId}*\nVer en el panel: https://lupaecoart.site/admin`;
+    }
+
+    const url = new URL('https://api.callmebot.com/whatsapp.php');
+    url.searchParams.set('phone', phone);
+    url.searchParams.set('text', text);
+    url.searchParams.set('apikey', apikey);
+    try {
+        const resp = await fetch(url.toString());
+        if (!resp.ok) console.error(`CallMeBot respondio ${resp.status}: ${await resp.text()}`);
+    } catch (err) {
+        console.error(`CallMeBot no respondio: ${err.message}`);
+    }
 }
 
 async function handleAdmin(request, env, url) {
@@ -324,7 +424,7 @@ async function handleAdmin(request, env, url) {
 }
 
 export default {
-    async fetch(request, env) {
+    async fetch(request, env, ctx) {
         const url = new URL(request.url);
         const zone = zoneOf(url.pathname);
 
@@ -334,7 +434,7 @@ export default {
         }
 
         if (zone === 'admin') return handleAdmin(request, env, url);
-        if (zone === 'store') return handleStore(request, env, url);
+        if (zone === 'store') return handleStore(request, env, url, ctx);
         return handlePublic(request, env, url);
     },
 };
