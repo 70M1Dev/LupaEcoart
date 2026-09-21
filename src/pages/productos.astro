@@ -1,100 +1,15 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupa Ecoart - Catálogo</title>
-    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
-                    },
-                    colors: {
-                        primary: {
-                            50: '#F7F9E8',
-                            100: '#EEF2CF',
-                            200: '#DDE4A3',
-                            300: '#C3CE6E',
-                            400: '#A8B444',
-                            500: '#8F9B2F',  // color principal
-                            600: '#76802A',
-                            700: '#5E6622',
-                            800: '#4A501C',
-                            900: '#33370F'
-                        },
-                        accent: '#FCA321',
-                        teal: '#7ABFB1', cream: '#E6EBB1', mustard: '#A68A26'
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-white text-black font-sans antialiased">
+---
+// ==========================================
+// CATALOGO — Lupa Ecoart
+// ==========================================
+// Los filtros (categoria, precio, busqueda, orden) y el drawer de filtros
+// mobile viven en src/scripts/productos.js.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+---
 
-       <!-- ================= NAVBAR DESKTOP ================= -->
-    <nav id="navbar-scroll"
-         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-500/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
-
-        <!-- Buscador centrado absoluto -->
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 z-10 pointer-events-none">
-            <div class="relative">
-                <input type="text"
-                       id="search-input" data-search
-                       placeholder="Buscar obras y objetos..."
-                       class="pointer-events-auto w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/80"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-            </div>
-        </div>
-
-        <!-- Contenedor flex normal -->
-        <div class="flex items-center justify-between px-6 py-3 relative">
-
-            <!-- Marca + navegación (izquierda) -->
-            <div class="flex items-center gap-2 flex-shrink-0">
-                <a href="./" class="hidden xl:flex items-center gap-2 mr-4 text-white">
-                    <img src="assets/logo.svg" alt="" class="h-8 w-8">
-                    <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
-                </a>
-                <a href="./"
-                   class="px-4 py-2 rounded-full hover:bg-primary-600 text-white font-medium transition whitespace-nowrap">
-                    Inicio
-                </a>
-                <a href="productos"
-                   class="px-4 py-2 rounded-full bg-primary-700 text-white font-medium transition whitespace-nowrap">
-                    Catálogo
-                </a>
-            </div>
-
-            <!-- Spacer invisible para que el carrito se mantenga a la derecha -->
-            <div class="w-10 flex-shrink-0"></div>
-
-            <!-- Carrito (derecha) -->
-            <a href="carrito" class="relative p-2 hover:bg-primary-600 rounded-full transition flex-shrink-0 block" aria-label="Carrito">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
-                     viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                          d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
-                </svg>
-                <span id="cart-count-nav" class="absolute -top-0.5 -right-0.5 bg-white text-primary-800 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                    0
-                </span>
-            </a>
-
-        </div>
-    </nav>
+<BaseLayout title="Catálogo">
+    <Navbar active="catalogo" />
 
     <!-- ================= HEADER ================= -->
     <section class="bg-primary-500 text-white pt-20 md:pt-28 pb-10 relative overflow-hidden">
@@ -135,7 +50,7 @@
         <div class="flex gap-8">
 
             <!-- ================= SIDEBAR FILTROS (Desktop) ================= -->
-            <aside class="hidden md:block w-64 flex-shrink-0">
+            <aside class="hidden md:block w-64 shrink-0">
                 <div class="bg-white rounded-2xl border border-primary-100 p-6 sticky top-24">
 
                     <!-- Categorías -->
@@ -349,10 +264,9 @@
         </div>
     </div>
 
-    <!-- ================= SCRIPTS ================= -->
-    <script src="js/config.js?v=20260914-3"></script>
-    <script src="js/cart.js?v=20260914-3"></script>
-    <script src="js/productos.js?v=20260914-3"></script>
+</BaseLayout>
 
-</body>
-</html>
+<script>
+    import '../scripts/cart.js';
+    import '../scripts/productos.js';
+</script>

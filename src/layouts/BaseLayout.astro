@@ -1,0 +1,55 @@
+---
+// ==========================================
+// LAYOUT BASE — Lupa Ecoart
+// ==========================================
+// Head comun (fuentes, favicon, estilos) + los scripts de UI compartidos
+// (drawer mobile y navbar inteligente). Antes estaban copiados en cada HTML.
+import '../styles/global.css';
+
+interface Props {
+    /** Va en <title>. Se le agrega "Lupa Ecoart - " adelante. */
+    title: string;
+    /** Clases del <body>. Por defecto, fondo blanco y texto negro. */
+    bodyClass?: string;
+    /** El boton flotante de carrito en mobile (se apaga en carrito y checkout). */
+    cartWidget?: boolean;
+    /** Pagina privada que no queremos en Google (el panel de tienda). */
+    noindex?: boolean;
+}
+
+const {
+    title,
+    bodyClass = 'bg-white text-black font-sans antialiased',
+    cartWidget = true,
+    noindex = false
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {noindex && <meta name="robots" content="noindex, nofollow" />}
+        <title>Lupa Ecoart - {title}</title>
+        <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <slot name="head" />
+    </head>
+
+    <body class={bodyClass} data-cart-widget={cartWidget ? undefined : 'off'}>
+        <slot />
+    </body>
+</html>
+
+<script>
+    import { setupDrawer, setupNavbarScroll } from '../scripts/ui.js';
+
+    setupDrawer();
+    setupNavbarScroll();
+</script>

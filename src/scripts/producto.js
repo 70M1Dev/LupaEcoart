@@ -1,3 +1,6 @@
+import { wcCategoryName, wcFetchJson, wcPrice, wcRenderError, wcStockLimit } from './config.js';
+import { addToCart, cartQuantityFor } from './cart.js';
+
 // ==========================================
 // DATOS: se cargan desde WooCommerce en loadProduct()
 // ==========================================
@@ -151,7 +154,7 @@ function renderGallery() {
 
     // Imágenes principales
     track.innerHTML = currentProduct.images.map(img => `
-        <img src="${img}" alt="${currentProduct.name}" class="w-full flex-shrink-0 object-cover" style="aspect-ratio: 6/7;">
+        <img src="${img}" alt="${currentProduct.name}" class="w-full shrink-0 object-cover" style="aspect-ratio: 6/7;">
     `).join('');
 
     // Puntos indicadores (ocultos si hay una sola imagen)
@@ -366,7 +369,7 @@ document.getElementById('buy-now-btn').addEventListener('click', () => {
 });
 
 // ==========================================
-// CARRITO (usa el módulo compartido js/cart.js)
+// CARRITO (usa el módulo compartido ./cart.js)
 // ==========================================
 function handleAddToCart(size, qty) {
     addToCart({
@@ -399,37 +402,7 @@ async function renderRelated() {
     `).join('');
 }
 
-// ==========================================
-// DRAWER MOBILE
-// ==========================================
-const toggle = document.getElementById('menu-toggle');
-const drawer = document.getElementById('drawer');
-const overlay = document.getElementById('drawer-overlay');
-const iconHamburger = document.getElementById('icon-hamburger');
-const iconClose = document.getElementById('icon-close');
-
-function openDrawer() {
-    drawer.classList.remove('translate-x-full');
-    overlay.classList.remove('hidden');
-    setTimeout(() => overlay.classList.add('opacity-100'), 10);
-    iconHamburger.classList.add('hidden');
-    iconClose.classList.remove('hidden');
-}
-
-function closeDrawer() {
-    drawer.classList.add('translate-x-full');
-    overlay.classList.remove('opacity-100');
-    setTimeout(() => overlay.classList.add('hidden'), 300);
-    iconHamburger.classList.remove('hidden');
-    iconClose.classList.add('hidden');
-}
-
-toggle.addEventListener('click', () => {
-    if (drawer.classList.contains('translate-x-full')) openDrawer();
-    else closeDrawer();
-});
-
-overlay.addEventListener('click', closeDrawer);
+// El drawer mobile vive ahora en ./ui.js y lo inicializa el layout.
 
 // ==========================================
 // INICIALIZACIÓN

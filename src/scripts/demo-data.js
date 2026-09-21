@@ -1,7 +1,7 @@
 // ==========================================
 // DATOS DE EJEMPLO — solo para el boceto local
 // ==========================================
-// config.js carga este archivo unicamente en localhost / *.local.
+// config.js lo importa solo cuando no hay backend configurado.
 // Imita la forma de la respuesta de la WooCommerce REST API para que
 // el resto del codigo funcione igual que con el backend real.
 // ==========================================
@@ -13,7 +13,7 @@ function demoImg(bg, fg, text) {
 const DEMO_DAY = 24 * 60 * 60 * 1000;
 const demoDate = daysAgo => new Date(Date.now() - daysAgo * DEMO_DAY).toISOString();
 
-const DEMO_PRODUCTS = [
+export const DEMO_PRODUCTS = [
     {
         id: 1, name: 'Cuadro Botánico en Papel Reciclado', price: '2890', regular_price: '3400', on_sale: true,
         featured: true, date_created: demoDate(40), categories: [{ slug: 'papeleria' }],
@@ -81,7 +81,7 @@ const DEMO_PRODUCTS = [
 ];
 
 // Responde como lo haria la API para los endpoints que usa el frontend.
-async function wcDemoResponse(endpoint, params = {}) {
+export async function wcDemoResponse(endpoint, params = {}) {
     await new Promise(r => setTimeout(r, 250)); // simula latencia
 
     const byId = endpoint.match(/^products\/(\d+)$/);

@@ -484,7 +484,7 @@ function productRow(p) {
     return `
         <article class="card p-4 flex flex-col md:flex-row md:items-center gap-4" data-id="${p.id}">
             <div class="flex items-center gap-4 flex-1 min-w-0">
-                <img src="${esc(image)}" alt="" loading="lazy" class="w-16 h-16 rounded-xl object-cover bg-neutral-100 flex-shrink-0">
+                <img src="${esc(image)}" alt="" loading="lazy" class="w-16 h-16 rounded-xl object-cover bg-neutral-100 shrink-0">
                 <div class="min-w-0">
                     <h3 class="font-semibold truncate">${esc(decodeEntities(p.name))}</h3>
                     <p class="text-sm text-neutral-500">${esc(category ? decodeEntities(category.name) : 'Sin categoría')} · ${price}</p>
@@ -658,7 +658,7 @@ function openEditor(product) {
 
 function renderImages() {
     const last = state.images.length - 1;
-    const arrow = 'w-7 h-7 rounded-full bg-white/90 shadow text-sm font-bold disabled:opacity-30';
+    const arrow = 'w-7 h-7 rounded-full bg-white/90 shadow-sm text-sm font-bold disabled:opacity-30';
 
     $('image-grid').innerHTML = state.images.map((img, i) => `
         <div class="relative aspect-square rounded-xl overflow-hidden bg-neutral-100 border-2 ${i === 0 ? 'border-primary-500' : 'border-transparent'}" data-key="${img.key}">

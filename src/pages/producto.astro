@@ -1,90 +1,20 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupa Ecoart - Producto</title>
-    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
-                    },
-                    colors: {
-                        primary: {
-                            50: '#F7F9E8', 100: '#EEF2CF', 200: '#DDE4A3',
-                            300: '#C3CE6E', 400: '#A8B444', 500: '#8F9B2F',  // color principal
-                            600: '#76802A', 700: '#5E6622', 800: '#4A501C',
-                            900: '#33370F'
-                        },
-                        accent: '#FCA321',
-                        teal: '#7ABFB1', cream: '#E6EBB1', mustard: '#A68A26'
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-white text-black font-sans antialiased">
+---
+// ==========================================
+// DETALLE DE PRODUCTO — Lupa Ecoart
+// ==========================================
+// La pagina se completa desde WooCommerce con el ?id= de la URL
+// (src/scripts/producto.js).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import MenuToggle from '../components/MenuToggle.astro';
+import Drawer from '../components/Drawer.astro';
+---
 
-    <!-- ================= NAVBAR DESKTOP ================= -->
-    <nav id="navbar-scroll"
-         class="hidden md:block fixed top-0 left-0 right-0 bg-primary-500/95 backdrop-blur shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
-
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 z-10 pointer-events-none">
-            <div class="relative">
-                <input type="text"
-                       id="search-input" data-search
-                       placeholder="Buscar obras y objetos..."
-                       class="pointer-events-auto w-full pl-10 pr-4 py-2 bg-white/20 text-white placeholder-white/80 border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/80"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-            </div>
-        </div>
-
-        <div class="flex items-center justify-between px-6 py-3 relative">
-            <div class="flex items-center gap-2 flex-shrink-0">
-                <a href="./" class="hidden xl:flex items-center gap-2 mr-4 text-white">
-                    <img src="assets/logo.svg" alt="" class="h-8 w-8">
-                    <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
-                </a>
-                <a href="./" class="px-4 py-2 rounded-full hover:bg-primary-600 text-white font-medium transition whitespace-nowrap">
-                    Inicio
-                </a>
-                <a href="productos" class="px-4 py-2 rounded-full hover:bg-primary-600 text-white font-medium transition whitespace-nowrap">
-                    Catálogo
-                </a>
-            </div>
-            <div class="w-10 flex-shrink-0"></div>
-            <a href="carrito" class="relative p-2 hover:bg-primary-600 rounded-full transition flex-shrink-0 block" aria-label="Carrito">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
-                </svg>
-                <span id="cart-count-nav" class="absolute -top-0.5 -right-0.5 bg-white text-primary-800 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">0</span>
-            </a>
-        </div>
-    </nav>
+<BaseLayout title="Producto">
+    <Navbar />
 
     <!-- ================= BOTÓN HAMBURGUESA MOBILE ================= -->
-    <button id="menu-toggle"
-            class="md:hidden fixed top-4 right-4 bg-primary-800/90 backdrop-blur-sm text-white p-2 rounded-full transition z-50" aria-label="Menú">
-        <svg id="icon-hamburger" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-        <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-    </button>
+    <MenuToggle />
 
     <!-- ================= BREADCRUMB ================= -->
     <div class="container mx-auto px-4 pt-20 md:pt-24 pb-6">
@@ -223,7 +153,7 @@
                 <!-- Envío -->
                 <div class="bg-white rounded-2xl p-4 mb-4 border border-primary-100">
                     <div class="flex items-start gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
                         </svg>
                         <div>
@@ -264,36 +194,10 @@
 
     </div>
 
-    <!-- ================= DRAWER MOBILE ================= -->
-    <div id="drawer-overlay" class="fixed inset-0 bg-primary-900/60 z-40 hidden opacity-0 transition-opacity"></div>
-    <div id="drawer" class="fixed top-0 right-0 h-full w-72 bg-primary-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden overflow-y-auto">
-        <div class="bg-primary-900 text-white p-6 sticky top-0 z-10">
-            <h2 class="text-xl font-light">Lupa <span class="font-semibold">Ecoart</span></h2>
-        </div>
-        <div class="px-4 pt-4">
-            <div class="relative">
-                <input type="text" data-search enterkeyhint="search" aria-label="Buscar"
-                       placeholder="Buscar obras y objetos..."
-                       class="w-full pl-10 pr-4 py-2.5 bg-white/15 text-white placeholder-white/70 border border-white/25 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            </div>
-        </div>
-        <div class="p-4">
-            <a href="./" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">
-                <span class="font-medium">Inicio</span>
-            </a>
-            <a href="productos" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">
-                <span class="font-medium">Catálogo</span>
-            </a>
-            <a href="carrito" class="flex items-center px-3 py-3 hover:bg-primary-700 rounded-xl transition text-white">
-                <span class="font-medium">Carrito</span>
-            </a>
-        </div>
-    </div>
+    <Drawer />
+</BaseLayout>
 
-    <!-- ================= SCRIPTS ================= -->
-    <script src="js/config.js?v=20260914-3"></script>
-    <script src="js/cart.js?v=20260914-3"></script>
-    <script src="js/producto.js?v=20260914-3"></script>
-</body>
-</html>
+<script>
+    import '../scripts/cart.js';
+    import '../scripts/producto.js';
+</script>

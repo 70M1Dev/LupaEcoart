@@ -1,13 +1,14 @@
 # Lupa Ecoart — Tienda Online con WooCommerce
 
-Frontend estático (HTML + Tailwind CSS) que consume la **WooCommerce REST API** para mostrar productos, carrito y checkout.
+Frontend estático hecho con **Astro + Tailwind CSS** que consume la
+**WooCommerce REST API** para mostrar productos, carrito y checkout.
 
 ## 🏗️ Arquitectura
 
 ```
 Navegador
    │
-   ├── GitHub Pages ──────────► HTML/CSS/JS estático (este repo)
+   ├── GitHub Pages ──────────► HTML/CSS/JS estático (build de Astro)
    │
    └── Cloudflare Worker ─────► WordPress + WooCommerce
        (agrega las API keys)     (/wp-json/wc/v3/…)
@@ -17,27 +18,68 @@ El frontend **nunca** ve las credenciales de WooCommerce: le pega al Worker,
 y el Worker las agrega del lado del servidor.
 
 ```
-index.html               ← Home con productos destacados
-productos.html           ← Catálogo con filtros (categoría, precio, búsqueda, orden)
-producto.html            ← Detalle de producto con galería + medidas
-carrito.html             ← Carrito con cupones (localStorage)
-checkout.html            ← Formulario de checkout
-admin.html               ← Panel de tienda (stock, altas y edición de productos)
-assets/logo.svg          ← Logo (lupa + hoja)
+astro.config.mjs         ← Config de Astro (build estático, Tailwind)
+.env.example             ← Template de variables para desarrollo local
+.env                     ← [GITIGNORED] Keys reales para desarrollo
 worker.js                ← Cloudflare Worker (proxy de la API)
 wrangler.toml            ← Config de deploy del Worker
-js/
-├── config.js            ← Config de producción (pública, sin secretos)
-├── config.local.example.js ← Template para desarrollo local
-├── config.local.js      ← [GITIGNORED] Keys reales para desarrollo
-├── demo-data.js         ← Productos de ejemplo (solo boceto local)
-├── cart.js              ← Carrito compartido (localStorage)
-├── index.js             ← Carga productos destacados
-├── productos.js         ← Lista con filtros
-├── producto.js          ← Detalle + productos relacionados
-├── carrito.js           ← Carrito + cupones
-├── checkout.js          ← Formulario de checkout (simulado)
-└── admin.js             ← Panel de tienda
+.github/workflows/
+└── deploy.yml           ← Compila el sitio y lo publica en GitHub Pages
+
+src/
+├── pages/               ← Una página por archivo; el nombre es la URL
+│   ├── index.astro      ← Home con productos destacados
+│   ├── productos.astro  ← Catálogo con filtros (categoría, precio, búsqueda, orden)
+│   ├── producto.astro   ← Detalle de producto con galería + medidas
+│   ├── carrito.astro    ← Carrito con cupones (localStorage)
+│   ├── checkout.astro   ← Formulario de checkout
+│   └── admin.astro      ← Panel de tienda (stock, altas y edición de productos)
+├── layouts/
+│   └── BaseLayout.astro ← Head común + scripts de UI compartidos
+├── components/          ← Lo que se repite en varias páginas
+│   ├── Navbar.astro     ← Navbar desktop (con la sección activa por prop)
+│   ├── MenuToggle.astro ← Botón hamburguesa
+│   ├── Drawer.astro     ← Navegación lateral mobile
+│   └── Footer.astro
+├── styles/
+│   ├── global.css       ← Paleta, tipografía y compatibilidad con Tailwind v3
+│   └── admin.css        ← Clases del panel (.card, .input, .btn-primary…)
+└── scripts/
+    ├── config.js        ← Config de producción (pública, sin secretos)
+    ├── categories.js    ← Slugs y nombres de las categorías
+    ├── demo-data.js     ← Productos de ejemplo (solo modo boceto)
+    ├── ui.js            ← Drawer mobile + navbar inteligente
+    ├── cart.js          ← Carrito compartido (localStorage)
+    ├── index.js         ← Carga productos destacados
+    ├── productos.js     ← Lista con filtros
+    ├── producto.js      ← Detalle + productos relacionados
+    ├── carrito.js       ← Carrito + cupones
+    ├── checkout.js      ← Pedidos reales con la Store API
+    └── admin-globals.js ← Puente de config para public/js/admin.js
+
+public/                  ← Se copia tal cual a la raíz del sitio
+├── assets/logo.svg      ← Logo (lupa + hoja)
+├── js/admin.js          ← Panel de tienda (script clásico, sin bundlear)
+└── CNAME
+```
+
+### Cómo se agrega una página nueva
+
+Un archivo en `src/pages/` alcanza: `src/pages/contacto.astro` se publica en
+`/contacto`. Lo de siempre (head, fuentes, estilos, drawer) ya viene del layout:
+
+```astro
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="Contacto">
+    <Navbar />
+    <!-- contenido -->
+    <Footer />
+</BaseLayout>
 ```
 
 ## 🧰 Panel de tienda (`/admin`)
@@ -61,25 +103,41 @@ Los cambios se ven en la tienda en hasta 5 minutos (caché del Worker).
 
 Configuración inicial: ver **Paso 7** en `DEPLOY.md`.
 
-**Modo prueba local:** `http://localhost:…/admin?demo` trabaja en memoria con
-los productos de `js/demo-data.js` (cualquier usuario entra, no toca la tienda).
+**Modo prueba local:** `http://localhost:4321/admin?demo` trabaja en memoria con
+los productos de `src/scripts/demo-data.js` (cualquier usuario entra, no toca la
+tienda).
+
+El panel es el único que sigue siendo un script clásico sin bundlear
+(`public/js/admin.js`): `src/scripts/admin-globals.js` le deja la config en el
+scope global y recién entonces lo carga. Si se lo edita, hay que subir el `?v=`
+de `src/pages/admin.astro` para saltear la caché del navegador.
 
 ## 🎨 Identidad
 
-- Color principal: `#8F9B2F` (`primary-500`; escala `primary-50` … `primary-900` en el `tailwind.config` de cada HTML)
+- Color principal: `#8F9B2F` (`primary-500`; escala `primary-50` … `primary-900` definida en `src/styles/global.css`)
 - Secundarios: naranja `#FCA321` (`accent`), crema `#E6EBB1` (`cream`), verde agua `#7ABFB1` (`teal`), mostaza `#A68A26` (`mustard`)
 - Fondos de texto blancos, texto negro; texto blanco sobre zonas oscuras
 - Botones con texto blanco en `primary-700` (oliva oscuro) para que el texto se lea bien
 - Tipografía: Outfit (Google Fonts)
-- Categorías (slugs de WooCommerce): `papeleria`, `corte-laser`, `personalizados`, `reciclables`, `otros` (definidas en `WC_CATEGORIES`, `js/config.js`)
+- Categorías (slugs de WooCommerce): `papeleria`, `corte-laser`, `personalizados`, `reciclables`, `otros` (definidas en `WC_CATEGORIES`, `src/scripts/categories.js`)
 
 ## 👀 Modo boceto
 
-Mientras `PROXY_URL` esté vacío y no haya keys locales, `js/config.js` carga
-`js/demo-data.js` y muestra productos de ejemplo (con un aviso abajo a la izquierda).
-Al configurar el backend se apaga solo. Para desactivarlo antes: `DEMO: false`.
+Mientras `PROXY_URL` esté vacío y no haya keys locales, `src/scripts/config.js`
+carga `src/scripts/demo-data.js` y muestra productos de ejemplo (con un aviso
+abajo a la izquierda). Al configurar el backend se apaga solo. Para desactivarlo
+antes: `DEMO: false`.
 
 ## 🖥️ Desarrollo local
+
+```bash
+npm install
+npm run dev        # http://localhost:4321
+npm run build      # compila a dist/
+npm run preview    # sirve dist/ como lo hará GitHub Pages
+```
+
+Para trabajar contra un WordPress local:
 
 1. Levantá el sitio de WordPress en **LocalWP** (`lupaecoart.local`).
 2. En WordPress: **WooCommerce → Ajustes → Avanzado → REST API** → crear una clave
@@ -87,14 +145,13 @@ Al configurar el backend se apaga solo. Para desactivarlo antes: `DEMO: false`.
 3. Copiá el template y pegá tus keys:
 
    ```bash
-   cp js/config.local.example.js js/config.local.js
+   cp .env.example .env
    ```
 
-4. Abrí `index.html` con Live Server (o cualquier servidor local).
-
-`js/config.local.js` solo se carga cuando el sitio corre en `localhost`, `127.0.0.1`
-o un dominio `.local` (ver el bloque de override en `js/config.js`). En producción
-ni se pide, así que no ensucia la consola con un 404.
+`.env` está en `.gitignore` y nunca se sube. Ojo: todo lo que empieza con
+`PUBLIC_` termina en el bundle que ve el navegador, así que ahí van solo las
+keys del WordPress local, nunca las de producción (esas viven como secrets del
+Worker).
 
 ### CORS en el WordPress local
 
@@ -118,10 +175,13 @@ En producción esto **no hace falta**: el Worker ya devuelve los headers de CORS
 
 ### 1. Frontend → GitHub Pages
 
-El repo publica desde la rama `main`, carpeta raíz.
-En GitHub: **Settings → Pages → Source: Deploy from a branch → `main` / `/ (root)`**.
+El sitio se compila, así que Pages tiene que servir el build en vez de los
+archivos del repo. Una sola vez, en GitHub:
 
-Cada `git push` a `main` republica el sitio.
+**Settings → Pages → Source: GitHub Actions**
+
+Después, cada `git push` a `main` dispara `.github/workflows/deploy.yml`, que
+corre `npm ci && npm run build` y publica `dist/`.
 
 ### 2. Proxy de la API → Cloudflare Workers
 
@@ -135,8 +195,8 @@ wrangler secret put ALLOWED_ORIGINS      # ej: https://70m1dev.github.io,https:/
 wrangler deploy
 ```
 
-Después de deployar, poné la URL del Worker en `PROXY_URL` dentro de `js/config.js`
-y hacé push.
+Después de deployar, poné la URL del Worker en `PROXY_URL` dentro de
+`src/scripts/config.js` y hacé push.
 
 El Worker:
 
@@ -158,8 +218,8 @@ hosting aparte. El frontend solo le habla por la REST API a través del Worker.
 ## 🔒 Seguridad
 
 - Las keys de WooCommerce viven únicamente como **secrets de Cloudflare**.
-- `js/config.local.js` está en `.gitignore`; si alguna vez se subió una key, hay
-  que **regenerarla** desde WooCommerce, no alcanza con borrar el archivo.
+- `.env` está en `.gitignore`; si alguna vez se subió una key, hay que
+  **regenerarla** desde WooCommerce, no alcanza con borrar el archivo.
 - Usá una clave de API con permisos de **solo lectura**.
 
 ## 🛒 Estado del checkout

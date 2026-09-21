@@ -1,3 +1,6 @@
+import { wcCategoryName, wcFetchJson, wcPrice, wcRenderError, wcStockLimit } from './config.js';
+import { addToCart } from './cart.js';
+
 // ==========================================
 // PRODUCTOS DESTACADOS (HOME) - WooCommerce
 // ==========================================
@@ -99,6 +102,10 @@ function handleAddToCartHome(productId) {
         });
     }
 }
+
+// El boton "Añadir al carrito" de cada tarjeta se arma con innerHTML y usa
+// onclick, asi que la funcion tiene que estar en window.
+window.handleAddToCartHome = handleAddToCartHome;
 
 async function initFeaturedProducts() {
     try {

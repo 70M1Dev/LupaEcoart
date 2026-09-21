@@ -1,47 +1,18 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupa Ecoart - Checkout</title>
-    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
-                    },
-                    colors: {
-                        primary: {
-                            50: '#F7F9E8', 100: '#EEF2CF', 200: '#DDE4A3',
-                            300: '#C3CE6E', 400: '#A8B444', 500: '#8F9B2F',  // color principal
-                            600: '#76802A', 700: '#5E6622', 800: '#4A501C',
-                            900: '#33370F'
-                        },
-                        accent: '#FCA321',
-                        teal: '#7ABFB1', cream: '#E6EBB1', mustard: '#A68A26'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .field { width: 100%; padding: .75rem 1rem; border: 1px solid #EEF2CF; border-radius: .75rem; background: #fff; }
-        .field:focus { outline: none; box-shadow: 0 0 0 2px #A8B444; }
-    </style>
-</head>
-<body data-cart-widget="off" class="bg-white text-black font-sans antialiased">
+---
+// ==========================================
+// CHECKOUT — Lupa Ecoart
+// ==========================================
+// Navbar propia (simple, sin buscador ni carrito) para no distraer durante
+// la compra. El pedido lo arma src/scripts/checkout.js con la Store API.
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
 
+<BaseLayout title="Checkout" cartWidget={false}>
     <!-- ================= NAVBAR SIMPLE ================= -->
     <nav class="fixed top-0 left-0 right-0 bg-primary-500 shadow-lg z-50">
         <div class="flex items-center justify-between px-6 py-3">
             <a href="./" class="flex items-center gap-2 text-white">
-                <img src="assets/logo.svg" alt="" class="h-7 w-7">
+                <img src="/assets/logo.svg" alt="" class="h-7 w-7">
                 <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
             </a>
             <a href="carrito" class="text-white text-sm hover:underline">← Volver al carrito</a>
@@ -240,10 +211,9 @@
         </div>
     </div>
 
-    <!-- ================= SCRIPTS ================= -->
-    <script src="js/config.js?v=20260915-1"></script>
-    <script src="js/cart.js?v=20260915-1"></script>
-    <script src="js/checkout.js?v=20260915-1"></script>
+</BaseLayout>
 
-</body>
-</html>
+<script>
+    import '../scripts/cart.js';
+    import '../scripts/checkout.js';
+</script>

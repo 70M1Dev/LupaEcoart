@@ -1,5 +1,14 @@
+import { wcPrice } from './config.js';
+import {
+    cartQuantityFor,
+    getCart,
+    refreshCartStock,
+    saveCartToStorage,
+    updateCartCounters
+} from './cart.js';
+
 // ==========================================
-// ESTADO DEL CARRITO (usa el módulo compartido js/cart.js)
+// ESTADO DEL CARRITO (usa el módulo compartido ./cart.js)
 // ==========================================
 let cart = getCart();
 let appliedCoupon = JSON.parse(localStorage.getItem('coupon')) || null;
@@ -170,53 +179,16 @@ document.getElementById('checkout-btn').addEventListener('click', () => {
     window.location.href = 'checkout';
 });
 
-// ==========================================
-// DRAWER + NAVBAR (igual que otras páginas)
-// ==========================================
-const toggle = document.getElementById('menu-toggle');
-const drawer = document.getElementById('drawer');
-const overlay = document.getElementById('drawer-overlay');
-const iconHamburger = document.getElementById('icon-hamburger');
-const iconClose = document.getElementById('icon-close');
-
-function openDrawer() {
-    drawer.classList.remove('translate-x-full');
-    overlay.classList.remove('hidden');
-    setTimeout(() => overlay.classList.add('opacity-100'), 10);
-    iconHamburger.classList.add('hidden');
-    iconClose.classList.remove('hidden');
-}
-
-function closeDrawer() {
-    drawer.classList.add('translate-x-full');
-    overlay.classList.remove('opacity-100');
-    setTimeout(() => overlay.classList.add('hidden'), 300);
-    iconHamburger.classList.remove('hidden');
-    iconClose.classList.add('hidden');
-}
-
-if (toggle) {
-    toggle.addEventListener('click', () => {
-        if (drawer.classList.contains('translate-x-full')) openDrawer();
-        else closeDrawer();
-    });
-    overlay.addEventListener('click', closeDrawer);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
-}
-
-const navbar = document.getElementById('navbar-scroll');
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-    if (!navbar) return;
-    const currentScroll = window.pageYOffset;
-    if (currentScroll > lastScroll && currentScroll > 100) navbar.classList.add('-translate-y-full');
-    else if (currentScroll < lastScroll) navbar.classList.remove('-translate-y-full');
-    lastScroll = currentScroll;
-});
+// El drawer y el navbar viven ahora en ./ui.js y los inicializa el layout.
 
 // ==========================================
 // INIT
 // ==========================================
+// Quitar y sumar unidades se dispara con onclick desde el HTML que arma
+// renderCart(), asi que las funciones tienen que estar en window.
+window.removeItem = removeItem;
+window.updateQty = updateQty;
+
 if (appliedCoupon) document.getElementById('coupon-input').value = appliedCoupon;
 renderCart();
 updateCartCounters();

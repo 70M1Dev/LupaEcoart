@@ -1,10 +1,11 @@
-# Configuración local (sobrescribe para desarrollo — contiene credenciales)
-js/config.local.js
+# Configuración local (contiene credenciales del WordPress de desarrollo)
+.env
+.env.production
 
-# WordPress / WooCommerce
-*.log
-debug.log
-wp-content/debug.log
+# Build de Astro
+dist/
+.astro/
+node_modules/
 
 # Editor / OS
 .DS_Store
@@ -16,9 +17,9 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Build artifacts
-dist/
-node_modules/
+# Logs
+*.log
+debug.log
 
 # Cloudflare Wrangler (cache local y secrets de desarrollo)
 .wrangler/

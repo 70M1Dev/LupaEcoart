@@ -1,3 +1,14 @@
+import {
+    WC_CATEGORIES,
+    wcCategoryName,
+    wcFetchJson,
+    wcNormalize,
+    wcPrice,
+    wcRenderError,
+    wcStockLimit
+} from './config.js';
+import { addToCart } from './cart.js';
+
 // ==========================================
 // DATOS DE PRODUCTOS
 // Se cargan desde WooCommerce en init(). Este array queda
@@ -36,7 +47,7 @@ function mapWCProduct(p) {
         price: price,
         originalPrice: onSale ? regular : null,
         // Tomamos el slug de la primera categoría asignada en WooCommerce.
-        // Tiene que coincidir con WC_CATEGORIES (js/config.js)
+        // Tiene que coincidir con WC_CATEGORIES (./categories.js)
         category: p.categories && p.categories.length ? p.categories[0].slug : '',
         image: p.images && p.images.length ? p.images[0].src : 'https://placehold.co/300x350/E6EBB1/4A501C?text=Sin+imagen',
         badge: badge,
@@ -206,7 +217,7 @@ function renderProducts() {
 }
 
 // ==========================================
-// CARRITO (usa el módulo compartido js/cart.js)
+// CARRITO (usa el módulo compartido ./cart.js)
 // ==========================================
 function handleAddToCart(productId) {
     const product = productsData.find(p => p.id === productId);
@@ -377,23 +388,7 @@ function setupSearch() {
     });
 }
 
-// ==========================================
-// NAVBAR INTELIGENTE
-// ==========================================
-function setupNavbar() {
-    const navbar = document.getElementById('navbar-scroll');
-    let lastScroll = 0;
-
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset;
-        if (currentScroll > lastScroll && currentScroll > 100) {
-            navbar.classList.add('-translate-y-full');
-        } else if (currentScroll < lastScroll) {
-            navbar.classList.remove('-translate-y-full');
-        }
-        lastScroll = currentScroll;
-    });
-}
+// El navbar inteligente vive ahora en ./ui.js y lo inicializa el layout.
 
 // ==========================================
 // INICIALIZACIÓN
@@ -423,7 +418,6 @@ async function init() {
     setupMobileFilters();
     setupPriceFilter();
     setupSearch();
-    setupNavbar();
 
     // Traer productos reales de WooCommerce
     await fetchProductsFromWC();
@@ -432,6 +426,10 @@ async function init() {
     // Renderizar productos
     renderProducts();
 }
+
+// El boton "Añadir al carrito" de cada tarjeta se arma con innerHTML y usa
+// onclick, asi que la funcion tiene que estar en window.
+window.handleAddToCart = handleAddToCart;
 
 // Iniciar
 init();

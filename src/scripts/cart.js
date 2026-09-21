@@ -1,24 +1,26 @@
 // ==========================================
 // CARRITO COMPARTIDO (localStorage)
-// Usado por index.html, productos.html, producto.html y carrito.html
+// Usado por el home, el catalogo, el detalle de producto y el carrito.
 // ==========================================
+
+import { wcFetchJson, wcStockLimit } from './config.js';
 
 const CART_STORAGE_KEY = 'cart';
 
 // Leer el carrito actual
-function getCart() {
+export function getCart() {
     return JSON.parse(localStorage.getItem(CART_STORAGE_KEY)) || [];
 }
 
 // Guardar el carrito y refrescar los contadores en pantalla
-function saveCartToStorage(cart) {
+export function saveCartToStorage(cart) {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
     updateCartCounters();
 }
 
 // Actualiza cualquier contador de carrito presente en la página actual
 // (nav desktop, drawer mobile, etc. - busca por id conocido)
-function updateCartCounters() {
+export function updateCartCounters() {
     const cart = getCart();
     const total = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
@@ -30,7 +32,7 @@ function updateCartCounters() {
 
 // Botón flotante de carrito para mobile (en desktop el carrito está en el navbar).
 // No se muestra en páginas con <body data-cart-widget="off"> (carrito, checkout).
-function setupMobileCartWidget() {
+export function setupMobileCartWidget() {
     if (document.body.dataset.cartWidget === 'off') return;
     const widget = document.createElement('a');
     widget.href = 'carrito';
@@ -48,7 +50,7 @@ function setupMobileCartWidget() {
 
 // Unidades de un producto que ya estan en el carrito, sumando todas las medidas:
 // en WooCommerce el stock es del producto, no de cada medida.
-function cartQuantityFor(productId, cart = getCart()) {
+export function cartQuantityFor(productId, cart = getCart()) {
     return cart
         .filter(item => item.id === productId)
         .reduce((sum, item) => sum + (item.quantity || 1), 0);
@@ -58,7 +60,7 @@ function cartQuantityFor(productId, cart = getCart()) {
 // product = { id, name, price, image, size (opcional), quantity (opcional, default 1),
 //             maxQty (opcional: unidades en stock, ver wcStockLimit; sin dato = sin tope) }
 // Nunca deja pasar del stock. Devuelve cuantas unidades agrego.
-function addToCart(product) {
+export function addToCart(product) {
     const cart = getCart();
     const size = product.size || null;
     const wanted = product.quantity || 1;
@@ -102,7 +104,7 @@ function addToCart(product) {
 // Vuelve a consultar WooCommerce y ajusta el carrito al stock actual: baja
 // cantidades y quita lo que se agoto o se despublico. Devuelve los cambios
 // hechos [{ name, size, before, after }]. Si la API falla, no toca nada.
-async function refreshCartStock() {
+export async function refreshCartStock() {
     const cart = getCart();
     const ids = [...new Set(cart.map(item => item.id))];
     if (!ids.length) return [];
@@ -137,7 +139,7 @@ async function refreshCartStock() {
 }
 
 // Notificación visual reutilizable
-function showCartNotification(message, type = 'ok') {
+export function showCartNotification(message, type = 'ok') {
     const notif = document.createElement('div');
     notif.className = `fixed top-20 right-4 left-4 sm:left-auto ${type === 'warning' ? 'bg-neutral-900' : 'bg-primary-800'} text-white px-6 py-3 rounded-full shadow-xl z-50 text-sm font-semibold text-center`;
     notif.setAttribute('role', 'status');
@@ -148,7 +150,7 @@ function showCartNotification(message, type = 'ok') {
 
 // Buscadores (navbar desktop + drawer mobile): fuera del catálogo, Enter lleva
 // a productos?q=... (en productos la búsqueda filtra en vivo desde js/productos.js)
-function setupNavSearch() {
+export function setupNavSearch() {
     if (document.getElementById('products-grid')) return;
     document.querySelectorAll('[data-search]').forEach(input => {
         input.addEventListener('keydown', (e) => {

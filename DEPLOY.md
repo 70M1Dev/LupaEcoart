@@ -5,8 +5,8 @@
 ```
                       ┌─────────────────────────────┐
    Cliente ──────────►│ FRONTEND (estatico)         │
-                      │ GitHub Pages o Hostinger    │
-                      │ index.html, js/, assets/    │
+                      │ GitHub Pages                │
+                      │ build de Astro (dist/)      │
                       └──────────────┬──────────────┘
                                      │ fetch(PROXY_URL/products)
                                      ▼
@@ -119,32 +119,34 @@ curl "https://lupaecoart-wc-proxy.<algo>.workers.dev/products?per_page=1"
 
 ## Paso 5 — Conectar el frontend
 
-En `js/config.js`, poné la URL del Worker:
+En `src/scripts/config.js`, poné la URL del Worker:
 
 ```javascript
-PROXY_URL: 'https://lupaecoart-wc-proxy.<algo>.workers.dev',
+PROXY_URL: env.PUBLIC_WC_PROXY_URL ?? 'https://lupaecoart-wc-proxy.<algo>.workers.dev',
 ```
 
 Y publicá:
 
 ```bash
-git add js/config.js && git commit -m "Conecta el frontend al Worker" && git push
+git add src/scripts/config.js && git commit -m "Conecta el frontend al Worker" && git push
 ```
 
-### Frontend en GitHub Pages (ya activo)
+### Frontend en GitHub Pages
 
-https://70m1dev.github.io/LupaEcoart/ — se republica solo en cada push a `main`.
+El sitio se compila con Astro, asi que Pages tiene que servir el resultado del
+build en vez de los archivos del repo. Una sola vez, en GitHub:
+
+**Settings → Pages → Source: GitHub Actions**
+
+A partir de ahi, cada push a `main` dispara `.github/workflows/deploy.yml`, que
+corre `npm ci && npm run build` y publica `dist/`.
 
 ### Frontend en Hostinger (opcional, para usar el dominio raiz)
 
-hPanel → **Avanzado → Git**:
-
-- Repositorio: `https://github.com/70M1Dev/LupaEcoart.git`
-- Rama: `main`
-- Directorio: `public_html`
-
-Despues *Deploy*. Con el webhook activado, cada push se publica solo.
-No hace falta darle a nadie credenciales FTP.
+El deploy por Git de hPanel **ya no sirve tal cual**: clona el repo pero no
+corre el build, y lo que hay que publicar es `dist/`, no la raiz. Las opciones
+son subir `dist/` por FTP despues de cada `npm run build`, o dejar el frontend
+en GitHub Pages y apuntarle el dominio desde Cloudflare (Paso 6).
 
 ## Paso 6 — Dominio en Cloudflare (cuando lo tengas)
 
@@ -216,7 +218,7 @@ Sin esos dos secrets el Worker no manda nada. Si CallMeBot falla, el pedido se
 crea igual (el error queda en `wrangler tail`).
 
 El número de la tienda para los botones de WhatsApp del checkout ("Enviar
-comprobante", "Escribinos") está en `WHATSAPP_NUMBER`, `js/config.js`.
+comprobante", "Escribinos") está en `WHATSAPP_NUMBER`, `src/scripts/config.js`.
 
 ---
 
@@ -232,7 +234,8 @@ comprobante", "Escribinos") está en `WHATSAPP_NUMBER`, `js/config.js`.
 - [ ] API key de **lectura** creada
 - [ ] Worker deployado con los 4 secrets
 - [ ] `curl` al Worker devuelve JSON de productos
-- [ ] `PROXY_URL` actualizado en `js/config.js` y pusheado (apaga el modo boceto)
+- [ ] GitHub Pages con **Source: GitHub Actions** (el sitio se compila con Astro)
+- [ ] `PROXY_URL` actualizado en `src/scripts/config.js` y pusheado (apaga el modo boceto)
 - [ ] `ALLOWED_ORIGINS` incluye el dominio real del frontend
 - [ ] Contraseña de aplicación creada para el usuario *Gestor de tienda*
 - [ ] Worker redeployado con las rutas `/admin/…`

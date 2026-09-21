@@ -1,0 +1,178 @@
+---
+// ==========================================
+// HOME — Lupa Ecoart
+// ==========================================
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import MenuToggle from '../components/MenuToggle.astro';
+import Drawer from '../components/Drawer.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="Inicio">
+    <Navbar active="inicio" />
+
+    <section class="bg-primary-500 text-white relative min-h-[540px] md:min-h-[660px] flex items-center justify-center overflow-hidden">
+
+        <!-- Formas decorativas (tonos análogos) -->
+        <div class="absolute -top-32 -left-24 w-96 h-96 rounded-full bg-mustard/60 blur-3xl"></div>
+        <div class="absolute -bottom-40 -right-20 w-[28rem] h-[28rem] rounded-full bg-teal/70 blur-3xl"></div>
+        <div class="absolute inset-0 opacity-[0.07]" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 22px 22px;"></div>
+
+        <!-- Botón hamburguesa (solo mobile) -->
+        <MenuToggle class="md:hidden absolute top-4 right-4 bg-white/15 hover:bg-white/25 backdrop-blur-xs text-white p-2 rounded-full transition z-50" />
+
+        <!-- Contenido centrado -->
+        <div class="container mx-auto px-4 text-center relative z-10 py-20">
+
+            <!-- Logo -->
+            <div class="flex justify-center mb-6">
+                <img src="/assets/logo.svg"
+                     alt="Lupa Ecoart"
+                     class="w-20 md:w-24 h-auto hover:scale-105 transition-transform duration-300">
+            </div>
+
+            <p class="uppercase tracking-[0.35em] text-xs md:text-sm text-white/85 mb-4">Arte sustentable · Hecho a mano</p>
+
+            <h1 class="text-5xl sm:text-6xl md:text-8xl font-light tracking-tight mb-6">
+                Lupa <span class="font-semibold">Ecoart</span>
+            </h1>
+
+            <p class="max-w-xl mx-auto text-base md:text-lg text-white mb-10 leading-relaxed">
+                Piezas únicas creadas con materiales recuperados.
+                Mirá de cerca: cada detalle cuenta una historia.
+            </p>
+
+            <!-- Botones CTA -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="productos"
+                   class="inline-block bg-white hover:bg-primary-100 text-primary-800 font-semibold px-8 md:px-10 py-3 md:py-4 rounded-full transition shadow-2xl tracking-wide text-sm">
+                    Ver colección
+                </a>
+                <a href="#nosotros"
+                   class="inline-block border border-white/40 hover:bg-white/10 text-white font-medium px-8 md:px-10 py-3 md:py-4 rounded-full transition tracking-wide text-sm">
+                    Nuestra filosofía
+                </a>
+            </div>
+
+        </div>
+    </section>
+        <!-- ================= CATEGORÍAS (solo desktop) ================= -->
+    <section class="bg-cream/60 hidden md:block">
+        <div class="container mx-auto px-4 py-16">
+            <div class="flex items-end justify-between mb-8">
+                <div>
+                    <p class="text-xs uppercase tracking-widest text-primary-500 font-medium mb-1">Explorá</p>
+                    <h2 class="text-3xl font-semibold text-black">Categorías</h2>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+
+                <a href="productos?cat=papeleria" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-700 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Papelería</h3>
+                </a>
+
+                <a href="productos?cat=corte-laser" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-700 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Corte láser</h3>
+                </a>
+
+                <a href="productos?cat=personalizados" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-700 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Personalizados</h3>
+                </a>
+
+                <a href="productos?cat=reciclables" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-700 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Reciclables</h3>
+                </a>
+
+                <a href="productos?cat=otros" class="bg-white rounded-2xl border border-primary-100 hover:border-primary-300 hover:shadow-lg transition p-6 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 group-hover:bg-primary-700 text-primary-800 group-hover:text-white flex items-center justify-center transition">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+                    </div>
+                    <h3 class="font-medium text-black">Otros</h3>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+     <!-- ================= PRODUCTOS DESTACADOS ================= -->
+    <section id="productos" class="container mx-auto px-4 py-16">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <p class="text-xs uppercase tracking-widest text-primary-500 font-medium mb-1">Selección</p>
+                <h2 class="text-3xl font-semibold text-black">Piezas destacadas</h2>
+            </div>
+            <a href="productos" class="text-primary-700 hover:text-primary-900 font-medium whitespace-nowrap">
+                Ver todas →
+            </a>
+        </div>
+
+        <!-- Loading -->
+        <div id="featured-loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-800"></div>
+        </div>
+
+        <div id="featured-products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </section>
+
+        <!-- ================= BENEFICIOS / FILOSOFÍA ================= -->
+    <section id="nosotros" class="bg-primary-500 py-16 text-white relative overflow-hidden">
+        <div class="absolute -right-24 top-0 w-80 h-80 rounded-full bg-teal/40 blur-3xl"></div>
+        <div class="container mx-auto px-4 relative">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-light mb-3">Arte con <span class="font-semibold">segunda vida</span></h2>
+                <p class="text-white/85">Transformamos papel, madera y fibras recuperadas en objetos que se miran con lupa.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+
+                <div class="px-4">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Materiales recuperados</h3>
+                    <p class="text-white/85">Cada pieza le da una nueva vida a lo que otros descartan</p>
+                </div>
+
+                <div class="px-4">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.05 4.575a1.575 1.575 0 10-3.15 0v3m3.15-3v-1.5a1.575 1.575 0 013.15 0v1.5m-3.15 0l.075 5.925m3.075.75V4.575m0 0a1.575 1.575 0 013.15 0V15M6.9 7.575a1.575 1.575 0 10-3.15 0v8.175a6.75 6.75 0 006.75 6.75h2.018a5.25 5.25 0 003.712-1.538l1.732-1.732a5.25 5.25 0 001.538-3.712l.003-2.024a.668.668 0 01.198-.471 1.575 1.575 0 10-2.228-2.228 3.818 3.818 0 00-1.12 2.687M6.9 7.575V12m6.27 4.318A4.49 4.49 0 0116.35 15"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Hecho a mano</h3>
+                    <p class="text-white/85">Obras únicas de artistas y artesanos locales</p>
+                </div>
+
+                <div class="px-4">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Envío gratis</h3>
+                    <p class="text-white/85">En compras mayores a $ 3.000</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <Footer />
+
+    <Drawer categories subtitle="Navegá por la tienda" />
+</BaseLayout>
+
+<script>
+    import '../scripts/cart.js';
+    import '../scripts/index.js';
+</script>

@@ -1,0 +1,58 @@
+/* ==========================================
+   ESTILOS GLOBALES — Lupa Ecoart
+   ==========================================
+   Tailwind v4: la paleta y la tipografia se definen aca (antes vivian en el
+   `tailwind.config` inline de cada HTML). Todo lo que se declara en @theme
+   queda disponible como utilidad: --color-primary-500 → bg-primary-500,
+   text-primary-500, border-primary-500, etc.
+   ========================================== */
+
+@import 'tailwindcss';
+
+/* El panel de tienda sigue siendo un script clasico en public/js: Tailwind no
+   lo escanea solo, asi que le decimos donde buscar las clases que genera. */
+@source '../../public/js';
+
+@theme {
+    --font-sans: Outfit, ui-sans-serif, system-ui, sans-serif;
+
+    /* Color principal */
+    --color-primary-50: #f7f9e8;
+    --color-primary-100: #eef2cf;
+    --color-primary-200: #dde4a3;
+    --color-primary-300: #c3ce6e;
+    --color-primary-400: #a8b444;
+    --color-primary-500: #8f9b2f;
+    --color-primary-600: #76802a;
+    --color-primary-700: #5e6622;
+    --color-primary-800: #4a501c;
+    --color-primary-900: #33370f;
+
+    /* Secundarios */
+    --color-accent: #fca321; /* naranja */
+    --color-teal: #7abfb1; /* verde agua */
+    --color-cream: #e6ebb1; /* crema */
+    --color-mustard: #a68a26; /* mostaza */
+}
+
+/* ------------------------------------------------------------------
+   Compatibilidad con Tailwind v3
+   ------------------------------------------------------------------
+   v4 cambio dos defaults que el sitio venia dando por sentados: el color de
+   borde (pasó a `currentColor`) y el del placeholder. Los dejamos como antes
+   para que nada cambie de aspecto. Las utilidades (border-primary-100,
+   placeholder-white/70, …) siguen mandando por encima de esto. */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--color-gray-400);
+    }
+}

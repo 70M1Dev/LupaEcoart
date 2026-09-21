@@ -1,63 +1,25 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Lupa Ecoart - Panel de tienda</title>
-    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif']
-                    },
-                    colors: {
-                        primary: {
-                            50: '#F7F9E8',
-                            100: '#EEF2CF',
-                            200: '#DDE4A3',
-                            300: '#C3CE6E',
-                            400: '#A8B444',
-                            500: '#8F9B2F',  // color principal
-                            600: '#76802A',
-                            700: '#5E6622',
-                            800: '#4A501C',
-                            900: '#33370F'
-                        },
-                        accent: '#FCA321',
-                        teal: '#7ABFB1', cream: '#E6EBB1', mustard: '#A68A26'
-                    }
-                }
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        [hidden] { display: none !important; }
-        .card { @apply bg-white rounded-2xl border border-neutral-200 shadow-sm; }
-        .label { @apply block text-sm font-semibold text-neutral-800 mb-1.5; }
-        .hint { @apply text-xs text-neutral-500 mt-1; }
-        .input { @apply w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-black focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-500; }
-        .btn-primary { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-primary-700 hover:bg-primary-800 text-white font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed; }
-        .btn-ghost { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-neutral-300 bg-white hover:bg-neutral-100 text-black font-medium transition disabled:opacity-50; }
-        .btn-danger { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-red-700 hover:bg-red-50 font-semibold transition disabled:opacity-50; }
-        .badge { @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold; }
-        .tab-btn { @apply px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-neutral-500 hover:text-black transition; }
-        .tab-btn[aria-selected="true"] { @apply border-primary-600 text-black; }
-    </style>
-</head>
-<body class="bg-neutral-50 text-black font-sans antialiased min-h-screen">
+---
+// ==========================================
+// PANEL DE TIENDA — Lupa Ecoart
+// ==========================================
+// Pagina privada: la duena entra con su usuario de WordPress y una contrasena
+// de aplicacion. La logica sigue siendo public/js/admin.js (script clasico);
+// admin-globals.js le deja la config en el scope global antes de arrancar.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/admin.css';
+---
 
+<BaseLayout
+    title="Panel de tienda"
+    bodyClass="bg-neutral-50 text-black font-sans antialiased min-h-screen"
+    cartWidget={false}
+    noindex
+>
     <!-- ================= LOGIN ================= -->
     <main id="view-login" class="min-h-screen flex items-center justify-center px-4 py-10 bg-primary-50" hidden>
         <form id="login-form" class="w-full max-w-sm card p-8 shadow-xl" novalidate>
             <div class="flex flex-col items-center text-center mb-6">
-                <img src="assets/logo.svg" alt="" class="h-14 w-14 mb-3">
+                <img src="/assets/logo.svg" alt="" class="h-14 w-14 mb-3">
                 <h1 class="text-2xl font-light">Lupa <span class="font-semibold">Ecoart</span></h1>
                 <p class="text-sm text-neutral-500">Panel de tienda</p>
             </div>
@@ -90,9 +52,9 @@
 
     <!-- ================= APP ================= -->
     <div id="view-app" hidden>
-        <header class="bg-primary-500 text-white sticky top-0 z-40 shadow">
+        <header class="bg-primary-500 text-white sticky top-0 z-40 shadow-sm">
             <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-                <img src="assets/logo.svg" alt="" class="h-8 w-8">
+                <img src="/assets/logo.svg" alt="" class="h-8 w-8">
                 <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
                 <span class="hidden sm:inline text-white/80 text-sm">· Panel</span>
                 <span id="user-name" class="ml-auto hidden sm:inline text-sm text-white/90"></span>
@@ -256,7 +218,7 @@
 
                 <p id="editor-error" class="text-sm text-red-700 bg-red-50 rounded-xl px-4 py-3" role="alert" hidden></p>
 
-                <div class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-neutral-200 z-30">
+                <div class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-sm border-t border-neutral-200 z-30">
                     <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-2">
                         <button id="editor-delete" type="button" class="btn-danger">Eliminar</button>
                         <button id="editor-cancel" type="button" class="btn-ghost ml-auto">Cancelar</button>
@@ -280,14 +242,15 @@
     </div>
 
     <div id="toasts" class="fixed bottom-20 inset-x-4 sm:left-auto sm:right-4 sm:w-96 z-[60] space-y-2"></div>
+</BaseLayout>
 
-    <script src="js/config.js?v=20260914-4"></script>
-    <script>
-        // Modo prueba solo en local: admin?demo usa datos en memoria.
-        if (WC_IS_LOCAL_DEV && new URLSearchParams(location.search).has('demo') && typeof DEMO_PRODUCTS === 'undefined') {
-            document.write('<script src="js/demo-data.js"><\/script>');
-        }
-    </script>
-    <script src="js/admin.js?v=20260914-4"></script>
-</body>
-</html>
+<script>
+    // admin.js es un script clasico y espera la config en el scope global, asi
+    // que lo cargamos recien despues de que admin-globals.js se la deje ahi.
+    // (Un <script defer> no alcanza: este modulo puede resolverse mas tarde.)
+    import '../scripts/admin-globals.js';
+
+    const el = document.createElement('script');
+    el.src = '/js/admin.js?v=20260921';
+    document.body.appendChild(el);
+</script>

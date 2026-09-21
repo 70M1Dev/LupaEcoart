@@ -1,3 +1,6 @@
+import { WC_CONFIG, wcPrice } from './config.js';
+import { getCart, saveCartToStorage } from './cart.js';
+
 // ==========================================
 // CHECKOUT — pedidos reales en WooCommerce
 // ==========================================

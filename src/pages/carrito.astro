@@ -1,0 +1,113 @@
+---
+// ==========================================
+// CARRITO — Lupa Ecoart
+// ==========================================
+// El carrito vive en localStorage; src/scripts/carrito.js lo dibuja, aplica
+// cupones y lo sincroniza con el stock actual de WooCommerce.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import MenuToggle from '../components/MenuToggle.astro';
+import Drawer from '../components/Drawer.astro';
+---
+
+<BaseLayout title="Carrito" cartWidget={false}>
+    <Navbar active="carrito" />
+
+    <MenuToggle />
+
+    <!-- ================= HEADER ================= -->
+    <section class="bg-primary-500 text-white pt-20 md:pt-28 pb-10 relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-teal/40 blur-3xl"></div>
+        <div class="container mx-auto px-4 relative">
+            <h1 class="text-3xl md:text-5xl font-light">Tu <span class="font-semibold">carrito</span></h1>
+            <p class="text-white/85 mt-2" id="cart-subtitle">0 productos en tu carrito</p>
+        </div>
+    </section>
+
+    <!-- ================= CONTENIDO ================= -->
+    <div class="container mx-auto px-4 py-10">
+
+        <!-- Carrito vacío -->
+        <div id="empty-cart" class="hidden text-center py-16">
+            <div class="w-20 h-20 mx-auto mb-5 rounded-full bg-primary-50 text-primary-800 flex items-center justify-center">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/></svg>
+            </div>
+            <h2 class="text-2xl font-semibold mb-2 text-black">Tu carrito está vacío</h2>
+            <p class="text-neutral-600 mb-6">Descubrí piezas únicas hechas a mano</p>
+            <a href="productos" class="inline-block bg-primary-800 text-white font-semibold px-8 py-3 rounded-full hover:bg-primary-600 transition">
+                Ver colección
+            </a>
+        </div>
+
+        <!-- Carrito con productos -->
+        <div id="cart-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Lista de productos -->
+            <div class="lg:col-span-2">
+                <div id="cart-items"></div>
+
+                <!-- Cupón -->
+                <div class="bg-primary-50 rounded-2xl p-5 mt-6">
+                    <h3 class="font-semibold mb-3 text-black">¿Tenés un cupón de descuento?</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="coupon-input" placeholder="Ingresá tu código"
+                               class="flex-1 min-w-0 px-4 py-2 bg-white border border-primary-100 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-400">
+                        <button id="apply-coupon" class="bg-primary-700 hover:bg-primary-800 text-white px-6 py-2 rounded-full font-semibold transition">
+                            Aplicar
+                        </button>
+                    </div>
+                    <p id="coupon-message" class="text-sm mt-2 hidden"></p>
+                </div>
+
+                <!-- Seguir comprando -->
+                <a href="productos" class="inline-flex items-center gap-2 text-primary-700 hover:text-primary-900 font-medium mt-6">
+                    ← Seguir comprando
+                </a>
+            </div>
+
+            <!-- Resumen -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white rounded-2xl border border-primary-100 shadow-sm p-6 sticky top-24">
+                    <h2 class="text-xl font-semibold mb-6 pb-4 border-b border-primary-100 text-black">Resumen del pedido</h2>
+
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-neutral-600">Subtotal</span>
+                            <span class="font-semibold" id="subtotal">$0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-neutral-600">Envío</span>
+                            <span class="font-semibold text-primary-600" id="shipping">Gratis</span>
+                        </div>
+                        <div id="discount-row" class="flex justify-between hidden">
+                            <span class="text-neutral-600">Descuento</span>
+                            <span class="font-semibold text-primary-600" id="discount">-$0</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t border-primary-100 mb-6">
+                        <span class="text-lg font-semibold">Total</span>
+                        <span class="text-2xl font-bold text-black" id="total">$0</span>
+                    </div>
+
+                    <button id="checkout-btn" class="w-full bg-primary-700 hover:bg-primary-800 text-white font-semibold py-4 rounded-full transition mb-4">
+                        Proceder al pago
+                    </button>
+
+                    <div class="text-center text-xs text-neutral-500 space-y-1">
+                        <p>Pago 100% seguro</p>
+                        <p>Envío gratis en compras desde $ 3.000</p>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+
+    <Drawer />
+</BaseLayout>
+
+<script>
+    import '../scripts/cart.js';
+    import '../scripts/carrito.js';
+</script>
