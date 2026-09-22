@@ -56,10 +56,18 @@ export function cartQuantityFor(productId, cart = getCart()) {
         .reduce((sum, item) => sum + (item.quantity || 1), 0);
 }
 
+// Archivos de una personalizacion [{ id, name }]. Los carritos armados antes de
+// permitir varios archivos guardaban uno solo en .file.
+export function personalizationFiles(p) {
+    if (!p) return [];
+    if (Array.isArray(p.files)) return p.files;
+    return p.file ? [p.file] : [];
+}
+
 // Añade un producto al carrito (o suma cantidad si ya existe con la misma medida).
 // product = { id, name, price, image, size (opcional), quantity (opcional, default 1),
 //             maxQty (opcional: unidades en stock, ver wcStockLimit; sin dato = sin tope),
-//             personalization (opcional: { text, file: { id, name } | null }) }
+//             personalization (opcional: { text, files: [{ id, name }] }) }
 // Una linea personalizada nunca se junta con otra: cada una es un encargo.
 // Nunca deja pasar del stock. Devuelve cuantas unidades agrego.
 export function addToCart(product) {

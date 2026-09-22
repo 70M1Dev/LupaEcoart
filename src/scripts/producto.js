@@ -359,10 +359,18 @@ function requireSize() {
 // ==========================================
 // PERSONALIZACIÓN
 // ==========================================
-// El archivo se sube al Worker recien al agregar al carrito; el carrito guarda
-// solo su id. El Worker lo ata al pedido cuando se confirma la compra.
+// Los archivos se suben al Worker recien al agregar al carrito; el carrito
+// guarda solo sus ids. El Worker los ata al pedido cuando se confirma la compra.
 const MAX_PERSONALIZATION_BYTES = 10 * 1024 * 1024;
+const MAX_PERSONALIZATION_FILES = 3; // mismo tope que el Worker
+let personalizationFiles = []; // File elegidos, en orden
 let addingToCart = false;
+
+function esc(text) {
+    return String(text ?? '').replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+}
 
 function personalizationError(message) {
     const el = document.getElementById('personalization-error');
@@ -371,40 +379,55 @@ function personalizationError(message) {
     if (message) document.getElementById('personalization').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-function selectedPersonalizationFile() {
-    return document.getElementById('personalization-file').files[0] || null;
+function renderPersonalizationFiles() {
+    const full = personalizationFiles.length >= MAX_PERSONALIZATION_FILES;
+    document.getElementById('personalization-files').innerHTML = personalizationFiles.map((file, i) => `
+        <li class="flex items-center justify-between gap-3 bg-primary-50 rounded-xl px-3 py-2 text-sm">
+            <span class="truncate">${esc(file.name)}</span>
+            <button type="button" data-remove-file="${i}" class="shrink-0 text-neutral-500 hover:text-red-700 underline">Quitar</button>
+        </li>`).join('');
+    // Al llegar al tope se esconde el boton y queda el aviso.
+    document.getElementById('personalization-file-add').classList.toggle('hidden', full);
+    document.getElementById('personalization-max').classList.toggle('hidden', !full);
+    document.getElementById('personalization-file-label').textContent = personalizationFiles.length
+        ? 'Agregar otro archivo'
+        : 'Subir archivos (opcional)';
 }
 
-function renderPersonalizationFile() {
-    const file = selectedPersonalizationFile();
-    document.getElementById('personalization-file-label').textContent = file ? file.name : 'Subir archivo (opcional)';
-    document.getElementById('personalization-file-clear').classList.toggle('hidden', !file);
-    personalizationError(file && file.size > MAX_PERSONALIZATION_BYTES
-        ? 'El archivo pesa más de 10 MB. Probá con uno más liviano.'
-        : '');
+function addPersonalizationFiles(files) {
+    const tooBig = [];
+    let skipped = 0;
+    for (const file of files) {
+        if (file.size > MAX_PERSONALIZATION_BYTES) tooBig.push(file.name);
+        else if (personalizationFiles.length >= MAX_PERSONALIZATION_FILES) skipped++;
+        else personalizationFiles.push(file);
+    }
+    renderPersonalizationFiles();
+    if (tooBig.length) {
+        personalizationError(`${tooBig.join(', ')}: pesa${tooBig.length > 1 ? 'n' : ''} más de 10 MB. Probá con un archivo más liviano.`);
+    } else if (skipped) {
+        personalizationError(`Se pueden subir hasta ${MAX_PERSONALIZATION_FILES} archivos: ${skipped === 1 ? 'uno no se agregó' : `${skipped} no se agregaron`}.`);
+    } else {
+        personalizationError('');
+    }
 }
 
 function resetPersonalization() {
     document.getElementById('personalization-text').value = '';
-    document.getElementById('personalization-file').value = '';
-    renderPersonalizationFile();
+    personalizationFiles = [];
+    renderPersonalizationFiles();
 }
 
-// Devuelve { text, file } listo para subir, o null si falta algo (y lo avisa).
+// Devuelve { text, files } listo para subir, o null si falta algo (y lo avisa).
 function readPersonalization() {
     const text = document.getElementById('personalization-text').value.trim();
-    const file = selectedPersonalizationFile();
     if (!text) {
         personalizationError('Contanos cómo querés la personalización antes de agregarlo al carrito.');
         document.getElementById('personalization-text').focus();
         return null;
     }
-    if (file && file.size > MAX_PERSONALIZATION_BYTES) {
-        personalizationError('El archivo pesa más de 10 MB. Probá con uno más liviano.');
-        return null;
-    }
     personalizationError('');
-    return { text, file };
+    return { text, files: [...personalizationFiles] };
 }
 
 async function uploadPersonalizationFile(file) {
@@ -429,20 +452,27 @@ async function uploadPersonalizationFile(file) {
     return { id: data.id, name: data.name };
 }
 
-function setAddingToCart(busy) {
-    addingToCart = busy;
+// busyText = texto del boton mientras sube (ej. "Subiendo archivo 1 de 3…"), o false al terminar.
+function setAddingToCart(busyText) {
+    addingToCart = Boolean(busyText);
     const button = document.getElementById('add-to-cart-btn');
     if (!button.dataset.label) button.dataset.label = button.innerHTML;
-    button.innerHTML = busy ? 'Subiendo archivo…' : button.dataset.label;
-    button.disabled = busy;
-    document.getElementById('buy-now-btn').disabled = busy;
-    if (!busy) renderStock();
+    button.innerHTML = addingToCart ? busyText : button.dataset.label;
+    button.disabled = addingToCart;
+    document.getElementById('buy-now-btn').disabled = addingToCart;
+    if (!addingToCart) renderStock();
 }
 
-document.getElementById('personalization-file').addEventListener('change', renderPersonalizationFile);
-document.getElementById('personalization-file-clear').addEventListener('click', () => {
-    document.getElementById('personalization-file').value = '';
-    renderPersonalizationFile();
+document.getElementById('personalization-file').addEventListener('change', e => {
+    addPersonalizationFiles([...e.target.files]);
+    e.target.value = ''; // permite volver a elegir el mismo archivo despues de quitarlo
+});
+document.getElementById('personalization-files').addEventListener('click', e => {
+    const button = e.target.closest('[data-remove-file]');
+    if (!button) return;
+    personalizationFiles.splice(Number(button.dataset.removeFile), 1);
+    renderPersonalizationFiles();
+    personalizationError('');
 });
 document.getElementById('personalization-text').addEventListener('input', () => personalizationError(''));
 
@@ -473,17 +503,19 @@ async function handleAddToCart(size, qty) {
     if (currentProduct.personalizable) {
         const input = readPersonalization();
         if (!input) return 0;
-        personalization = { text: input.text, file: null };
-        if (input.file) {
-            setAddingToCart(true);
-            try {
-                personalization.file = await uploadPersonalizationFile(input.file);
-            } catch (err) {
-                personalizationError(err.message);
-                return 0;
-            } finally {
-                setAddingToCart(false);
+        personalization = { text: input.text, files: [] };
+        try {
+            for (const [i, file] of input.files.entries()) {
+                setAddingToCart(input.files.length > 1
+                    ? `Subiendo archivo ${i + 1} de ${input.files.length}…`
+                    : 'Subiendo archivo…');
+                personalization.files.push(await uploadPersonalizationFile(file));
             }
+        } catch (err) {
+            personalizationError(err.message);
+            return 0;
+        } finally {
+            setAddingToCart(false);
         }
     }
 

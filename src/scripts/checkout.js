@@ -1,5 +1,5 @@
 import { WC_CONFIG, wcPrice } from './config.js';
-import { getCart, saveCartToStorage } from './cart.js';
+import { getCart, personalizationFiles, saveCartToStorage } from './cart.js';
 
 // ==========================================
 // CHECKOUT — pedidos reales en WooCommerce
@@ -155,6 +155,11 @@ function sizesFor(productId) {
         .map(item => `${item.size} ×${item.quantity}`);
 }
 
+function filesLabel(count) {
+    if (!count) return '';
+    return count === 1 ? ' · con 1 archivo' : ` · con ${count} archivos`;
+}
+
 function personalizationsFor(productId) {
     return localCart.filter(item => item.id === productId && item.personalization);
 }
@@ -169,7 +174,7 @@ function buildPersonalizations() {
             size: item.size && item.size !== 'Única' ? item.size : '',
             quantity: item.quantity || 1,
             text: item.personalization.text,
-            files: item.personalization.file && item.personalization.file.id ? [item.personalization.file.id] : []
+            files: personalizationFiles(item.personalization).map(f => f.id).filter(Boolean)
         }));
 }
 
@@ -184,7 +189,7 @@ function renderItems() {
                 <div class="flex-1 min-w-0">
                     <p class="font-medium text-sm line-clamp-2 text-black">${esc(decodeHtml(item.name))}</p>
                     <p class="text-xs text-neutral-500">${sizes.length ? `Medida: ${esc(sizes.join(', '))} · ` : ''}Cant: ${item.quantity}</p>
-                    ${custom.map(c => `<p class="text-xs text-primary-800 mt-0.5 line-clamp-2">Personalización: ${esc(c.personalization.text)}${c.personalization.file ? ' · con archivo' : ''}</p>`).join('')}
+                    ${custom.map(c => `<p class="text-xs text-primary-800 mt-0.5 line-clamp-2">Personalización: ${esc(c.personalization.text)}${filesLabel(personalizationFiles(c.personalization).length)}</p>`).join('')}
                 </div>
                 <p class="font-bold text-sm whitespace-nowrap">${money(item.totals.line_subtotal)}</p>
             </div>`;
@@ -411,7 +416,7 @@ function buildCustomerNote() {
     // Tambien en la nota: asi el texto queda en WooCommerce y en los mails.
     const custom = localCart
         .filter(item => item.personalization)
-        .map(item => `- ${item.name}${item.size && item.size !== 'Única' ? ` (${item.size})` : ''} ×${item.quantity}: ${item.personalization.text}${item.personalization.file ? ` [archivo: ${item.personalization.file.name}]` : ''}`);
+        .map(item => `- ${item.name}${item.size && item.size !== 'Única' ? ` (${item.size})` : ''} ×${item.quantity}: ${item.personalization.text}${personalizationFiles(item.personalization).length ? ` [archivos: ${personalizationFiles(item.personalization).map(f => f.name).join(', ')}]` : ''}`);
     if (custom.length) lines.push(`Personalización:\n${custom.join('\n')}`);
     return lines.join('\n\n');
 }

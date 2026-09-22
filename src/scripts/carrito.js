@@ -2,6 +2,7 @@ import { wcPrice } from './config.js';
 import {
     cartQuantityFor,
     getCart,
+    personalizationFiles,
     refreshCartStock,
     saveCartToStorage,
     updateCartCounters
@@ -35,7 +36,7 @@ function personalizationHtml(p) {
         <div class="mt-2 text-sm bg-primary-50 rounded-xl px-3 py-2">
             <p class="font-semibold text-primary-800 text-xs uppercase tracking-wider mb-0.5">Personalización</p>
             <p class="text-neutral-700 whitespace-pre-line break-words">${esc(p.text)}</p>
-            ${p.file ? `<p class="text-xs text-neutral-500 mt-1">Archivo: ${esc(p.file.name)}</p>` : ''}
+            ${personalizationFiles(p).map(f => `<p class="text-xs text-neutral-500 mt-1 break-all">Archivo: ${esc(f.name)}</p>`).join('')}
         </div>`;
 }
 

@@ -419,7 +419,8 @@ const PERSONALIZATION_ORDER_TTL = 180 * 24 * 60 * 60;
 const PERSONALIZATION_FINAL_STATUSES = ['completed', 'cancelled', 'refunded'];
 const PERSONALIZATION_MAX_TEXT = 1000;
 const PERSONALIZATION_MAX_ITEMS = 20;
-const PERSONALIZATION_MAX_FILES = 10;
+const PERSONALIZATION_MAX_FILES = 10;         // por pedido
+const PERSONALIZATION_MAX_ITEM_FILES = 3;     // por producto (mismo tope que la ficha)
 // Fotos, PDF y formatos vectoriales habituales para grabado y corte laser.
 const PERSONALIZATION_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif', 'pdf', 'svg', 'ai', 'eps', 'dxf', 'cdr'];
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -501,7 +502,9 @@ async function readPersonalizations(env, raw) {
 
     const fileIds = items.flatMap(item => item.fileIds);
     if (!items.length) return [];
-    if (fileIds.length > PERSONALIZATION_MAX_FILES) throw new Error('Demasiados archivos de personalizacion');
+    if (fileIds.length > PERSONALIZATION_MAX_FILES || items.some(item => item.fileIds.length > PERSONALIZATION_MAX_ITEM_FILES)) {
+        throw new Error('Demasiados archivos de personalizacion');
+    }
     if (fileIds.length && !env.CUSTOM_FILES) throw new Error('La tienda todavia no acepta archivos de personalizacion');
 
     for (const item of items) {
