@@ -296,6 +296,20 @@ function renderEmpty() {
 // ACCIONES
 // ==========================================
 
+// Si WooCommerce no dejó ningún método elegido, elige el primero (el envío
+// siempre se coordina, así que la tienda tiene uno solo a $ 0).
+async function ensureShippingRate() {
+    if (!storeCart || !storeCart.needs_shipping) return;
+    const pkg = (storeCart.shipping_rates || [])[0];
+    const rates = (pkg && pkg.shipping_rates) || [];
+    if (!rates.length) {
+        throw new Error('La tienda no tiene configurado el envío a coordinar. Escribinos por WhatsApp para terminar tu pedido.');
+    }
+    if (!rates.some(rate => rate.selected)) {
+        storeCart = await storeFetch('cart/select-shipping-rate', { package_id: pkg.package_id, rate_id: rates[0].rate_id });
+    }
+}
+
 async function withBusy(task) {
     if (busy) return;
     busy = true;
@@ -448,6 +462,16 @@ async function onPlaceOrder(e) {
     const totals = { ...storeCart.totals };
 
     await withBusy(async () => {
+        // WooCommerce exige un método de envío elegido. No mostramos ni
+        // calculamos nada: le pasamos la dirección recién al confirmar para que
+        // elija el "Envío a coordinar" configurado en la tienda.
+        storeCart = await storeFetch('cart/update-customer', {
+            billing_address: { ...address, email },
+            shipping_address: address
+        });
+        await ensureShippingRate();
+        Object.assign(totals, storeCart.totals);
+
         const result = await storeFetch('checkout', {
             billing_address: { ...address, email },
             shipping_address: address,
