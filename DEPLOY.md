@@ -202,8 +202,10 @@ número de pedido, total, método de pago, cliente (con link `wa.me`), productos
 envío y nota. Es gratis y solo avisa a la tienda, no a los clientes.
 
 1. Desde el WhatsApp del número que va a recibir los avisos (`+598 94 319 604`),
-   agendá el contacto de CallMeBot **+34 694 25 79 52** (el número puede cambiar:
-   confirmalo en https://www.callmebot.com/blog/free-api-whatsapp-messages/).
+   agendá el contacto de CallMeBot **+34 623 76 13 63** (vigente en septiembre de
+   2026; el número cambia seguido: confirmalo siempre en
+   https://www.callmebot.com/blog/free-api-whatsapp-messages/). Si la apikey no
+   llega en 2 minutos, CallMeBot pide volver a intentar recién a las 24 horas.
 2. Mandale el mensaje: `I allow callmebot to send me messages`
 3. Te responde con tu **apikey**. Cargala en Cloudflare (no va en GitHub ni en el chat):
 
