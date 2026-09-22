@@ -58,7 +58,9 @@ export function cartQuantityFor(productId, cart = getCart()) {
 
 // Añade un producto al carrito (o suma cantidad si ya existe con la misma medida).
 // product = { id, name, price, image, size (opcional), quantity (opcional, default 1),
-//             maxQty (opcional: unidades en stock, ver wcStockLimit; sin dato = sin tope) }
+//             maxQty (opcional: unidades en stock, ver wcStockLimit; sin dato = sin tope),
+//             personalization (opcional: { text, file: { id, name } | null }) }
+// Una linea personalizada nunca se junta con otra: cada una es un encargo.
 // Nunca deja pasar del stock. Devuelve cuantas unidades agrego.
 export function addToCart(product) {
     const cart = getCart();
@@ -76,7 +78,9 @@ export function addToCart(product) {
     }
 
     const qty = Math.min(wanted, available);
-    const existing = cart.find(item => item.id === product.id && item.size === size);
+    const personalization = product.personalization || null;
+    const existing = !personalization &&
+        cart.find(item => item.id === product.id && item.size === size && !item.personalization);
 
     if (existing) {
         existing.quantity = (existing.quantity || 1) + qty;
@@ -87,7 +91,8 @@ export function addToCart(product) {
             price: product.price,
             image: product.image,
             size: size,
-            quantity: qty
+            quantity: qty,
+            ...(personalization ? { personalization } : {})
         });
     }
     cart.forEach(item => { if (item.id === product.id) item.maxQty = limit; });

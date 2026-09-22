@@ -155,16 +155,36 @@ function sizesFor(productId) {
         .map(item => `${item.size} ×${item.quantity}`);
 }
 
+function personalizationsFor(productId) {
+    return localCart.filter(item => item.id === productId && item.personalization);
+}
+
+// Lo que el Worker guarda aparte para el panel (textos + ids de archivos).
+function buildPersonalizations() {
+    return localCart
+        .filter(item => item.personalization)
+        .map(item => ({
+            product_id: item.id,
+            name: item.name,
+            size: item.size && item.size !== 'Única' ? item.size : '',
+            quantity: item.quantity || 1,
+            text: item.personalization.text,
+            files: item.personalization.file && item.personalization.file.id ? [item.personalization.file.id] : []
+        }));
+}
+
 function renderItems() {
     $('checkout-items').innerHTML = storeCart.items.map(item => {
         const image = item.images && item.images[0] ? (item.images[0].thumbnail || item.images[0].src) : '';
         const sizes = sizesFor(item.id);
+        const custom = personalizationsFor(item.id);
         return `
             <div class="flex gap-3">
                 <img src="${esc(image)}" alt="" class="w-16 h-16 object-cover rounded-xl bg-primary-50">
                 <div class="flex-1 min-w-0">
                     <p class="font-medium text-sm line-clamp-2 text-black">${esc(decodeHtml(item.name))}</p>
                     <p class="text-xs text-neutral-500">${sizes.length ? `Medida: ${esc(sizes.join(', '))} · ` : ''}Cant: ${item.quantity}</p>
+                    ${custom.map(c => `<p class="text-xs text-primary-800 mt-0.5 line-clamp-2">Personalización: ${esc(c.personalization.text)}${c.personalization.file ? ' · con archivo' : ''}</p>`).join('')}
                 </div>
                 <p class="font-bold text-sm whitespace-nowrap">${money(item.totals.line_subtotal)}</p>
             </div>`;
@@ -388,6 +408,11 @@ function buildCustomerNote() {
         .filter(item => item.size && item.size !== 'Única')
         .map(item => `- ${item.name}: medida ${item.size} ×${item.quantity}`);
     if (sizes.length) lines.push(`Medidas:\n${sizes.join('\n')}`);
+    // Tambien en la nota: asi el texto queda en WooCommerce y en los mails.
+    const custom = localCart
+        .filter(item => item.personalization)
+        .map(item => `- ${item.name}${item.size && item.size !== 'Única' ? ` (${item.size})` : ''} ×${item.quantity}: ${item.personalization.text}${item.personalization.file ? ` [archivo: ${item.personalization.file.name}]` : ''}`);
+    if (custom.length) lines.push(`Personalización:\n${custom.join('\n')}`);
     return lines.join('\n\n');
 }
 
@@ -423,7 +448,9 @@ async function onPlaceOrder(e) {
             shipping_address: address,
             customer_note: buildCustomerNote(),
             payment_method: method,
-            payment_data: []
+            payment_data: [],
+            // Lo separa el Worker antes de mandar el pedido a WooCommerce.
+            lupa_personalizations: buildPersonalizations()
         });
 
         const payment = result.payment_result || {};

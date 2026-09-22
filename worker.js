@@ -18,6 +18,11 @@
  *                     permisos de ese usuario (rol "Gestor de tienda").
  *                     Nunca se cachea.
  *
+ *   /custom/upload    Archivo de personalizacion que sube el cliente desde la
+ *                     ficha del producto. Se guarda en Workers KV (binding
+ *                     CUSTOM_FILES), privado: solo el panel lo puede descargar.
+ *                     Ver "PERSONALIZACIONES" mas abajo.
+ *
  * Las keys se almacenan como secrets en Cloudflare (NUNCA en este archivo).
  *
  * Deploy:
@@ -64,6 +69,12 @@ const ADMIN_ROUTES = [
     { re: /^\/admin\/orders\/(\d+)\/notes$/, methods: ['GET', 'POST'], target: m => `/wp-json/wc/v3/orders/${m[1]}/notes` },
 ];
 
+// Rutas del panel que resuelve el propio Worker (personalizaciones en KV).
+const ADMIN_CUSTOM_ROUTES = [
+    { re: /^\/admin\/orders\/(\d+)\/personalizations$/, methods: ['GET'] },
+    { re: /^\/admin\/orders\/(\d+)\/files\/([0-9a-f-]{36})$/, methods: ['GET'] },
+];
+
 // Fotos de celular ya redimensionadas por el panel; esto es solo un tope.
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const MAX_STORE_BODY_BYTES = 64 * 1024;
@@ -78,6 +89,7 @@ function allowedOrigins(env) {
 function zoneOf(pathname) {
     if (pathname === '/admin' || pathname.startsWith('/admin/')) return 'admin';
     if (pathname === '/store' || pathname.startsWith('/store/')) return 'store';
+    if (pathname === '/custom' || pathname.startsWith('/custom/')) return 'custom';
     return 'public';
 }
 
@@ -93,7 +105,8 @@ function corsHeaders(request, env, zone) {
     const byZone = {
         public: { methods: 'GET, OPTIONS', headers: 'Content-Type', expose: 'X-WP-Total, X-WP-TotalPages' },
         store: { methods: 'GET, POST, OPTIONS', headers: 'Content-Type, Cart-Token', expose: 'Cart-Token' },
-        admin: { methods: 'GET, POST, PUT, DELETE, OPTIONS', headers: 'Authorization, Content-Type, Content-Disposition', expose: 'X-WP-Total, X-WP-TotalPages' },
+        admin: { methods: 'GET, POST, PUT, DELETE, OPTIONS', headers: 'Authorization, Content-Type, Content-Disposition', expose: 'X-WP-Total, X-WP-TotalPages, Content-Disposition' },
+        custom: { methods: 'POST, OPTIONS', headers: 'Content-Type, X-File-Name', expose: '' },
     }[zone];
 
     return {
@@ -248,6 +261,20 @@ async function handleStore(request, env, url, ctx) {
         body = await request.text();
     }
 
+    // El checkout trae las personalizaciones aparte: WooCommerce no las
+    // conoce, asi que se sacan del cuerpo y se validan antes de crear el pedido.
+    let personalizations = [];
+    if (url.pathname === '/store/checkout') {
+        try {
+            const data = JSON.parse(body || '{}');
+            personalizations = await readPersonalizations(env, data.lupa_personalizations);
+            delete data.lupa_personalizations;
+            body = JSON.stringify(data);
+        } catch (err) {
+            return jsonError(err.message || 'Pedido invalido', 400, cors);
+        }
+    }
+
     let resp;
     try {
         resp = await fetch(target.toString(), {
@@ -260,10 +287,21 @@ async function handleStore(request, env, url, ctx) {
         return jsonError(`No se pudo contactar a WooCommerce: ${err.message}`, 502, cors);
     }
 
-    // Pedido creado: aviso por WhatsApp a la tienda sin demorar la respuesta.
+    // Pedido creado: guardamos las personalizaciones y avisamos por WhatsApp.
     if (url.pathname === '/store/checkout' && resp.ok) {
         const order = await resp.clone().json().catch(() => null);
-        if (order && order.order_id) ctx.waitUntil(notifyNewOrder(env, order.order_id));
+        if (order && order.order_id) {
+            if (personalizations.length) {
+                // El pedido ya existe: un fallo aca no lo puede frenar, queda
+                // en el log y el texto igual llega en la nota del pedido.
+                try {
+                    await savePersonalizations(env, order.order_id, personalizations);
+                } catch (err) {
+                    console.error(`No se guardaron las personalizaciones del pedido ${order.order_id}: ${err.message}`);
+                }
+            }
+            ctx.waitUntil(notifyNewOrder(env, order.order_id));
+        }
     }
 
     return relay(resp, cors, 'no-store', ['Cart-Token']);
@@ -363,11 +401,214 @@ async function notifyNewOrder(env, orderId) {
     }
 }
 
-async function handleAdmin(request, env, url) {
+// ==========================================
+// PERSONALIZACIONES (Workers KV, binding CUSTOM_FILES)
+// ==========================================
+// 1. El cliente sube el archivo desde la ficha (/custom/upload) y queda como
+//    file:<id> con vencimiento corto: si nunca compra, se borra solo.
+// 2. En el checkout el frontend manda lupa_personalizations; cuando
+//    WooCommerce crea el pedido se guarda order:<id> con los textos y los
+//    archivos pasan a vencer en PERSONALIZATION_ORDER_TTL.
+// 3. El panel los lee y descarga (/admin/orders/<id>/…) con el usuario de
+//    WordPress; al marcar el pedido como completado, cancelado o reembolsado
+//    se borra todo. El vencimiento largo es solo el respaldo para pedidos que
+//    nunca se cierran desde el panel.
+
+const PERSONALIZATION_UPLOAD_TTL = 7 * 24 * 60 * 60;
+const PERSONALIZATION_ORDER_TTL = 180 * 24 * 60 * 60;
+const PERSONALIZATION_FINAL_STATUSES = ['completed', 'cancelled', 'refunded'];
+const PERSONALIZATION_MAX_TEXT = 1000;
+const PERSONALIZATION_MAX_ITEMS = 20;
+const PERSONALIZATION_MAX_FILES = 10;
+// Fotos, PDF y formatos vectoriales habituales para grabado y corte laser.
+const PERSONALIZATION_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif', 'pdf', 'svg', 'ai', 'eps', 'dxf', 'cdr'];
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+function fileExtension(name) {
+    const match = String(name || '').toLowerCase().match(/\.([a-z0-9]+)$/);
+    return match ? match[1] : '';
+}
+
+async function handleCustomUpload(request, env, url) {
+    const cors = corsHeaders(request, env, 'custom');
+
+    // Sube cualquiera sin iniciar sesion: por lo menos que venga de la tienda.
+    const origin = request.headers.get('Origin');
+    const allowed = allowedOrigins(env);
+    if (allowed.length && !allowed.includes(origin)) {
+        return jsonError('Origen no permitido', 403, cors);
+    }
+    if (url.pathname !== '/custom/upload') {
+        return jsonError(`Endpoint no permitido: ${url.pathname}`, 403, cors);
+    }
+    if (request.method !== 'POST') {
+        return jsonError(`Metodo no permitido: ${request.method}`, 405, cors);
+    }
+    if (!env.CUSTOM_FILES) {
+        return jsonError('La tienda todavia no acepta archivos de personalizacion', 503, cors);
+    }
+
+    let name = '';
+    try { name = decodeURIComponent(request.headers.get('X-File-Name') || ''); } catch { /* nombre invalido */ }
+    name = name.replace(/[\\/\r\n"]/g, '_').trim().slice(-120) || 'archivo';
+    if (!PERSONALIZATION_EXTENSIONS.includes(fileExtension(name))) {
+        return jsonError(`Tipo de archivo no permitido. Usá: ${PERSONALIZATION_EXTENSIONS.join(', ')}`, 415, cors);
+    }
+
+    const length = Number(request.headers.get('Content-Length') || 0);
+    if (length > MAX_UPLOAD_BYTES) {
+        return jsonError('El archivo es demasiado grande (maximo 10 MB)', 413, cors);
+    }
+    const data = await request.arrayBuffer();
+    if (!data.byteLength) return jsonError('El archivo esta vacio', 400, cors);
+    if (data.byteLength > MAX_UPLOAD_BYTES) {
+        return jsonError('El archivo es demasiado grande (maximo 10 MB)', 413, cors);
+    }
+
+    const id = crypto.randomUUID();
+    const type = (request.headers.get('Content-Type') || 'application/octet-stream').slice(0, 100);
+    await env.CUSTOM_FILES.put(`file:${id}`, data, {
+        expirationTtl: PERSONALIZATION_UPLOAD_TTL,
+        metadata: { name, type, size: data.byteLength },
+    });
+
+    return new Response(JSON.stringify({ id, name, size: data.byteLength }), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...cors },
+    });
+}
+
+function cleanText(value, max) {
+    return String(value ?? '').replace(/\r\n?/g, '\n').trim().slice(0, max);
+}
+
+// Valida lo que manda el checkout y comprueba que los archivos sigan subidos.
+// Lanza con un mensaje para el cliente si algo no cierra.
+async function readPersonalizations(env, raw) {
+    if (raw === undefined || raw === null) return [];
+    if (!Array.isArray(raw) || raw.length > PERSONALIZATION_MAX_ITEMS) {
+        throw new Error('Personalizaciones invalidas');
+    }
+
+    const items = raw.map(item => ({
+        product_id: parseInt(item && item.product_id, 10) || 0,
+        name: cleanText(item && item.name, 200),
+        size: cleanText(item && item.size, 60),
+        quantity: Math.max(1, parseInt(item && item.quantity, 10) || 1),
+        text: cleanText(item && item.text, PERSONALIZATION_MAX_TEXT),
+        fileIds: Array.isArray(item && item.files) ? item.files.map(String) : [],
+    })).filter(item => item.text || item.fileIds.length);
+
+    const fileIds = items.flatMap(item => item.fileIds);
+    if (!items.length) return [];
+    if (fileIds.length > PERSONALIZATION_MAX_FILES) throw new Error('Demasiados archivos de personalizacion');
+    if (fileIds.length && !env.CUSTOM_FILES) throw new Error('La tienda todavia no acepta archivos de personalizacion');
+
+    for (const item of items) {
+        item.files = [];
+        for (const id of item.fileIds) {
+            if (!UUID_RE.test(id)) throw new Error('Archivo de personalizacion invalido');
+            const { value, metadata } = await env.CUSTOM_FILES.getWithMetadata(`file:${id}`, 'stream');
+            if (!value) {
+                throw new Error(`El archivo de personalizacion de "${item.name}" venció. Volvé a agregar el producto al carrito con el archivo.`);
+            }
+            await value.cancel();
+            item.files.push({ id, name: (metadata && metadata.name) || 'archivo', type: (metadata && metadata.type) || '', size: (metadata && metadata.size) || 0 });
+        }
+        delete item.fileIds;
+    }
+    return items;
+}
+
+async function savePersonalizations(env, orderId, items) {
+    // Los archivos pasan al vencimiento largo y quedan atados al pedido.
+    for (const file of items.flatMap(item => item.files)) {
+        const key = `file:${file.id}`;
+        const { value, metadata } = await env.CUSTOM_FILES.getWithMetadata(key, 'stream');
+        if (!value) continue;
+        await env.CUSTOM_FILES.put(key, value, {
+            expirationTtl: PERSONALIZATION_ORDER_TTL,
+            metadata: { ...(metadata || {}), order: orderId },
+        });
+    }
+    await env.CUSTOM_FILES.put(`order:${orderId}`, JSON.stringify({ created: new Date().toISOString(), items }), {
+        expirationTtl: PERSONALIZATION_ORDER_TTL,
+    });
+}
+
+async function deletePersonalizations(env, orderId) {
+    if (!env.CUSTOM_FILES) return;
+    const record = await env.CUSTOM_FILES.get(`order:${orderId}`, 'json');
+    if (!record) return;
+    for (const file of (record.items || []).flatMap(item => item.files || [])) {
+        await env.CUSTOM_FILES.delete(`file:${file.id}`);
+    }
+    await env.CUSTOM_FILES.delete(`order:${orderId}`);
+}
+
+// El panel puede ver las personalizaciones solo si su usuario de WordPress
+// puede ver el pedido: se lo preguntamos a WooCommerce con sus credenciales.
+async function canReadOrder(baseUrl, auth, orderId) {
+    const resp = await fetch(`${baseUrl}/wp-json/wc/v3/orders/${orderId}?_fields=id`, {
+        headers: { 'Accept': 'application/json', 'Authorization': auth },
+        cf: { cacheTtl: 0, cacheEverything: false },
+    });
+    return resp.status === 200 ? true : resp.status;
+}
+
+async function handleAdminCustom(env, found, auth, baseUrl, cors) {
+    const orderId = found.match[1];
+    const allowed = await canReadOrder(baseUrl, auth, orderId).catch(() => 502);
+    if (allowed !== true) {
+        return jsonError(allowed === 401 ? 'Falta iniciar sesion' : 'No se pudo verificar el pedido', allowed === 401 ? 401 : 403, cors);
+    }
+    if (!env.CUSTOM_FILES) return jsonError('Personalizaciones no configuradas en el Worker', 503, cors);
+
+    const record = await env.CUSTOM_FILES.get(`order:${orderId}`, 'json');
+
+    if (!found.match[2]) {
+        return new Response(JSON.stringify(record || { items: [] }), {
+            headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...cors },
+        });
+    }
+
+    const fileId = found.match[2];
+    const listed = record && (record.items || []).some(item => (item.files || []).some(f => f.id === fileId));
+    const { value, metadata } = listed
+        ? await env.CUSTOM_FILES.getWithMetadata(`file:${fileId}`, 'stream')
+        : { value: null, metadata: null };
+    if (!value) return jsonError('El archivo ya no existe', 404, cors);
+
+    const name = (metadata && metadata.name) || 'archivo';
+    return new Response(value, {
+        headers: {
+            // Siempre como descarga: nunca se abre un archivo del cliente en el panel.
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(name)}`,
+            'X-Content-Type-Options': 'nosniff',
+            'Cache-Control': 'no-store',
+            ...cors,
+        },
+    });
+}
+
+async function handleAdmin(request, env, url, ctx) {
     const cors = corsHeaders(request, env, 'admin');
 
     if (originRejected(request, env)) {
         return jsonError('Origen no permitido', 403, cors);
+    }
+
+    const custom = matchRoute(ADMIN_CUSTOM_ROUTES, url.pathname);
+    if (custom) {
+        if (!custom.route.methods.includes(request.method)) {
+            return jsonError(`Metodo no permitido: ${request.method}`, 405, cors);
+        }
+        const auth = request.headers.get('Authorization') || '';
+        if (!auth.startsWith('Basic ')) return jsonError('Falta iniciar sesion', 401, cors);
+        const baseUrl = readBaseUrl(env);
+        if (!baseUrl) return jsonError('El Worker no tiene WC_BASE_URL configurado', 500, cors);
+        return handleAdminCustom(env, custom, auth, baseUrl, cors);
     }
 
     const found = matchRoute(ADMIN_ROUTES, url.pathname);
@@ -420,6 +661,16 @@ async function handleAdmin(request, env, url) {
         return jsonError(`No se pudo contactar a WordPress: ${err.message}`, 502, cors);
     }
 
+    // Pedido finalizado desde el panel: se borran sus archivos y textos.
+    const orderMatch = url.pathname.match(/^\/admin\/orders\/(\d+)$/);
+    if (orderMatch && request.method === 'PUT' && resp.ok) {
+        const order = await resp.clone().json().catch(() => null);
+        if (order && PERSONALIZATION_FINAL_STATUSES.includes(order.status)) {
+            ctx.waitUntil(deletePersonalizations(env, orderMatch[1]).catch(err =>
+                console.error(`No se borraron las personalizaciones del pedido ${orderMatch[1]}: ${err.message}`)));
+        }
+    }
+
     return relay(resp, cors, 'no-store');
 }
 
@@ -433,8 +684,9 @@ export default {
             return new Response(null, { status: 204, headers: corsHeaders(request, env, zone) });
         }
 
-        if (zone === 'admin') return handleAdmin(request, env, url);
+        if (zone === 'admin') return handleAdmin(request, env, url, ctx);
         if (zone === 'store') return handleStore(request, env, url, ctx);
+        if (zone === 'custom') return handleCustomUpload(request, env, url);
         return handlePublic(request, env, url);
     },
 };

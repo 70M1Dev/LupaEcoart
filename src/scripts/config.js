@@ -169,6 +169,14 @@ export function wcStockLimit(p) {
     return limit;
 }
 
+// Producto marcado como "Personalizable" en el panel (meta lupa_personalizable).
+// Antes de agregarlo al carrito el cliente tiene que contar la personalizacion.
+export const WC_PERSONALIZABLE_META = 'lupa_personalizable';
+
+export function wcIsPersonalizable(p) {
+    return (p && p.meta_data || []).some(m => m.key === WC_PERSONALIZABLE_META && m.value === 'yes');
+}
+
 // Texto comparable para busquedas: minusculas, sin tildes y sin espacios sobrantes.
 // Asi "laser" encuentra "Corte láser" y "Laptop " encuentra "Soporte Laptop".
 // Marcas diacriticas combinantes (U+0300 a U+036F) que quedan tras normalize('NFD').

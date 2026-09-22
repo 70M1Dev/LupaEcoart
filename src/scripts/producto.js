@@ -1,4 +1,4 @@
-import { wcCategoryName, wcFetchJson, wcPrice, wcRenderError, wcStockLimit } from './config.js';
+import { WC_CONFIG, wcCategoryName, wcFetchJson, wcIsPersonalizable, wcPrice, wcRenderError, wcStockLimit } from './config.js';
 import { addToCart, cartQuantityFor } from './cart.js';
 
 // ==========================================
@@ -42,6 +42,7 @@ function mapWCProductDetail(p) {
         stockLimit: wcStockLimit(p),
         stockQuantity: p.manage_stock && !p.backorders_allowed ? p.stock_quantity : null,
         badge: badge,
+        personalizable: wcIsPersonalizable(p),
         relatedIds: p.related_ids || []
     };
 }
@@ -137,6 +138,9 @@ async function loadProduct() {
 
     // Cargar medidas
     renderSizes();
+
+    // Personalización (solo si el producto está marcado en el panel)
+    document.getElementById('personalization').classList.toggle('hidden', !currentProduct.personalizable);
 
     // Stock y tope de cantidad
     renderStock();
@@ -297,7 +301,7 @@ document.getElementById('quantity').addEventListener('change', clampQuantityInpu
 
 // Si el carrito cambia en otra pestaña, recalculamos lo disponible
 window.addEventListener('storage', e => {
-    if (e.key === CART_STORAGE_KEY) renderStock();
+    if (e.key === 'cart') renderStock();
 });
 
 // ==========================================
@@ -352,36 +356,152 @@ function requireSize() {
     return true;
 }
 
-document.getElementById('add-to-cart-btn').addEventListener('click', () => {
-    if (!currentProduct || !requireSize()) return;
-    const qty = parseInt(document.getElementById('quantity').value, 10) || 1;
-    handleAddToCart(selectedSize, qty);
-});
+// ==========================================
+// PERSONALIZACIÓN
+// ==========================================
+// El archivo se sube al Worker recien al agregar al carrito; el carrito guarda
+// solo su id. El Worker lo ata al pedido cuando se confirma la compra.
+const MAX_PERSONALIZATION_BYTES = 10 * 1024 * 1024;
+let addingToCart = false;
 
-document.getElementById('buy-now-btn').addEventListener('click', () => {
-    if (!currentProduct) return;
-    if (availableToAdd() > 0) {
-        if (!requireSize()) return;
-        const qty = parseInt(document.getElementById('quantity').value, 10) || 1;
-        handleAddToCart(selectedSize, qty);
+function personalizationError(message) {
+    const el = document.getElementById('personalization-error');
+    el.textContent = message || '';
+    el.classList.toggle('hidden', !message);
+    if (message) document.getElementById('personalization').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function selectedPersonalizationFile() {
+    return document.getElementById('personalization-file').files[0] || null;
+}
+
+function renderPersonalizationFile() {
+    const file = selectedPersonalizationFile();
+    document.getElementById('personalization-file-label').textContent = file ? file.name : 'Subir archivo (opcional)';
+    document.getElementById('personalization-file-clear').classList.toggle('hidden', !file);
+    personalizationError(file && file.size > MAX_PERSONALIZATION_BYTES
+        ? 'El archivo pesa más de 10 MB. Probá con uno más liviano.'
+        : '');
+}
+
+function resetPersonalization() {
+    document.getElementById('personalization-text').value = '';
+    document.getElementById('personalization-file').value = '';
+    renderPersonalizationFile();
+}
+
+// Devuelve { text, file } listo para subir, o null si falta algo (y lo avisa).
+function readPersonalization() {
+    const text = document.getElementById('personalization-text').value.trim();
+    const file = selectedPersonalizationFile();
+    if (!text) {
+        personalizationError('Contanos cómo querés la personalización antes de agregarlo al carrito.');
+        document.getElementById('personalization-text').focus();
+        return null;
     }
-    if (cartQuantityFor(currentProduct.id) > 0) window.location.href = 'carrito';
+    if (file && file.size > MAX_PERSONALIZATION_BYTES) {
+        personalizationError('El archivo pesa más de 10 MB. Probá con uno más liviano.');
+        return null;
+    }
+    personalizationError('');
+    return { text, file };
+}
+
+async function uploadPersonalizationFile(file) {
+    // Sin Worker (boceto local) no hay donde subirlo: queda solo el nombre.
+    if (!WC_CONFIG.PROXY_URL) return { id: null, name: file.name };
+
+    let res;
+    try {
+        res = await fetch(`${WC_CONFIG.PROXY_URL}/custom/upload`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': file.type || 'application/octet-stream',
+                'X-File-Name': encodeURIComponent(file.name)
+            },
+            body: file
+        });
+    } catch {
+        throw new Error('No pudimos subir el archivo. Revisá tu conexión y probá de nuevo.');
+    }
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error((data && data.error) || 'No pudimos subir el archivo. Probá de nuevo.');
+    return { id: data.id, name: data.name };
+}
+
+function setAddingToCart(busy) {
+    addingToCart = busy;
+    const button = document.getElementById('add-to-cart-btn');
+    if (!button.dataset.label) button.dataset.label = button.innerHTML;
+    button.innerHTML = busy ? 'Subiendo archivo…' : button.dataset.label;
+    button.disabled = busy;
+    document.getElementById('buy-now-btn').disabled = busy;
+    if (!busy) renderStock();
+}
+
+document.getElementById('personalization-file').addEventListener('change', renderPersonalizationFile);
+document.getElementById('personalization-file-clear').addEventListener('click', () => {
+    document.getElementById('personalization-file').value = '';
+    renderPersonalizationFile();
 });
+document.getElementById('personalization-text').addEventListener('input', () => personalizationError(''));
 
 // ==========================================
 // CARRITO (usa el módulo compartido ./cart.js)
 // ==========================================
-function handleAddToCart(size, qty) {
-    addToCart({
+document.getElementById('add-to-cart-btn').addEventListener('click', async () => {
+    if (!currentProduct || addingToCart || !requireSize()) return;
+    const qty = parseInt(document.getElementById('quantity').value, 10) || 1;
+    await handleAddToCart(selectedSize, qty);
+});
+
+document.getElementById('buy-now-btn').addEventListener('click', async () => {
+    if (!currentProduct || addingToCart) return;
+    if (availableToAdd() > 0) {
+        if (!requireSize()) return;
+        const qty = parseInt(document.getElementById('quantity').value, 10) || 1;
+        const added = await handleAddToCart(selectedSize, qty);
+        // Un producto personalizable sin personalizacion no se lleva al carrito.
+        if (!added && currentProduct.personalizable) return;
+    }
+    if (cartQuantityFor(currentProduct.id) > 0) window.location.href = 'carrito';
+});
+
+// Devuelve cuantas unidades agrego (0 si falto la personalizacion o fallo la subida).
+async function handleAddToCart(size, qty) {
+    let personalization = null;
+    if (currentProduct.personalizable) {
+        const input = readPersonalization();
+        if (!input) return 0;
+        personalization = { text: input.text, file: null };
+        if (input.file) {
+            setAddingToCart(true);
+            try {
+                personalization.file = await uploadPersonalizationFile(input.file);
+            } catch (err) {
+                personalizationError(err.message);
+                return 0;
+            } finally {
+                setAddingToCart(false);
+            }
+        }
+    }
+
+    const added = addToCart({
         id: currentProduct.id,
         name: currentProduct.name,
         price: currentProduct.price,
         image: currentProduct.images[0],
         size: size,
         quantity: qty,
-        maxQty: currentProduct.stockLimit
+        maxQty: currentProduct.stockLimit,
+        ...(personalization ? { personalization } : {})
     });
+    // Cada encargo personalizado es una linea aparte: el formulario queda
+    // limpio para el siguiente.
+    if (added && personalization) resetPersonalization();
     renderStock();
+    return added;
 }
 
 // ==========================================

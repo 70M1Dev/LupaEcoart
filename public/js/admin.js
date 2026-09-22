@@ -18,6 +18,10 @@ const ADMIN_DEMO = WC_IS_LOCAL_DEV
 
 // Mismo criterio que producto.js para encontrar el atributo de medidas.
 const SIZE_ATTR_RE = /medida|tama[ñn]o|talle|size/i;
+// Meta del producto que marca "Personalizable" (la lee la tienda, ver config.js).
+const PERSONALIZABLE_META = 'lupa_personalizable';
+// Al pasar el pedido a uno de estos estados el Worker borra los archivos.
+const PERSONALIZATION_FINAL_STATUSES = ['completed', 'cancelled', 'refunded'];
 const PLACEHOLDER_IMG = 'https://placehold.co/160x160/E6EBB1/4A501C?text=Sin+foto';
 
 const $ = id => document.getElementById(id);
@@ -255,6 +259,7 @@ async function demoApi(method, path, { params, body }) {
     if (path === 'me') return one({ id: 1, name: 'Tienda de prueba', roles: ['shop_manager'] });
     if (path === 'products/categories') return one(store.categories);
     if (path === 'media') return one({ id: store.nextId++, source_url: URL.createObjectURL(body) });
+    if (/^orders\/\d+\/personalizations$/.test(path)) return one({ items: [] });
 
     if (path === 'products' && method === 'GET') {
         const search = wcNormalize(params.search);
@@ -450,6 +455,10 @@ function fillCategorySelect(select, selectedId) {
 // CATALOGO
 // ==========================================
 
+function isPersonalizable(product) {
+    return (product.meta_data || []).some(m => m.key === PERSONALIZABLE_META && m.value === 'yes');
+}
+
 function stockMode(product) {
     if (product.manage_stock) return 'qty';
     return product.stock_status === 'outofstock' ? 'outofstock' : 'instock';
@@ -477,6 +486,7 @@ function productRow(p) {
     const badges = [
         p.status !== 'publish' ? '<span class="badge bg-neutral-200 text-neutral-700">Borrador</span>' : '',
         p.featured ? '<span class="badge bg-accent/20 text-mustard">★ Destacado</span>' : '',
+        isPersonalizable(p) ? '<span class="badge bg-primary-100 text-primary-800">Personalizable</span>' : '',
         onSale ? '<span class="badge bg-teal/25 text-primary-900">Oferta</span>' : '',
         p.stock_status === 'outofstock' ? '<span class="badge bg-red-100 text-red-700">Agotado</span>' : ''
     ].join('');
@@ -642,6 +652,7 @@ function openEditor(product) {
 
     $('f-published').checked = product ? p.status === 'publish' : true;
     $('f-featured').checked = !!p.featured;
+    $('f-personalizable').checked = product ? isPersonalizable(p) : false;
 
     state.images = (p.images || []).map(img => ({
         key: `img-${img.id}`, id: img.id, src: img.thumbnail || img.src, uploading: false
@@ -807,6 +818,7 @@ function buildPayload() {
         sale_price: saleRaw ? String(parseFloat(saleRaw)) : '',
         categories: [{ id: Number($('f-category').value) }],
         images: state.images.map(img => (ADMIN_DEMO ? { id: img.id, src: img.src } : { id: img.id })),
+        meta_data: [{ key: PERSONALIZABLE_META, value: $('f-personalizable').checked ? 'yes' : 'no' }],
         ...stockPayload($('f-stock-mode').value, $('f-stock-qty').value)
     };
 
@@ -941,7 +953,9 @@ const orders = {
     status: '',
     loadSeq: 0,
     loaded: false,
-    current: null
+    current: null,
+    personalizations: null, // del pedido abierto, ver loadPersonalizations()
+    finalizedId: null       // pedido recien completado/cancelado desde el panel
 };
 
 function statusBadge(status) {
@@ -1114,6 +1128,8 @@ function renderOrderDetail(o) {
                 <p class="text-sm whitespace-pre-line">${esc(decodeEntities(o.customer_note))}</p>
             </div>` : ''}
 
+            <div id="order-personalizations"></div>
+
             <div class="card p-5">
                 <h2 class="font-semibold mb-2">Productos</h2>
                 <div class="text-sm">${itemsHtml}</div>
@@ -1131,6 +1147,104 @@ function renderOrderDetail(o) {
         $('order-status-save').disabled = e.target.value === o.status;
     });
     $('order-status-save').addEventListener('click', () => saveOrderStatus(o));
+    loadPersonalizations(o);
+}
+
+// ==========================================
+// PERSONALIZACIONES DEL PEDIDO
+// ==========================================
+// Textos y archivos que el cliente cargo en la ficha. Viven en el Worker (no en
+// WooCommerce) y se borran al pasar el pedido a completado o cancelado.
+
+function formatBytes(bytes) {
+    const n = Number(bytes) || 0;
+    if (n < 1024 * 1024) return `${Math.max(1, Math.round(n / 1024))} KB`;
+    return `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
+async function loadPersonalizations(order) {
+    const box = $('order-personalizations');
+    orders.personalizations = null;
+    // Recien finalizado desde el panel: el Worker los esta borrando.
+    if (orders.finalizedId === order.id) {
+        box.innerHTML = '<div class="card p-5"><h2 class="font-semibold mb-1">Personalización</h2><p class="text-sm text-neutral-500">Los archivos de personalización de este pedido se borraron.</p></div>';
+        return;
+    }
+    let data;
+    try {
+        ({ data } = await api('GET', `orders/${order.id}/personalizations`));
+    } catch (err) {
+        if (orders.current !== order) return;
+        box.innerHTML = `
+            <div class="card p-5">
+                <h2 class="font-semibold mb-1">Personalización</h2>
+                <p class="text-sm text-neutral-500">No se pudo cargar: ${esc(err.message)}</p>
+            </div>`;
+        return;
+    }
+    if (orders.current !== order) return; // se abrio otro pedido mientras cargaba
+
+    const items = (data && data.items) || [];
+    orders.personalizations = items;
+    if (!items.length) {
+        box.innerHTML = '';
+        return;
+    }
+
+    box.innerHTML = `
+        <div class="card p-5">
+            <h2 class="font-semibold mb-3">Personalización</h2>
+            <div class="space-y-4">
+                ${items.map(item => `
+                    <div class="border-b border-neutral-100 last:border-0 pb-4 last:pb-0">
+                        <p class="font-medium text-sm">${esc(item.name)}${item.size ? ` · ${esc(item.size)}` : ''} <span class="text-neutral-500">×${Number(item.quantity) || 1}</span></p>
+                        ${item.text ? `<p class="text-sm whitespace-pre-line bg-neutral-50 rounded-xl px-3 py-2 mt-2">${esc(item.text)}</p>` : ''}
+                        ${(item.files || []).map(f => `
+                            <button type="button" class="btn-ghost !px-4 !py-2 text-sm mt-2" data-download-file="${esc(f.id)}" data-file-name="${esc(f.name)}">
+                                Descargar ${esc(f.name)} <span class="text-neutral-500 font-normal">(${formatBytes(f.size)})</span>
+                            </button>`).join('')}
+                    </div>`).join('')}
+            </div>
+            <p class="hint mt-3">Los archivos y textos se borran al marcar el pedido como Completado o Cancelado. El texto también queda en la nota del pedido.</p>
+        </div>`;
+
+    box.querySelectorAll('[data-download-file]').forEach(button => {
+        button.addEventListener('click', () => downloadPersonalizationFile(order, button));
+    });
+}
+
+// La descarga necesita el header Authorization: se baja con fetch y se guarda.
+async function downloadPersonalizationFile(order, button) {
+    const label = button.innerHTML;
+    button.disabled = true;
+    button.textContent = 'Descargando…';
+    try {
+        let res;
+        try {
+            res = await fetch(`${WC_CONFIG.PROXY_URL}/admin/orders/${order.id}/files/${button.dataset.downloadFile}`, {
+                headers: { Authorization: `Basic ${authToken}` }
+            });
+        } catch {
+            throw new ApiError('No hay conexión con la tienda. Revisá internet y probá de nuevo.');
+        }
+        if (!res.ok) {
+            const data = await res.json().catch(() => null);
+            throw new ApiError(friendlyError(res.status, data), res.status);
+        }
+        const url = URL.createObjectURL(await res.blob());
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = button.dataset.fileName || 'archivo';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch (err) {
+        handleError(err);
+    } finally {
+        button.disabled = false;
+        button.innerHTML = label;
+    }
 }
 
 async function openOrder(id) {
@@ -1150,11 +1264,20 @@ async function saveOrderStatus(order) {
     const status = $('order-status-select').value;
     if (status === order.status) return;
 
+    const hasFiles = (orders.personalizations || []).some(item => (item.files || []).length);
+    const filesNote = hasFiles ? ' Los archivos de personalización se borran: descargalos antes si los necesitás.' : '';
     if (status === 'cancelled') {
         const ok = await confirmDialog(
             `¿Cancelar el pedido #${order.number}?`,
-            'El pedido queda cancelado y el stock de sus productos vuelve a estar disponible.',
+            `El pedido queda cancelado y el stock de sus productos vuelve a estar disponible.${filesNote}`,
             'Cancelar pedido'
+        );
+        if (!ok) return;
+    } else if (hasFiles && PERSONALIZATION_FINAL_STATUSES.includes(status)) {
+        const ok = await confirmDialog(
+            `¿Marcar el pedido #${order.number} como completado?`,
+            filesNote.trim(),
+            'Completar pedido'
         );
         if (!ok) return;
     }
@@ -1164,6 +1287,7 @@ async function saveOrderStatus(order) {
     button.textContent = 'Guardando…';
     try {
         const { data } = await api('PUT', `orders/${order.id}`, { body: { status } });
+        if (hasFiles && PERSONALIZATION_FINAL_STATUSES.includes(data.status)) orders.finalizedId = data.id;
         orders.current = data;
         renderOrderDetail(data);
         orders.loaded = false; // la lista se recarga al volver

@@ -22,6 +22,23 @@ function persistCart() {
     saveCartToStorage(cart);
 }
 
+// La personalizacion la escribe el cliente: se escapa antes de ir al HTML.
+function esc(text) {
+    return String(text ?? '').replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+}
+
+function personalizationHtml(p) {
+    if (!p) return '';
+    return `
+        <div class="mt-2 text-sm bg-primary-50 rounded-xl px-3 py-2">
+            <p class="font-semibold text-primary-800 text-xs uppercase tracking-wider mb-0.5">Personalización</p>
+            <p class="text-neutral-700 whitespace-pre-line break-words">${esc(p.text)}</p>
+            ${p.file ? `<p class="text-xs text-neutral-500 mt-1">Archivo: ${esc(p.file.name)}</p>` : ''}
+        </div>`;
+}
+
 function getSubtotal() {
     return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 }
@@ -85,6 +102,7 @@ function renderCart() {
                     <div>
                         <h3 class="font-semibold text-lg text-black">${item.name}</h3>
                         ${item.size ? `<p class="text-sm text-neutral-500">Medida: ${item.size}</p>` : ''}
+                        ${personalizationHtml(item.personalization)}
                     </div>
                     <button onclick="removeItem(${index})" class="text-neutral-400 hover:text-accent transition" aria-label="Quitar">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

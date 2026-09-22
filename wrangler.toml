@@ -9,6 +9,12 @@ compatibility_date = "2025-01-01"
 # Alcanza para arrancar sin dominio propio.
 workers_dev = true
 
+# Archivos y textos de personalizacion de los pedidos (ver worker.js).
+# Creado con: wrangler kv namespace create CUSTOM_FILES
+[[kv_namespaces]]
+binding = "CUSTOM_FILES"
+id = "7589b3060c454262bf7a02db304eb640"
+
 # Cuando el dominio este en Cloudflare, descomenta esto para servir el proxy
 # en api.lupaecoart.com y despues actualiza PROXY_URL en js/config.js.
 # [[routes]]
