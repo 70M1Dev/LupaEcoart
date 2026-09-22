@@ -1105,7 +1105,7 @@ function renderOrderDetail(o) {
             <div class="card p-5">
                 <h2 class="font-semibold mb-3">Envío</h2>
                 ${addressLines(shipTo).map(l => `<p class="text-sm">${esc(l)}</p>`).join('') || '<p class="text-sm text-neutral-500">Sin dirección</p>'}
-                ${shippingLine ? `<p class="text-sm text-neutral-500 mt-2">${esc(decodeEntities(shippingLine.method_title))} · ${Number(shippingLine.total) === 0 ? 'Gratis' : wcPrice(shippingLine.total)}</p>` : ''}
+                ${shippingLine ? `<p class="text-sm text-neutral-500 mt-2">${esc(decodeEntities(shippingLine.method_title))} · ${Number(shippingLine.total) === 0 ? 'A coordinar' : wcPrice(shippingLine.total)}</p>` : ''}
             </div>
 
             ${o.customer_note ? `
@@ -1119,7 +1119,7 @@ function renderOrderDetail(o) {
                 <div class="text-sm">${itemsHtml}</div>
                 <div class="text-sm mt-3 space-y-1">
                     ${discount ? `<div class="flex justify-between text-primary-700"><span>Descuento${coupons ? ` (${esc(coupons)})` : ''}</span><span>-${wcPrice(discount)}</span></div>` : ''}
-                    <div class="flex justify-between"><span>Envío</span><span>${Number(o.shipping_total) === 0 ? 'Gratis' : wcPrice(o.shipping_total)}</span></div>
+                    <div class="flex justify-between"><span>Envío</span><span>${Number(o.shipping_total) === 0 ? 'A coordinar' : wcPrice(o.shipping_total)}</span></div>
                     <div class="flex justify-between text-base font-bold pt-2 border-t border-neutral-100"><span>Total</span><span>${wcPrice(o.total)}</span></div>
                 </div>
             </div>

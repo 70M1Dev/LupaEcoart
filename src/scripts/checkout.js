@@ -40,7 +40,6 @@ const localCart = getCart();
 let storeToken = null;
 let storeCart = null;
 let busy = false;
-let userPickedRate = false;
 
 // ==========================================
 // UTILIDADES
@@ -180,41 +179,8 @@ function renderTotals() {
     $('checkout-discount-row').classList.toggle('hidden', discount === 0);
     $('checkout-discount').textContent = `-${money(discount)}`;
 
-    const shipping = $('checkout-shipping');
-    if (!storeCart.needs_shipping) {
-        shipping.textContent = 'No aplica';
-    } else if (t.total_shipping === null) {
-        shipping.textContent = 'Elegí el departamento';
-    } else {
-        shipping.textContent = Number(t.total_shipping) === 0 ? 'Gratis' : money(t.total_shipping);
-    }
-    shipping.className = `font-semibold ${Number(t.total_shipping) === 0 && t.total_shipping !== null ? 'text-primary-600' : ''}`;
-
+    // El envío siempre se coordina con el cliente: no se calcula ni se cobra acá.
     $('checkout-total').textContent = money(t.total_price);
-}
-
-function currentRates() {
-    const pkg = storeCart.shipping_rates && storeCart.shipping_rates[0];
-    return pkg ? { packageId: pkg.package_id, rates: pkg.shipping_rates } : { packageId: 0, rates: [] };
-}
-
-function renderRates() {
-    const box = $('shipping-rates');
-    const { rates } = currentRates();
-    if (rates.length <= 1) {
-        box.classList.add('hidden');
-        box.innerHTML = '';
-        return;
-    }
-    box.innerHTML = `<p class="text-sm font-semibold">Envío</p>` + rates.map(rate => `
-        <label class="flex items-center justify-between gap-3 px-3 py-2 border rounded-xl cursor-pointer text-sm ${rate.selected ? 'border-primary-700 bg-primary-50' : 'border-primary-100'}">
-            <span class="flex items-center gap-2">
-                <input type="radio" name="shipping-rate" value="${esc(rate.rate_id)}" ${rate.selected ? 'checked' : ''} class="accent-primary-800">
-                ${esc(decodeHtml(rate.name))}
-            </span>
-            <span class="font-semibold">${Number(rate.price) === 0 ? 'Gratis' : money(rate.price)}</span>
-        </label>`).join('');
-    box.classList.remove('hidden');
 }
 
 function availablePayments() {
@@ -287,7 +253,6 @@ function updatePlaceButton() {
 function renderAll() {
     renderItems();
     renderCoupon();
-    renderRates();
     renderTotals();
     renderPayments();
 }
@@ -305,16 +270,6 @@ function renderEmpty() {
 // ==========================================
 // ACCIONES
 // ==========================================
-
-// Con envío gratis disponible, lo elegimos salvo que el cliente haya elegido otro.
-async function preferFreeShipping() {
-    if (userPickedRate) return;
-    const { packageId, rates } = currentRates();
-    const free = rates.find(r => r.method_id === 'free_shipping');
-    if (free && !free.selected) {
-        storeCart = await storeFetch('cart/select-shipping-rate', { package_id: packageId, rate_id: free.rate_id });
-    }
-}
 
 async function withBusy(task) {
     if (busy) return;
@@ -369,33 +324,7 @@ async function initCheckout() {
             }
         }
 
-        storeCart = await storeFetch('cart/update-customer', {
-            shipping_address: { country: 'UY', state: $('state').value || 'UY-MO' }
-        });
-        await preferFreeShipping();
-
         renderNotices(notices);
-        renderAll();
-    });
-}
-
-async function onStateChange() {
-    if (!storeCart) return;
-    await withBusy(async () => {
-        storeCart = await storeFetch('cart/update-customer', {
-            shipping_address: { country: 'UY', state: $('state').value || 'UY-MO' }
-        });
-        await preferFreeShipping();
-        renderAll();
-    });
-}
-
-async function onRateChange(e) {
-    if (!e.target.matches('input[name="shipping-rate"]')) return;
-    userPickedRate = true;
-    const { packageId } = currentRates();
-    await withBusy(async () => {
-        storeCart = await storeFetch('cart/select-shipping-rate', { package_id: packageId, rate_id: e.target.value });
         renderAll();
     });
 }
@@ -426,7 +355,6 @@ async function onCouponClick() {
                 return;
             }
         }
-        await preferFreeShipping();
         renderAll();
     });
 }
@@ -567,8 +495,6 @@ function showSuccess(result, method, email, totals) {
 // ==========================================
 // INIT
 // ==========================================
-$('state').addEventListener('change', onStateChange);
-$('shipping-rates').addEventListener('change', onRateChange);
 $('payment-methods').addEventListener('change', () => { renderPayments(); });
 $('checkout-coupon-btn').addEventListener('click', onCouponClick);
 $('place-order-btn').addEventListener('click', onPlaceOrder);

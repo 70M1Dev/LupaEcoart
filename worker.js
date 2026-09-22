@@ -329,7 +329,7 @@ function orderMessage(order) {
 
     lines.push('', '*Productos*');
     (order.line_items || []).forEach(item => lines.push(`- ${item.quantity} × ${item.name}`));
-    (order.shipping_lines || []).forEach(line => lines.push(`- ${line.method_title}: ${Number(line.total) === 0 ? 'gratis' : formatPesos(line.total)}`));
+    (order.shipping_lines || []).forEach(line => lines.push(`- ${line.method_title}: ${Number(line.total) === 0 ? 'a coordinar' : formatPesos(line.total)}`));
     (order.coupon_lines || []).forEach(line => lines.push(`- Cupón ${String(line.code).toUpperCase()}: -${formatPesos(line.discount)}`));
 
     if (order.customer_note) lines.push('', `Nota: ${order.customer_note}`);
