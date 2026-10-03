@@ -1,5 +1,5 @@
 import { WC_CONFIG, wcPrice } from './config.js';
-import { getCart, personalizationFiles, saveCartToStorage } from './cart.js';
+import { getCart, personalizationFiles, saveCartToStorage, savePendingPayment } from './cart.js';
 
 // ==========================================
 // CHECKOUT — pedidos reales en WooCommerce
@@ -488,14 +488,27 @@ async function onPlaceOrder(e) {
             throw new Error(detail ? decodeHtml(detail) : 'El pago no se pudo iniciar. Probá con otro método.');
         }
 
+        // Mercado Pago devuelve la URL de pago; transferencia y WhatsApp
+        // devuelven la página de "pedido recibido" de WordPress, que no usamos.
+        const payUrl = payment.redirect_url && !/order-received/.test(payment.redirect_url) ? payment.redirect_url : '';
+
+        // Al volver de Mercado Pago (pago.astro) hace falta saber qué pedido
+        // era, y el carrito por si el pago no sale.
+        if (payUrl) {
+            savePendingPayment({
+                number: result.order_number || result.order_id,
+                payUrl,
+                cart: localCart,
+                coupon: readCoupon()
+            });
+        }
+
         // El pedido ya existe en WooCommerce: vaciamos el carrito local.
         saveCartToStorage([]);
         saveCoupon(null);
 
-        // Mercado Pago devuelve la URL de pago; transferencia y WhatsApp
-        // devuelven la página de "pedido recibido" de WordPress, que no usamos.
-        if (payment.redirect_url && !/order-received/.test(payment.redirect_url)) {
-            window.location.href = payment.redirect_url;
+        if (payUrl) {
+            window.location.href = payUrl;
             return;
         }
         showSuccess(result, method, email, totals);

@@ -21,7 +21,7 @@
                       ┌─────────────────────────────┐
                       │ WORDPRESS + WOOCOMMERCE     │
                       │ Hostinger (PHP + MySQL)     │
-                      │ productos, stock, PayPal    │
+                      │ productos, stock, pedidos   │
                       └─────────────────────────────┘
 ```
 
@@ -73,8 +73,9 @@ En hPanel:
    **Gestor de tienda** (carga productos y stock sin acceso a plugins).
 5. Cargar 2 o 3 productos de prueba con foto, precio y categoría. Marcar alguno
    con ⭐ **Destacado** para que aparezca en el inicio.
-6. Pagos: instalar **Mercado Pago** o **WooCommerce PayPal Payments** cuando el
-   checkout se conecte (ver *Pendiente de desarrollo*).
+6. Pagos: **Mercado Pago** (ver *Paso 9*), más *Transferencia bancaria* y
+   *Contra reembolso* (en el checkout se llama "Coordinar por WhatsApp") en
+   `WooCommerce → Ajustes → Pagos`.
 
 ## Paso 3 — Crear la API key de lectura
 
@@ -222,6 +223,38 @@ crea igual (el error queda en `wrangler tail`).
 El número de la tienda para los botones de WhatsApp del checkout ("Enviar
 comprobante", "Escribinos") está en `WHATSAPP_NUMBER`, `src/scripts/config.js`.
 
+## Paso 9 — Mercado Pago (Checkout Pro)
+
+El checkout ofrece Mercado Pago cuando WooCommerce informa el método
+`woo-mercado-pago-basic` (Checkout Pro): el cliente confirma el pedido, va a
+Mercado Pago a pagar y vuelve a `https://lupaecoart.site/pago`.
+
+En WordPress, con el plugin **Mercado Pago** (`WooCommerce → Mercado Pago`):
+
+1. **Vincular la cuenta** de Mercado Pago de la tienda (paso 1 del plugin).
+2. `WooCommerce → Ajustes → Pagos → Mercado Pago - Checkout Pro → Gestionar`:
+   - **Activar el checkout**: tildado.
+   - **Experiencia de pago**: `Redirect`. Con `Modal` el pago se abre en una
+     página de WordPress, que el cliente no tiene que ver.
+   - En *Configuración Avanzada*, las tres URL de retorno (**éxito**, **pago
+     rechazado** y **pago pendiente**): `https://lupaecoart.site/pago`.
+     Si quedan vacías, Mercado Pago devuelve al cliente al WordPress de
+     Hostinger.
+3. **Checkout API** (tarjeta dentro de la página) y **Checkout API Efectivo**
+   quedan **desactivados**: necesitan campos del plugin que este frontend no
+   tiene, y Checkout Pro ya cubre tarjetas, Abitab y Redpagos.
+4. Paso 4 del plugin: **Modo Producción** para cobrar de verdad. En *Modo Test*
+   el cliente cae en el checkout de prueba, que solo acepta usuarios y tarjetas
+   de prueba.
+
+El estado del pedido lo actualiza Mercado Pago por su cuenta: le avisa directo
+a WordPress (webhook) y el pedido pasa de *Pendiente de pago* a *Procesando*
+cuando se acredita. La página `/pago` es solo informativa.
+
+Para probarlo de punta a punta hay que hacer una compra real chica desde otra
+cuenta de Mercado Pago (no deja pagarse a uno mismo) y después devolverla desde
+Mercado Pago.
+
 ---
 
 ## Checklist
@@ -242,13 +275,4 @@ comprobante", "Escribinos") está en `WHATSAPP_NUMBER`, `src/scripts/config.js`.
 - [ ] Contraseña de aplicación creada para el usuario *Gestor de tienda*
 - [ ] Worker redeployado con las rutas `/admin/…`
 - [ ] Login en `/admin` funciona y se puede cambiar el stock de un producto
-
-## Pendiente de desarrollo
-
-El checkout esta **simulado**: valida el formulario y muestra la confirmacion,
-pero no crea la orden en WooCommerce. Para cobrar de verdad hacen falta dos
-cosas, y ninguna puede vivir en el navegador:
-
-1. Un `POST /orders` hecho desde el Worker con una key de **escritura**.
-2. Redirigir al cliente al checkout de WooCommerce para que PayPal procese el
-   pago, o integrar la PayPal JS SDK contra la orden ya creada.
+- [ ] Mercado Pago: Checkout Pro activo, URL de retorno a `/pago` y Modo Producción

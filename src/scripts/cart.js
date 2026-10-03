@@ -18,6 +18,24 @@ export function saveCartToStorage(cart) {
     updateCartCounters();
 }
 
+// Pedido que se fue a pagar a Mercado Pago. Guarda el carrito y el link de
+// pago para que la página de vuelta (pago.js) pueda ofrecer reintentar o
+// elegir otra forma de pago si el cobro no sale.
+// data = { number, payUrl, cart, coupon }
+const PENDING_PAYMENT_KEY = 'pending-payment';
+
+export function savePendingPayment(data) {
+    try { localStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(data)); } catch { /* storage bloqueado */ }
+}
+
+export function readPendingPayment() {
+    try { return JSON.parse(localStorage.getItem(PENDING_PAYMENT_KEY)) || null; } catch { return null; }
+}
+
+export function clearPendingPayment() {
+    try { localStorage.removeItem(PENDING_PAYMENT_KEY); } catch { /* storage bloqueado */ }
+}
+
 // Actualiza cualquier contador de carrito presente en la página actual
 // (nav desktop, drawer mobile, etc. - busca por id conocido)
 export function updateCartCounters() {

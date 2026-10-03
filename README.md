@@ -33,6 +33,7 @@ src/
 │   ├── producto.astro   ← Detalle de producto con galería + medidas
 │   ├── carrito.astro    ← Carrito con cupones (localStorage)
 │   ├── checkout.astro   ← Formulario de checkout
+│   ├── pago.astro       ← Vuelta de Mercado Pago (aprobado / pendiente / no completado)
 │   └── admin.astro      ← Panel de tienda (stock, altas y edición de productos)
 ├── layouts/
 │   └── BaseLayout.astro ← Head común + scripts de UI compartidos
@@ -55,6 +56,7 @@ src/
     ├── producto.js      ← Detalle + productos relacionados
     ├── carrito.js       ← Carrito + cupones
     ├── checkout.js      ← Pedidos reales con la Store API
+    ├── pago.js          ← Resultado del pago al volver de Mercado Pago
     └── admin-globals.js ← Puente de config para public/js/admin.js
 
 public/                  ← Se copia tal cual a la raíz del sitio
@@ -222,9 +224,18 @@ hosting aparte. El frontend solo le habla por la REST API a través del Worker.
   **regenerarla** desde WooCommerce, no alcanza con borrar el archivo.
 - Usá una clave de API con permisos de **solo lectura**.
 
-## 🛒 Estado del checkout
+## 🛒 Checkout y pagos
 
-El carrito funciona con `localStorage`. El checkout está **simulado**: valida el
-formulario y muestra la confirmación, pero todavía no crea la orden en WooCommerce.
-Para hacerlo real hace falta un endpoint `POST /orders`, que requiere una clave de
-escritura y por lo tanto tiene que resolverse dentro del Worker (no desde el navegador).
+El carrito funciona con `localStorage`. Al confirmar, `src/scripts/checkout.js`
+arma el pedido con la **Store API** de WooCommerce a través del Worker
+(`/store/…`): WooCommerce calcula precios, stock y cupón, y crea el pedido.
+
+Los métodos de pago los decide WooCommerce; el checkout muestra los que conoce
+(`PAYMENT_METHODS` en `checkout.js`):
+
+- **Mercado Pago** (`woo-mercado-pago-basic`, Checkout Pro): el cliente va a
+  Mercado Pago a pagar y vuelve a `/pago`, que muestra el resultado. El pedido
+  pasa a *Procesando* cuando Mercado Pago le avisa a WordPress que se acreditó.
+- **Transferencia bancaria** (`bacs`) y **Coordinar por WhatsApp** (`cod`).
+
+Configuración de Mercado Pago: ver **Paso 9** en `DEPLOY.md`.

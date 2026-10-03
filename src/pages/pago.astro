@@ -1,0 +1,59 @@
+---
+// ==========================================
+// PAGO — Lupa Ecoart
+// ==========================================
+// Página a la que Mercado Pago devuelve al cliente después de pagar (o de
+// abandonar el pago). El resultado viene en la URL y lo muestra
+// src/scripts/pago.js. Misma navbar simple que el checkout.
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Pago" cartWidget={false} noindex>
+    <!-- ================= NAVBAR SIMPLE ================= -->
+    <nav class="fixed top-0 left-0 right-0 bg-primary-500 shadow-lg z-50">
+        <div class="flex items-center justify-between px-6 py-3">
+            <a href="./" class="flex items-center gap-2 text-white">
+                <img src="/assets/logo.svg" alt="" class="h-7 w-7">
+                <span class="text-lg font-light tracking-wide">Lupa <span class="font-semibold">Ecoart</span></span>
+            </a>
+            <a href="./" class="text-white text-sm hover:underline">← Volver a la tienda</a>
+        </div>
+    </nav>
+
+    <!-- ================= PASOS ================= -->
+    <section class="bg-primary-500 text-white pt-20 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-center gap-2 md:gap-4 text-sm md:text-base">
+                <div class="flex items-center gap-2 opacity-60">
+                    <span class="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold">1</span>
+                    <span class="hidden md:inline">Carrito</span>
+                </div>
+                <span class="opacity-50">›</span>
+                <div class="flex items-center gap-2 opacity-60">
+                    <span class="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold">2</span>
+                    <span class="hidden md:inline">Checkout</span>
+                </div>
+                <span class="opacity-50">›</span>
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-white text-primary-800 flex items-center justify-center font-bold">3</span>
+                    <span class="font-semibold">Confirmación</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= RESULTADO ================= -->
+    <div class="container mx-auto px-4 py-10">
+        <h1 id="payment-title" class="text-3xl font-semibold mb-8 text-black">Tu pago</h1>
+
+        <section id="payment-result" class="max-w-xl mx-auto bg-white rounded-2xl border border-primary-100 shadow-sm p-8 text-center" aria-live="polite">
+            <p class="text-sm text-neutral-500">Consultando el resultado del pago…</p>
+        </section>
+    </div>
+
+</BaseLayout>
+
+<script>
+    import '../scripts/cart.js';
+    import '../scripts/pago.js';
+</script>
