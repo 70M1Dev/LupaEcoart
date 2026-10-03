@@ -109,7 +109,6 @@ async function loadProduct() {
     document.getElementById('product-category').textContent = getCategoryName(currentProduct.category);
     document.getElementById('breadcrumb-category').textContent = getCategoryName(currentProduct.category);
     document.getElementById('product-price').textContent = wcPrice(currentProduct.price);
-    document.getElementById('product-installment').textContent = wcPrice(currentProduct.price / 3);
     // La descripción de WooCommerce trae HTML (párrafos, etc.)
     document.getElementById('product-description').innerHTML = currentProduct.description;
 
