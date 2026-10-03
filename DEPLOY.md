@@ -243,13 +243,18 @@ En WordPress, con el plugin **Mercado Pago** (`WooCommerce → Mercado Pago`):
 3. **Checkout API** (tarjeta dentro de la página) y **Checkout API Efectivo**
    quedan **desactivados**: necesitan campos del plugin que este frontend no
    tiene, y Checkout Pro ya cubre tarjetas, Abitab y Redpagos.
-4. Paso 4 del plugin: **Modo Producción** para cobrar de verdad. En *Modo Test*
-   el cliente cae en el checkout de prueba, que solo acepta usuarios y tarjetas
-   de prueba.
+4. Paso 4 del plugin: **Modo Ventas (Producción)** para cobrar de verdad. En
+   *Modo Test* el cliente cae en el checkout de prueba, que solo acepta
+   usuarios y tarjetas de prueba.
 
 El estado del pedido lo actualiza Mercado Pago por su cuenta: le avisa directo
 a WordPress (webhook) y el pedido pasa de *Pendiente de pago* a *Procesando*
 cuando se acredita. La página `/pago` es solo informativa.
+
+Ojo con `WooCommerce → Ajustes → Productos → Inventario → Mantener en
+inventario (minutos)`: pasado ese tiempo WooCommerce cancela los pedidos que
+siguen pendientes de pago. Con 60 minutos, un pago en Abitab o Redpagos hecho
+más tarde llega a un pedido ya cancelado.
 
 Para probarlo de punta a punta hay que hacer una compra real chica desde otra
 cuenta de Mercado Pago (no deja pagarse a uno mismo) y después devolverla desde
@@ -275,4 +280,4 @@ Mercado Pago.
 - [ ] Contraseña de aplicación creada para el usuario *Gestor de tienda*
 - [ ] Worker redeployado con las rutas `/admin/…`
 - [ ] Login en `/admin` funciona y se puede cambiar el stock de un producto
-- [ ] Mercado Pago: Checkout Pro activo, URL de retorno a `/pago` y Modo Producción
+- [ ] Mercado Pago: Checkout Pro activo, URL de retorno a `/pago` y Modo Ventas (Producción)
